@@ -10,8 +10,9 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cherry+Bomb+One&display=swap" rel="stylesheet">
-    <!-- All visual styling lives in style.css -->
+    <!-- All visual styling -->
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="liquid.css">
 </head>
 <body>
     <!--
@@ -40,8 +41,10 @@
     <!--
         Loaded at the end of <body> so the #grid element already exists
         in the DOM by the time the script runs — no "DOMContentLoaded"
-        wrapper needed.
+        wrapper needed. Scripts loaded in dependency order.
     -->
+    <script src="audio.js"></script>
+    <script src="level.js"></script>
     <script src="game.js"></script>
 </body>
 </html>

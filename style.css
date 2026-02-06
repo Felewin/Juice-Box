@@ -90,47 +90,6 @@ body {
     pointer-events: none;
 }
 
-/* ---- Liquid overlay ----
-   Fills the screen with a random color, then drains downward to reveal the game.
-   Only shown when transitioning from the title screen. */
-#liquid-overlay {
-    position: fixed;
-    inset: 0;
-    z-index: 5;                     /* Between title screen (10) and grid (default) */
-    pointer-events: none;           /* Don't block clicks during drain */
-
-    /* Start fully covering the screen */
-    clip-path: inset(0);
-}
-
-/* When .draining is added, animate through three segments matching the audio:
-   - 0-10%: Fast drain of 2/6 (33.33%) of liquid
-   - 10-90%: Medium drain of 3/6 (50%) more liquid
-   - 90-100%: Finish draining remaining 1/6 (16.67%)
-   Animation duration is set dynamically in JS to match audio length. */
-#liquid-overlay.draining {
-    animation: liquidDrain 1s linear forwards;
-}
-
-@keyframes liquidDrain {
-    0% {
-        clip-path: inset(0);  /* Full screen covered */
-    }
-    10% {
-        clip-path: inset(33.33% 0 0 0);  /* 2/6 drained (fastest segment) */
-    }
-    90% {
-        clip-path: inset(83.33% 0 0 0);  /* 5/6 drained (adds 3/6 in middle segment) */
-    }
-    100% {
-        clip-path: inset(100% 0 0 0);  /* Fully drained (finishes remaining 1/6) */
-    }
-}
-
-/* When .hidden, completely remove it */
-#liquid-overlay.hidden {
-    display: none;
-}
 
 #title {
     font-family: "Cherry Bomb One", system-ui;
