@@ -26,9 +26,9 @@
 }
 
 /* When .draining is added, animate through three segments matching the audio:
-   - 0-10%: Fast drain of 2/6 (33.33%) of liquid
-   - 10-90%: Medium drain of 3/6 (50%) more liquid
-   - 90-100%: Finish draining remaining 1/6 (16.67%)
+   - 0-10%: Fast drain of 4% of liquid
+   - 10-90%: Medium drain of remaining liquid (reduced by 2% to compensate for first segment)
+   - 90-100%: Finish draining last 2%
    Animation duration is set dynamically in JS to match audio length. */
 #liquid-overlay.draining {
     animation: liquidDrain 1s linear forwards;
@@ -39,12 +39,12 @@
         clip-path: inset(0);  /* Full screen covered */
     }
     10% {
-        clip-path: inset(33.33% 0 0 0);  /* 2/6 drained (fastest segment) */
+        clip-path: inset(4% 0 0 0);  /* 4% drained (doubled from 2%) */
     }
     90% {
-        clip-path: inset(83.33% 0 0 0);  /* 5/6 drained (adds 3/6 in middle segment) */
+        clip-path: inset(98% 0 0 0);  /* Most liquid drained (leaving 2% for final segment) */
     }
     100% {
-        clip-path: inset(100% 0 0 0);  /* Fully drained (finishes remaining 1/6) */
+        clip-path: inset(100% 0 0 0);  /* Fully drained (finishes remaining 2%) */
     }
 }
