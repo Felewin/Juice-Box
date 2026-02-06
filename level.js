@@ -27,8 +27,10 @@ const spriteSrc = (name) => `sprites/${name}.png`;
 // 
 // SPRITE LIMITATION EXPLANATION:
 // We have exactly 20 unique sprite PNGs available (see ALL_SPRITES array above).
-// Each level uses all 20 sprites plus one duplicate (the "macguffin"), 
-// giving us 20 + 1 = 21 total sprites to place in the grid.
+// The maximum number of cells we can have is 21 (20 unique sprites + 1 duplicate).
+// However, if the grid has fewer than 21 cells, we use a random subset of sprites:
+//   - If totalCells >= 21: Use all 20 unique sprites + 1 duplicate = 21 items
+//   - If totalCells < 21: Use (totalCells - 1) unique sprites + 1 duplicate = totalCells items
 // Therefore, the grid can never have more than 21 cells.
 //
 // DESIRED vs ACTUAL DIMENSIONS:
