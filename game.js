@@ -122,7 +122,6 @@ function startLevel() {
 
     const { items, macguffin } = generateLevel();
 
-    // TEMPORARY: Using overlapping scatter plops instead of individual mouth pops
     // Play the scatter/plop sound 3 times, each starting 25-35% through the previous one (randomized)
     playOverlapping('audio/Scatter Plops.mp3', 3, 0.25, 0.35);
 
@@ -141,11 +140,11 @@ function startLevel() {
 
         // Stagger entrance: each cell waits a random 50–650ms before
         // the CSS .appear class triggers its bounceIn animation.
-        // TEMPORARY: Individual mouth pop sound disabled — using looped scatter plops instead
+        // Using overlapping scatter plops for sprite entrance sounds
         const delay = Math.random() * 600 + 50;
         setTimeout(() => {
             cell.classList.add('appear');
-            // playOneshot('audio/Mouth Pop.mp3');  // TEMPORARILY DISABLED
+            // Individual mouth pop sound not used — using overlapping scatter plops instead
         }, delay);
 
         // Click handler: if this cell's sprite matches the macguffin,
@@ -170,9 +169,6 @@ function startLevel() {
  */
 function winLevel() {
     isTransitioning = true;
-
-    // TEMPORARILY DISABLED: Play the success jingle when the player finds the match
-    // playOneshot('audio/Success Jingle Plucking.mp3');
 
     const cells = grid.querySelectorAll('.cell');
 
