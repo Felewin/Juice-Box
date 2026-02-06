@@ -4,14 +4,13 @@
  * ============================================================
  *  Core gameplay loop:
  *
- *  1. generateLevel() picks 20 of the 21 available fruit/veggie
- *     sprites, then duplicates one of them — the "macguffin."
- *     This gives us exactly 21 items (to fill a 3×7 grid) where
+ *  1. generateLevel() picks all available fruit/veggie sprites,
+ *     then duplicates one of them — the "macguffin."
+ *     This gives us exactly GRID_COLUMNS × GRID_ROWS items where
  *     one sprite appears twice and the rest appear once each.
  *
  *  2. startLevel() clears the grid, creates a DOM cell for each
- *     of the 21 items, and animates them in with staggered
- *     random delays.
+ *     item, and animates them in with staggered random delays.
  *
  *  3. The player scans the grid and clicks whichever sprite they
  *     think appears twice. Clicking a correct (macguffin) cell
@@ -27,6 +26,11 @@
 
 // ---- Shared constants ----
 
+// Grid dimensions are defined in level.js (loaded before this script)
+// ACTUAL_GRID_COLUMNS and ACTUAL_GRID_ROWS are available globally from level.js
+// These are the actual dimensions used (may be reduced from desired GRID_COLUMNS/GRID_ROWS
+// if they would exceed 21 cells, which is the sprite limit: 20 unique + 1 duplicate)
+
 // Read the fade-out duration from the CSS custom property so it stays
 // in sync with the stylesheet. parseInt("400ms") → 400.
 const FADE_MS = parseInt(getComputedStyle(document.documentElement)
@@ -41,6 +45,10 @@ const grid = document.getElementById('grid');
 // When true, the grid is in the middle of a fade-out transition and
 // clicks should be ignored so the player can't "double-win."
 let isTransitioning = false;
+
+// Current level's macguffin (the sprite that appears twice)
+// Updated each level, used by touch handlers
+let currentMacguffin = null;
 
 // ---- Helpers ----
 
@@ -112,7 +120,7 @@ function showLiquidDrain() {
  * Sets up and displays a new level:
  * - Clears any previous cells from the grid
  * - Generates a fresh random layout via generateLevel()
- * - Creates a DOM element for each of the 21 sprites
+ * - Creates a DOM element for each sprite
  * - Staggers their entrance animations with random delays
  * - Attaches click handlers that check for the macguffin
  */
@@ -121,6 +129,7 @@ function startLevel() {
     grid.innerHTML = '';      // Remove all cells from the previous level
 
     const { items, macguffin } = generateLevel();
+    currentMacguffin = macguffin;  // Store for touch handlers
 
     // Play the scatter/plop sound 3 times, each starting 25-35% through the previous one (randomized)
     playOverlapping('audio/Scatter Plops.mp3', 3, 0.25, 0.35);
@@ -159,6 +168,88 @@ function startLevel() {
 
         grid.appendChild(cell);
     });
+    
+    // Set up touch drag handling at the grid level for better tracking
+    // Note: Event listeners are added once and persist across levels since
+    // we're using grid.innerHTML = '' which doesn't remove event listeners
+    // on the grid itself. If we need to remove/re-add, we'd need to track
+    // the handlers, but for now this works since we check isTransitioning.
+    if (!grid.dataset.touchHandlersSetup) {
+        setupTouchDragHandling();
+        grid.dataset.touchHandlersSetup = 'true';
+    }
+}
+
+/**
+ * Sets up touch event handlers on the grid to handle drag-to-select behavior.
+ * Tracks which cell is under the finger during touch drag and updates hover state.
+ * Only triggers click on the cell under the finger when touch ends.
+ * Uses currentMacguffin from module scope.
+ */
+function setupTouchDragHandling() {
+    let currentHoverCell = null;
+    
+    grid.addEventListener('touchstart', (e) => {
+        if (isTransitioning) return;
+        
+        const touch = e.touches[0];
+        const elementUnderTouch = document.elementFromPoint(touch.clientX, touch.clientY);
+        const cellUnderTouch = elementUnderTouch?.closest('.cell');
+        
+        if (cellUnderTouch && !cellUnderTouch.classList.contains('fade-out')) {
+            currentHoverCell = cellUnderTouch;
+            cellUnderTouch.classList.add('hover');
+        }
+    }, { passive: true });
+    
+    grid.addEventListener('touchmove', (e) => {
+        if (isTransitioning) return;
+        e.preventDefault(); // Prevent scrolling while dragging
+        
+        const touch = e.touches[0];
+        const elementUnderTouch = document.elementFromPoint(touch.clientX, touch.clientY);
+        const cellUnderTouch = elementUnderTouch?.closest('.cell');
+        
+        // Remove hover from previous cell
+        if (currentHoverCell) {
+            currentHoverCell.classList.remove('hover');
+        }
+        
+        // Add hover to new cell under finger (if any)
+        if (cellUnderTouch && !cellUnderTouch.classList.contains('fade-out')) {
+            currentHoverCell = cellUnderTouch;
+            cellUnderTouch.classList.add('hover');
+        } else {
+            currentHoverCell = null;
+        }
+    }, { passive: false });
+    
+    grid.addEventListener('touchend', (e) => {
+        if (isTransitioning) return;
+        
+        // Find which cell the touch ended over
+        const touch = e.changedTouches[0];
+        const elementUnderTouch = document.elementFromPoint(touch.clientX, touch.clientY);
+        const cellUnderTouch = elementUnderTouch?.closest('.cell');
+        
+        // Remove hover from all cells
+        grid.querySelectorAll('.cell').forEach(c => c.classList.remove('hover'));
+        
+        // If touch ended over a cell, trigger click on that cell
+        if (cellUnderTouch && !cellUnderTouch.classList.contains('fade-out')) {
+            if (cellUnderTouch.dataset.sprite === currentMacguffin) {
+                winLevel();
+            }
+        }
+        
+        currentHoverCell = null;
+    }, { passive: true });
+    
+    grid.addEventListener('touchcancel', () => {
+        // Remove hover if touch is cancelled
+        grid.querySelectorAll('.cell').forEach(c => c.classList.remove('hover'));
+        currentHoverCell = null;
+    }, { passive: true });
 }
 
 /**
@@ -186,7 +277,37 @@ function winLevel() {
     setTimeout(startLevel, FADE_MS + 100);
 }
 
+// ---- Sprite sizing ----
+
+/**
+ * Updates the sprite cell size dynamically based on viewport dimensions.
+ * Uses whichever is smaller: screen width / (columns + 2), or screen height / (rows + 2).
+ * The +2 accounts for one extra column/row worth of margin on each side.
+ * 
+ * IMPORTANT: Uses ACTUAL_GRID_COLUMNS and ACTUAL_GRID_ROWS (not the desired
+ * GRID_COLUMNS/GRID_ROWS) to ensure sprite sizing matches the actual grid layout.
+ */
+function updateCellSize() {
+    // Calculate sprite size based on ACTUAL grid dimensions + margin (1 extra column/row on each side)
+    // Using ACTUAL dimensions ensures the sizing matches the actual grid that will be displayed
+    const widthBasedSize = window.innerWidth / (ACTUAL_GRID_COLUMNS + 2);
+    const heightBasedSize = window.innerHeight / (ACTUAL_GRID_ROWS + 2);
+    const cellSize = Math.min(widthBasedSize, heightBasedSize);
+    
+    document.documentElement.style.setProperty('--cell-size', `${cellSize}px`);
+}
+
 // ---- Initialization ----
+
+// Set ACTUAL grid dimensions as CSS custom properties so CSS can use them
+// These are the dimensions that will actually be used (may be reduced from desired
+// dimensions if they would exceed 21 cells - see level.js for details)
+document.documentElement.style.setProperty('--grid-columns', ACTUAL_GRID_COLUMNS);
+document.documentElement.style.setProperty('--grid-rows', ACTUAL_GRID_ROWS);
+
+// Update cell size on load and whenever the window is resized
+updateCellSize();
+window.addEventListener('resize', updateCellSize);
 
 // Preload every sprite image into the browser cache so there's no
 // visible pop-in or flicker when a sprite first appears in a level.
