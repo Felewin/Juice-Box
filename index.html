@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <!-- Make the page responsive on mobile; disable pinch-to-zoom so the game feels app-like -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Juice Box</title>
+    <link rel="icon" href="favicon.png" type="image/png">
+    <!-- All visual styling lives in style.css -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!--
+        The grid is the only element on the page.
+        game.js will fill it with sprite cells dynamically each level.
+    -->
+    <div id="grid"></div>
+
+    <!--
+        Loaded at the end of <body> so the #grid element already exists
+        in the DOM by the time the script runs — no "DOMContentLoaded"
+        wrapper needed.
+    -->
+    <script src="game.js"></script>
+</body>
+</html>
