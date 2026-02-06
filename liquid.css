@@ -15,9 +15,21 @@
     inset: 0;
     z-index: 5;                     /* Between title screen (10) and grid (default) */
     pointer-events: none;           /* Don't block clicks during drain */
+    overflow: hidden;               /* Prevent any content overflow */
+    max-width: 100vw;
+    max-height: 100vh;
 
     /* Start fully covering the screen */
     clip-path: inset(0);
+    
+    /* Start invisible, fade in when .visible is added */
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+/* Fade in the liquid before draining */
+#liquid-overlay.visible {
+    opacity: 1;
 }
 
 /* When .hidden, completely remove it */
