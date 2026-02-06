@@ -43,6 +43,8 @@ const FADE_MS = parseInt(getComputedStyle(document.documentElement)
 
 // ---- DOM references & state ----
 
+const titleScreen = document.getElementById('title-screen');
+const liquidOverlay = document.getElementById('liquid-overlay');
 const grid = document.getElementById('grid');
 
 // When true, the grid is in the middle of a fade-out transition and
@@ -234,6 +236,48 @@ function generateLevel() {
 // ---- Level lifecycle ----
 
 /**
+ * Shows a random-colored liquid overlay that fills the screen, then drains
+ * downward to reveal the game underneath. Used when transitioning from
+ * the title screen to the first level. The drain animation duration matches
+ * the length of the Juicebox Straw.mp3 audio file.
+ */
+function showLiquidDrain() {
+    // Generate a random vibrant juice color (hue 0-360, high saturation, medium lightness)
+    const hue = Math.floor(Math.random() * 360);
+    const saturation = 70 + Math.floor(Math.random() * 30);  // 70-100%
+    const lightness = 40 + Math.floor(Math.random() * 20);   // 40-60%
+    const color = `hsl(${hue}, ${saturation}%, ${lightness}%)`;
+
+    liquidOverlay.style.backgroundColor = color;
+    liquidOverlay.classList.remove('hidden', 'draining');  // Reset state
+
+    // Load the audio file to get its duration, then sync the animation
+    const audio = new Audio('audio/Juicebox Straw.mp3');
+    audio.addEventListener('loadedmetadata', () => {
+        const durationMs = audio.duration * 1000;  // Convert to milliseconds
+        const durationSec = audio.duration;  // Keep in seconds for CSS
+
+        // Set the CSS animation duration to match the audio length
+        // The keyframe animation has three segments matching the audio timing
+        liquidOverlay.style.animationDuration = `${durationSec}s`;
+
+        // Trigger the drain animation after a tiny delay to ensure the browser
+        // has painted the full liquid state first
+        requestAnimationFrame(() => {
+            requestAnimationFrame(() => {
+                liquidOverlay.classList.add('draining');
+
+                // Remove the overlay completely after the animation finishes
+                setTimeout(() => {
+                    liquidOverlay.classList.add('hidden');
+                }, durationMs);
+            });
+        });
+    });
+    audio.load();  // Trigger metadata load
+}
+
+/**
  * Sets up and displays a new level:
  * - Clears any previous cells from the grid
  * - Generates a fresh random layout via generateLevel()
@@ -322,5 +366,29 @@ ALL_SPRITES.forEach((name) => {
     img.src = spriteSrc(name);
 });
 
-// Kick off the first level!
-startLevel();
+// Wait for the title font to load before revealing the title screen.
+// This prevents FOUT (Flash of Unstyled Text) — the user never sees
+// the fallback system font. Once ready, clicking anywhere dismisses
+// the title and starts the first level.
+document.fonts.ready.then(() => {
+    // Use double-rAF to guarantee the browser has painted the opacity: 0
+    // state before we transition to opacity: 1 — ensures a visible fade-in.
+    requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+            titleScreen.classList.add('ready');
+
+            titleScreen.addEventListener('click', () => {
+                titleScreen.classList.add('hidden');
+
+                // Play the straw sound and show the liquid drain effect
+                playOneshot('audio/Juicebox Straw.mp3');
+                showLiquidDrain();
+
+                // Start the level after a brief delay so the liquid starts filling
+                setTimeout(() => {
+                    startLevel();
+                }, 50);
+            }, { once: true });  // Only fire once — the title screen doesn't come back
+        });
+    });
+});
