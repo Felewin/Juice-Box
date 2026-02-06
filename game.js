@@ -188,58 +188,73 @@ function startLevel() {
  */
 function setupTouchDragHandling() {
     let currentHoverCell = null;
+    let isTouchActive = false;
+    
+    // Helper function to clear all hover states
+    function clearAllHovers() {
+        grid.querySelectorAll('.cell').forEach(c => {
+            c.classList.remove('hover');
+        });
+        currentHoverCell = null;
+    }
+    
+    // Helper function to set hover on a specific cell
+    function setHoverOnCell(cell) {
+        if (cell && !cell.classList.contains('fade-out')) {
+            clearAllHovers(); // Clear first to ensure clean state
+            currentHoverCell = cell;
+            cell.classList.add('hover');
+        } else {
+            clearAllHovers();
+        }
+    }
     
     grid.addEventListener('touchstart', (e) => {
         if (isTransitioning) return;
+        isTouchActive = true;
         
-        // Remove hover from any previously hovered cell first
-        if (currentHoverCell) {
-            currentHoverCell.classList.remove('hover');
-        }
-        grid.querySelectorAll('.cell').forEach(c => c.classList.remove('hover'));
+        clearAllHovers();
         
         const touch = e.touches[0];
         const elementUnderTouch = document.elementFromPoint(touch.clientX, touch.clientY);
         const cellUnderTouch = elementUnderTouch?.closest('.cell');
         
-        if (cellUnderTouch && !cellUnderTouch.classList.contains('fade-out')) {
-            currentHoverCell = cellUnderTouch;
-            cellUnderTouch.classList.add('hover');
-        } else {
-            currentHoverCell = null;
-        }
+        setHoverOnCell(cellUnderTouch);
     }, { passive: true });
     
     grid.addEventListener('touchmove', (e) => {
-        if (isTransitioning) return;
+        if (isTransitioning || !isTouchActive) return;
         e.preventDefault(); // Prevent scrolling while dragging
-        
-        // Remove hover from all cells first to ensure clean state
-        grid.querySelectorAll('.cell').forEach(c => c.classList.remove('hover'));
         
         const touch = e.touches[0];
         const elementUnderTouch = document.elementFromPoint(touch.clientX, touch.clientY);
         const cellUnderTouch = elementUnderTouch?.closest('.cell');
         
-        // Add hover to new cell under finger (if any)
+        // Always clear all hovers first, then add to new cell if found
         if (cellUnderTouch && !cellUnderTouch.classList.contains('fade-out')) {
-            currentHoverCell = cellUnderTouch;
-            cellUnderTouch.classList.add('hover');
+            // Only update if it's a different cell
+            if (currentHoverCell !== cellUnderTouch) {
+                clearAllHovers();
+                currentHoverCell = cellUnderTouch;
+                cellUnderTouch.classList.add('hover');
+            }
         } else {
-            currentHoverCell = null;
+            // Finger is not over any cell, clear all hovers
+            clearAllHovers();
         }
     }, { passive: false });
     
     grid.addEventListener('touchend', (e) => {
         if (isTransitioning) return;
+        isTouchActive = false;
         
         // Find which cell the touch ended over
         const touch = e.changedTouches[0];
         const elementUnderTouch = document.elementFromPoint(touch.clientX, touch.clientY);
         const cellUnderTouch = elementUnderTouch?.closest('.cell');
         
-        // Remove hover from all cells
-        grid.querySelectorAll('.cell').forEach(c => c.classList.remove('hover'));
+        // Always clear all hovers first
+        clearAllHovers();
         
         // If touch ended over a cell, trigger click on that cell
         if (cellUnderTouch && !cellUnderTouch.classList.contains('fade-out')) {
@@ -247,14 +262,11 @@ function setupTouchDragHandling() {
                 winLevel();
             }
         }
-        
-        currentHoverCell = null;
     }, { passive: true });
     
     grid.addEventListener('touchcancel', () => {
-        // Remove hover if touch is cancelled
-        grid.querySelectorAll('.cell').forEach(c => c.classList.remove('hover'));
-        currentHoverCell = null;
+        isTouchActive = false;
+        clearAllHovers();
     }, { passive: true });
 }
 
