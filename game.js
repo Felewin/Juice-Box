@@ -151,11 +151,41 @@ function shuffle(array) {
 // ---- Level generation ----
 
 /**
+ * Check if two positions in a 3×7 grid are adjacent (horizontally, vertically, or diagonally).
+ * Grid positions are 0-20, arranged as 3 columns × 7 rows.
+ *
+ * @param {number} pos1  First position index (0-20)
+ * @param {number} pos2  Second position index (0-20)
+ * @returns {boolean}    True if positions are adjacent
+ */
+function areAdjacent(pos1, pos2) {
+    const GRID_COLS = 3;
+    const row1 = Math.floor(pos1 / GRID_COLS);
+    const col1 = pos1 % GRID_COLS;
+    const row2 = Math.floor(pos2 / GRID_COLS);
+    const col2 = pos2 % GRID_COLS;
+
+    const rowDiff = Math.abs(row1 - row2);
+    const colDiff = Math.abs(col1 - col2);
+
+    // Horizontal adjacency: same row, columns differ by 1
+    const horizontallyAdjacent = rowDiff === 0 && colDiff === 1;
+    // Vertical adjacency: same column, rows differ by 1
+    const verticallyAdjacent = colDiff === 0 && rowDiff === 1;
+    // Diagonal adjacency: both row and column differ by 1
+    const diagonallyAdjacent = rowDiff === 1 && colDiff === 1;
+
+    return horizontallyAdjacent || verticallyAdjacent || diagonallyAdjacent;
+}
+
+/**
  * Builds a randomized set of 21 sprite names for one level.
+ * Ensures the two instances of the macguffin are never placed
+ * adjacent to each other (horizontally or vertically).
  *
  * @returns {{ items: string[], macguffin: string }}
  *   - items:     21 sprite names in shuffled order (for grid placement)
- *   - macguffin: the name of the one sprite that appears twice
+ *   - macguffin:  the name of the one sprite that appears twice
  */
 function generateLevel() {
     // Shuffle all 20 sprites and use all of them (we have exactly 20 total)
@@ -169,7 +199,35 @@ function generateLevel() {
     // Combine the 20 unique sprites + one extra copy of the macguffin
     // (= 21 items total), then shuffle so the duplicates aren't
     // predictably placed.
-    const items = shuffle([...chosen, macguffin]);
+    let items = shuffle([...chosen, macguffin]);
+
+    // Find the two positions where the macguffin appears
+    const macguffinIndices = [];
+    items.forEach((sprite, index) => {
+        if (sprite === macguffin) {
+            macguffinIndices.push(index);
+        }
+    });
+
+    // If the two macguffins are adjacent, swap one with a non-adjacent position
+    if (areAdjacent(macguffinIndices[0], macguffinIndices[1])) {
+        // Find all positions that are NOT adjacent to the first macguffin
+        const validSwapPositions = [];
+        for (let i = 0; i < items.length; i++) {
+            if (i !== macguffinIndices[0] && 
+                i !== macguffinIndices[1] && 
+                !areAdjacent(macguffinIndices[0], i)) {
+                validSwapPositions.push(i);
+            }
+        }
+
+        // If we found valid positions, swap the second macguffin with a random valid one
+        if (validSwapPositions.length > 0) {
+            const swapIndex = validSwapPositions[Math.floor(Math.random() * validSwapPositions.length)];
+            [items[macguffinIndices[1]], items[swapIndex]] = [items[swapIndex], items[macguffinIndices[1]]];
+        }
+    }
+
     return { items, macguffin };
 }
 
