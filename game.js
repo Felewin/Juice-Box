@@ -192,6 +192,12 @@ function setupTouchDragHandling() {
     grid.addEventListener('touchstart', (e) => {
         if (isTransitioning) return;
         
+        // Remove hover from any previously hovered cell first
+        if (currentHoverCell) {
+            currentHoverCell.classList.remove('hover');
+        }
+        grid.querySelectorAll('.cell').forEach(c => c.classList.remove('hover'));
+        
         const touch = e.touches[0];
         const elementUnderTouch = document.elementFromPoint(touch.clientX, touch.clientY);
         const cellUnderTouch = elementUnderTouch?.closest('.cell');
@@ -199,6 +205,8 @@ function setupTouchDragHandling() {
         if (cellUnderTouch && !cellUnderTouch.classList.contains('fade-out')) {
             currentHoverCell = cellUnderTouch;
             cellUnderTouch.classList.add('hover');
+        } else {
+            currentHoverCell = null;
         }
     }, { passive: true });
     
@@ -206,14 +214,12 @@ function setupTouchDragHandling() {
         if (isTransitioning) return;
         e.preventDefault(); // Prevent scrolling while dragging
         
+        // Remove hover from all cells first to ensure clean state
+        grid.querySelectorAll('.cell').forEach(c => c.classList.remove('hover'));
+        
         const touch = e.touches[0];
         const elementUnderTouch = document.elementFromPoint(touch.clientX, touch.clientY);
         const cellUnderTouch = elementUnderTouch?.closest('.cell');
-        
-        // Remove hover from previous cell
-        if (currentHoverCell) {
-            currentHoverCell.classList.remove('hover');
-        }
         
         // Add hover to new cell under finger (if any)
         if (cellUnderTouch && !cellUnderTouch.classList.contains('fade-out')) {
