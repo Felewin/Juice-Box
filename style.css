@@ -227,8 +227,16 @@ body {
 }
 
 /* Show menu button when title screen is hidden (during gameplay) */
+/* Temporarily disabled on mobile/touch devices */
 #title-screen.hidden ~ #menu-button {
     display: block;
+}
+
+/* Temporarily hide menu button on touch devices (mobile/tablet) */
+@media (hover: none) and (pointer: coarse) {
+    #menu-button {
+        display: none !important;
+    }
 }
 
 /* Fade transition for the menu button */
