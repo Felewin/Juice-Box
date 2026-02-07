@@ -45,6 +45,14 @@
     <div id="grid"></div>
 
     <!--
+        Menu button: returns to title screen when clicked/tapped.
+        Positioned in top-left corner, half the size of sprites.
+    -->
+    <button id="menu-button" aria-label="Return to menu">
+        <img src="favicon.png" alt="Menu">
+    </button>
+
+    <!--
         Loaded at the end of <body> so the #grid element already exists
         in the DOM by the time the script runs — no "DOMContentLoaded"
         wrapper needed. Scripts loaded in dependency order.

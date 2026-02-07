@@ -41,10 +41,15 @@ const FADE_MS = parseInt(getComputedStyle(document.documentElement)
 const titleScreen = document.getElementById('title-screen');
 const liquidOverlay = document.getElementById('liquid-overlay');
 const grid = document.getElementById('grid');
+const menuButton = document.getElementById('menu-button');
 
 // When true, the grid is in the middle of a fade-out transition and
 // clicks should be ignored so the player can't "double-win."
 let isTransitioning = false;
+
+// When true, we're transitioning between scenes (title to level, or level to level)
+// The menu button should be hidden during these transitions
+let isSceneTransitioning = false;
 
 // Current level's macguffin (the sprite that appears twice)
 // Updated each level, used by touch handlers
@@ -75,6 +80,10 @@ function doubleRAF(callback) {
  * Fades in the liquid first, then starts draining and plays audio.
  */
 function showLiquidDrain() {
+    // Mark that we're transitioning between scenes
+    isSceneTransitioning = true;
+    updateMenuButtonVisibility();
+    
     // Generate a random vibrant juice color (hue 0-360, high saturation, medium lightness)
     const hue = Math.floor(Math.random() * 360);
     const saturation = 70 + Math.floor(Math.random() * 30);  // 70-100%
@@ -109,6 +118,9 @@ function showLiquidDrain() {
                     // Remove the overlay completely after the animation finishes
                     setTimeout(() => {
                         liquidOverlay.classList.add('hidden');
+                        // Scene transition is complete
+                        isSceneTransitioning = false;
+                        updateMenuButtonVisibility();
                     }, durationMs);
                 });
             });
@@ -270,6 +282,54 @@ function winLevel() {
     setTimeout(startLevel, FADE_MS + 100);
 }
 
+/**
+ * Returns to the title screen by fading out the current level.
+ * Called when the player presses ESC or when returning to menu.
+ * - Fades all cells out
+ * - Shows the title screen again
+ * - Next click on title screen will start a fresh level
+ */
+function returnToMenu() {
+    if (isTransitioning) return; // Don't allow multiple calls
+    
+    isTransitioning = true;
+
+    const cells = grid.querySelectorAll('.cell');
+
+    // Fade out all cells
+    cells.forEach((cell) => {
+        cell.classList.add('fade-out');
+    });
+
+    // After fade completes, show title screen and clear the grid
+    setTimeout(() => {
+        // Clear the grid
+        grid.innerHTML = '';
+        
+        // Show the title screen again (this will hide the menu button via CSS)
+        titleScreen.classList.remove('hidden');
+        // Update button visibility since title screen is now visible
+        updateMenuButtonVisibility();
+        
+        // Re-enable the click handler to start a new game
+        // (The original handler had { once: true }, so we need to re-attach it)
+        titleScreen.addEventListener('click', () => {
+            titleScreen.classList.add('hidden');
+            // Button visibility will be updated by showLiquidDrain() setting isSceneTransitioning
+
+            // Show the liquid drain effect (it will fade in, play audio, and drain)
+            showLiquidDrain();
+
+            // Start a fresh level
+            setTimeout(() => {
+                startLevel();
+            }, FADE_MS + 100);
+        }, { once: true });
+        
+        isTransitioning = false;
+    }, FADE_MS + 100);
+}
+
 // ---- Sprite sizing ----
 
 /**
@@ -309,6 +369,39 @@ ALL_SPRITES.forEach((name) => {
     img.src = spriteSrc(name);
 });
 
+/**
+ * Updates the menu button visibility based on scene transition state.
+ * Button is hidden during scene transitions (title to level, level to level).
+ */
+function updateMenuButtonVisibility() {
+    if (!menuButton) return;
+    
+    if (isSceneTransitioning || !titleScreen.classList.contains('hidden')) {
+        // Hide button during transitions or when title screen is visible
+        menuButton.classList.add('hidden-during-drain');
+    } else {
+        // Show button when not transitioning and title screen is hidden
+        menuButton.classList.remove('hidden-during-drain');
+    }
+}
+
+// Helper function to set up the title screen click handler
+function setupTitleScreenClickHandler() {
+    titleScreen.addEventListener('click', () => {
+        titleScreen.classList.add('hidden');
+        // Button visibility will be updated by showLiquidDrain() setting isSceneTransitioning
+
+        // Show the liquid drain effect (it will fade in, play audio, and drain)
+        showLiquidDrain();
+
+        // Start the level after the same delay as level-to-level transitions
+        // This ensures consistent timing of sprite animations relative to the liquid drain
+        setTimeout(() => {
+            startLevel();
+        }, FADE_MS + 100);  // Match the delay from winLevel()
+    }, { once: true });
+}
+
 // Wait for the title font to load before revealing the title screen.
 // This prevents FOUT (Flash of Unstyled Text) — the user never sees
 // the fallback system font. Once ready, clicking anywhere dismisses
@@ -318,18 +411,26 @@ document.fonts.ready.then(() => {
     // state before we transition to opacity: 1 — ensures a visible fade-in.
     doubleRAF(() => {
         titleScreen.classList.add('ready');
-
-        titleScreen.addEventListener('click', () => {
-            titleScreen.classList.add('hidden');
-
-            // Show the liquid drain effect (it will fade in, play audio, and drain)
-            showLiquidDrain();
-
-            // Start the level after the same delay as level-to-level transitions
-            // This ensures consistent timing of sprite animations relative to the liquid drain
-            setTimeout(() => {
-                startLevel();
-            }, FADE_MS + 100);  // Match the delay from winLevel()
-        }, { once: true });  // Only fire once — the title screen doesn't come back
+        setupTitleScreenClickHandler();
     });
+});
+
+// ESC key handler: return to menu from any level
+document.addEventListener('keydown', (e) => {
+    // Only handle ESC if we're in a level (title screen is hidden)
+    if (e.key === 'Escape' && titleScreen.classList.contains('hidden') && !isTransitioning) {
+        returnToMenu();
+    }
+});
+
+// Menu button click handler: same functionality as ESC
+menuButton.addEventListener('click', () => {
+    // Only work if we're in a level (title screen is hidden)
+    if (titleScreen.classList.contains('hidden') && !isTransitioning) {
+        // Fade out the button immediately
+        menuButton.classList.add('hidden-during-drain');
+        
+        // Then return to menu
+        returnToMenu();
+    }
 });

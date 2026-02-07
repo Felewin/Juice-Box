@@ -107,6 +107,7 @@ body {
 }
 
 
+
 #title {
     font-family: "Cherry Bomb One", system-ui;
     font-weight: 400;
@@ -198,6 +199,68 @@ body {
    don't pop bigger while disappearing */
 .cell.fade-out:hover img {
     transform: scale(1);
+}
+
+/* ---- Menu button ----
+   Positioned in top-left corner, half the size of sprites.
+   Uses favicon.png and animates on mouse hover (same as sprites). */
+#menu-button {
+    position: fixed;
+    top: calc(var(--cell-size) / 2);
+    left: calc(var(--cell-size) / 2);
+    width: calc(var(--cell-size) / 2);
+    height: calc(var(--cell-size) / 2);
+    aspect-ratio: 1;
+    padding: 0;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    z-index: 20; /* Above grid but below title screen (z-index 10) */
+    overflow: visible;
+    
+    /* Remove tap highlight on mobile */
+    -webkit-tap-highlight-color: transparent;
+    outline: none;
+    
+    /* Hidden by default, shown when title screen is hidden */
+    display: none;
+}
+
+/* Show menu button when title screen is hidden (during gameplay) */
+#title-screen.hidden ~ #menu-button {
+    display: block;
+}
+
+/* Fade transition for the menu button */
+#menu-button {
+    transition: opacity 0.3s ease;
+    opacity: 1;
+}
+
+/* Hide menu button when liquid drain animation is playing */
+/* This keeps it invisible during the initial transition from menu to level */
+#menu-button.hidden-during-drain {
+    opacity: 0;
+    pointer-events: none;
+}
+
+#menu-button img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    display: block;
+    
+    /* Same hover animation as sprites */
+    transition: transform 0.4s var(--bounce-ease);
+    
+    /* Prevent image dragging */
+    -webkit-user-drag: none;
+    pointer-events: none;
+}
+
+/* Hover animation: same as sprite hover (mouse only, not touch) */
+#menu-button:hover img {
+    transform: scale(1.22);
 }
 
 /* ---- Entrance animation ----
