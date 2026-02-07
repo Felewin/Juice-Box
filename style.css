@@ -189,16 +189,14 @@ body {
     -webkit-user-drag: none;
 }
 
-/* When hovering a cell (or when .hover class is added for touch), the image inside scales up bouncily */
-.cell:hover img,
-.cell.hover img {
+/* When hovering a cell with the mouse, the image inside scales up bouncily */
+.cell:hover img {
     transform: scale(1.22);
 }
 
 /* Cancel the hover scale-up during the fade-out so sprites
    don't pop bigger while disappearing */
-.cell.fade-out:hover img,
-.cell.fade-out.hover img {
+.cell.fade-out:hover img {
     transform: scale(1);
 }
 

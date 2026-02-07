@@ -187,105 +187,61 @@ function startLevel() {
  * Uses currentMacguffin from module scope.
  */
 function setupTouchDragHandling() {
-    let currentHoverCell = null;
-    let isTouchActive = false;
+    // Simple touch handling: just detect which cell was tapped/released on
+    // No hover state management - CSS :hover handles mouse hover naturally
     
-    // Helper function to clear all hover states
-    function clearAllHovers() {
-        grid.querySelectorAll('.cell').forEach(c => {
-            c.classList.remove('hover');
-        });
-        currentHoverCell = null;
-    }
-    
-    // Helper function to check if a point is within a cell's bounds
-    function isPointInCell(x, y, cell) {
-        if (!cell) return false;
-        const rect = cell.getBoundingClientRect();
-        return x >= rect.left && x <= rect.right && y >= rect.top && y <= rect.bottom;
-    }
-    
-    // Helper function to find which cell (if any) contains the given point
-    function findCellAtPoint(x, y) {
-        // First try elementFromPoint
-        const elementUnderTouch = document.elementFromPoint(x, y);
-        let cellUnderTouch = elementUnderTouch?.closest('.cell');
-        
-        // Verify the point is actually within the cell's bounds
-        // (elementFromPoint can sometimes return stale elements)
-        if (cellUnderTouch && !isPointInCell(x, y, cellUnderTouch)) {
-            cellUnderTouch = null;
-        }
-        
-        // If elementFromPoint didn't work, check all cells manually
-        if (!cellUnderTouch) {
-            const allCells = grid.querySelectorAll('.cell');
-            for (const cell of allCells) {
-                if (!cell.classList.contains('fade-out') && isPointInCell(x, y, cell)) {
-                    cellUnderTouch = cell;
-                    break;
-                }
-            }
-        }
-        
-        return cellUnderTouch && !cellUnderTouch.classList.contains('fade-out') ? cellUnderTouch : null;
-    }
+    let touchStartCell = null;
     
     grid.addEventListener('touchstart', (e) => {
         if (isTransitioning) return;
-        isTouchActive = true;
-        
-        clearAllHovers();
+        e.preventDefault(); // Prevent default touch behavior
         
         const touch = e.touches[0];
-        const cellUnderTouch = findCellAtPoint(touch.clientX, touch.clientY);
+        const elementUnderTouch = document.elementFromPoint(touch.clientX, touch.clientY);
+        const cellUnderTouch = elementUnderTouch?.closest('.cell');
         
-        if (cellUnderTouch) {
-            currentHoverCell = cellUnderTouch;
-            cellUnderTouch.classList.add('hover');
+        if (cellUnderTouch && !cellUnderTouch.classList.contains('fade-out')) {
+            touchStartCell = cellUnderTouch;
         }
-    }, { passive: true });
+    }, { passive: false });
     
     grid.addEventListener('touchmove', (e) => {
-        if (isTransitioning || !isTouchActive) return;
+        if (isTransitioning) return;
         e.preventDefault(); // Prevent scrolling while dragging
         
+        // Track which cell the finger is currently over
         const touch = e.touches[0];
-        const cellUnderTouch = findCellAtPoint(touch.clientX, touch.clientY);
+        const elementUnderTouch = document.elementFromPoint(touch.clientX, touch.clientY);
+        const cellUnderTouch = elementUnderTouch?.closest('.cell');
         
-        // Clear all hovers first
-        clearAllHovers();
-        
-        // If finger is over a cell, add hover to it
-        if (cellUnderTouch) {
-            currentHoverCell = cellUnderTouch;
-            cellUnderTouch.classList.add('hover');
+        if (cellUnderTouch && !cellUnderTouch.classList.contains('fade-out')) {
+            touchStartCell = cellUnderTouch;
         }
-        // If no cell found, currentHoverCell is already null from clearAllHovers()
     }, { passive: false });
     
     grid.addEventListener('touchend', (e) => {
         if (isTransitioning) return;
-        isTouchActive = false;
         
         // Find which cell the touch ended over
         const touch = e.changedTouches[0];
-        const cellUnderTouch = findCellAtPoint(touch.clientX, touch.clientY);
+        const elementUnderTouch = document.elementFromPoint(touch.clientX, touch.clientY);
+        const cellUnderTouch = elementUnderTouch?.closest('.cell');
         
-        // Always clear all hovers first
-        clearAllHovers();
+        // Use the cell the touch ended over, or fall back to the last tracked cell
+        const finalCell = cellUnderTouch || touchStartCell;
         
         // If touch ended over a cell, trigger click on that cell
-        if (cellUnderTouch) {
-            if (cellUnderTouch.dataset.sprite === currentMacguffin) {
+        if (finalCell && !finalCell.classList.contains('fade-out')) {
+            if (finalCell.dataset.sprite === currentMacguffin) {
                 winLevel();
             }
         }
+        
+        touchStartCell = null;
     }, { passive: true });
     
     grid.addEventListener('touchcancel', () => {
-        isTouchActive = false;
-        clearAllHovers();
+        touchStartCell = null;
     }, { passive: true });
 }
 
