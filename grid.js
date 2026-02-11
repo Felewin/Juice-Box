@@ -87,7 +87,7 @@ function fadeOutCells(gridEl) {
  * with its own checkWin and the shared onWin/shouldIgnoreInput from app.js.
  *
  * @param {HTMLElement} gridEl            The grid container (#grid).
- * @param {string[]} items                Sprite names in display order (from level.js or mode).
+ * @param {string[]} items                Sprite names in display order (from the mode's level generator).
  * @param {Object} opts
  * @param {Function} opts.checkWin        (cell) => boolean — returns true if this cell wins. Mode-specific.
  * @param {Function} opts.onWin            () => void — called when checkWin returns true. From app.js.

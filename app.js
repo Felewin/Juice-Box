@@ -9,10 +9,32 @@
  *   Level → (ESC/menu) → Title screen
  *
  * MODE REGISTRY:
- *   Modes register themselves on window.MODES in their own files (see modes/discover-the-duplicate.js).
- *   Each mode has a start(gridEl, opts) method. When the player clicks a mode button,
- *   the data-mode attribute is read and MODES[modeId].start() is called. See the
- *   "HOW TO ADD A NEW MODE" comment in modes/discover-the-duplicate.js for the full guide.
+ *   Modes register themselves on window.MODES in their own files.
+ *   Each mode has a start(gridEl, opts) method. When the player clicks a
+ *   mode button, the data-mode attribute is read and MODES[modeId].start()
+ *   is called.
+ *
+ * HOW TO ADD A NEW MODE (for future programmers):
+ *  1. Create a new file in modes/ (e.g. modes/mynewmode.js).
+ *  2. Call computeGridDimensions(maxCells) with your mode's max (from level.js).
+ *     maxCells depends on your sprite rules; e.g. discover-the-duplicate uses 21.
+ *  3. Add your mode to window.MODES:
+ *       const MODES = window.MODES || {};
+ *       MODES.mynewmode = {
+ *         start(gridEl, opts) {
+ *           // opts contains: onWin, shouldIgnoreInput (from app.js)
+ *           // 1. Get level data (from your own generator)
+ *           // 2. Define checkWin(cell) => boolean — your win condition
+ *           // 3. Optionally play sounds
+ *           // 4. Call buildGrid(gridEl, items, { ...opts, checkWin })
+ *         }
+ *       };
+ *       window.MODES = MODES;
+ *  4. Add a mode button in index.html: <button class="mode-btn" data-mode="mynewmode">My New Mode</button>
+ *  5. Add <script src="modes/mynewmode.js"></script> before app.js in index.html.
+ *
+ *  Win conditions vary by mode: some check cell.dataset.sprite, others might check
+ *  order, pairs, or custom data attributes. buildGrid only needs checkWin and onWin.
  * ============================================================
  */
 
@@ -138,7 +160,7 @@ function setupModeScreenHandlers() {
         if (!btn) return;
         e.preventDefault();
         e.stopPropagation();
-        const modeId = btn.dataset.mode || 'discover-the-duplicate';  // Fallback if data-mode missing
+        const modeId = btn.dataset.mode || Object.keys(MODES)[0] || 'discover-the-duplicate';  // Fallback: first registered mode
         startGameFromMode(modeId);
     });
 }
