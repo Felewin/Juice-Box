@@ -306,11 +306,26 @@ function updateCellSize() {
     document.documentElement.style.setProperty('--cell-size', `${cellSize}px`);
 }
 
+/**
+ * Sets mode button height: each button is 1/(n+2) of viewport height, where n
+ * is the number of mode buttons. Called on init and resize.
+ */
+function updateModeButtonHeight() {
+    const btns = modeScreen.querySelectorAll('.mode-btn');
+    const n = btns.length;
+    const height = n > 0 ? `calc(100vh / ${n + 2})` : 'auto';
+    document.documentElement.style.setProperty('--mode-btn-height', height);
+}
+
 // Startup: init grid dimensions, set cell size, preload sprites. After fonts load, add .ready
 // and wire up title/mode click handlers.
 initDefaultGridDimensions();
 updateCellSize();
-window.addEventListener('resize', updateCellSize);
+updateModeButtonHeight();
+window.addEventListener('resize', () => {
+    updateCellSize();
+    updateModeButtonHeight();
+});
 
 ALL_SPRITES.forEach((name) => {
     const img = new Image();

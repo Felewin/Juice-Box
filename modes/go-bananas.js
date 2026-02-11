@@ -46,12 +46,12 @@ function generateLevelForTheModeCalledGoBananas() {
 }
 
 // One of these plays randomly when a banana is picked; playRandomExcludingLast avoids repeats.
+// Uses shared LAST_SPLIT_SOUND_REF so we don't repeat even when switching to/from Peach Party.
 const BANANA_SPLIT_SOUNDS = [
     'audio/Banana Split (1).mp3',
     'audio/Banana Split (2).mp3',
     'audio/Banana Split (3).mp3'
 ];
-let lastBananaSound = { last: null };  // Persists across levels so we never play the same one twice in a row.
 
 // Extra ms after the last banana fades, before the drain/next-level transition.
 const POST_CLICKEDSPRITE_FADING_PRETRANSITIONING_FADE_MS = 200;
@@ -64,7 +64,7 @@ MODES['go-bananas'] = {
         // Called when a cell is clicked. Returns true only when the last banana is picked.
         const checkWin = (cell) => {
             if (cell.dataset.sprite !== 'banana') return false;
-            playRandomExcludingLast(BANANA_SPLIT_SOUNDS, lastBananaSound);
+            playRandomExcludingLast(BANANA_SPLIT_SOUNDS, LAST_SPLIT_SOUND_REF);
             cell.classList.add('removed');
 
             const remaining = gridEl.querySelectorAll('.cell[data-sprite="banana"]:not(.removed)');

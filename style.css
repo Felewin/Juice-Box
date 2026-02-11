@@ -29,6 +29,9 @@
        utils.js reads this as FADE_MS so LEVEL_TRANSITION_DELAY stays in sync.
        Matches Juice Box button and mode screen (300ms). */
     --fade-duration: 300ms;
+
+    /* Mode button height: 1/(n+2) of viewport. Set by app.js updateModeButtonHeight(). */
+    --mode-btn-height: auto;
 }
 
 /* ---- Reset & global defaults ---- */
@@ -172,12 +175,14 @@ body {
     transition-duration: 0.3s;  /* Matches Juice Box button fade */
 }
 
-/* Juicy pill-shaped card; frosted glass effect; hover: lift + icon bounce */
+/* Juicy pill-shaped card; frosted glass effect; hover: lift + icon bounce.
+   Height is set by JS: 1/(n+2) of viewport height, where n = number of buttons. */
 .mode-btn {
     display: flex;
     align-items: center;
     gap: clamp(0.4em, 2vw, 1em);
     width: 100%;
+    min-height: var(--mode-btn-height);
     padding: clamp(0.5rem, 2vw, 1.25rem) clamp(1rem, 3vw, 1.5rem);
     border: 1px solid rgba(255, 255, 255, 0.45);
     border-radius: 9999px;

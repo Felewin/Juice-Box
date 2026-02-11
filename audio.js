@@ -5,8 +5,14 @@
  *  Handles all audio playback: one-shots, loops, and overlapping
  *  effects. All functions create fresh Audio objects to allow
  *  simultaneous playback without cutting each other off.
+ *
+ *  LAST_SPLIT_SOUND_REF: Shared ref used by Go Bananas and Peach Party when
+ *  playing the "split" sound. Ensures we never repeat the same sound twice in
+ *  a row, even when switching between those modes.
  * ============================================================
  */
+
+window.LAST_SPLIT_SOUND_REF = window.LAST_SPLIT_SOUND_REF || { last: null };
 
 /**
  * Create a new Audio object and load its metadata.
