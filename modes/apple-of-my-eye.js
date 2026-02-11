@@ -17,47 +17,48 @@
         (s) => s !== 'apple-red' && s !== 'apple-green'
     );
 
-    /**
-     * Builds a random set of sprite names for one level.
-     * Exactly one apple (red or green, chosen randomly) in a random position;
-     * all other cells get random non-apple sprites (duplicates allowed).
-     *
-     * @returns {{ items: string[], apple: string }}
-     */
-    function generateLevelForTheModeCalledAppleOfMyEye() {
-        const { actualColumns, actualRows } = reduceDimensions(
-            GRID_COLUMNS,
-            GRID_ROWS,
-            MAX_CELLS
+/**
+ * Builds a random set of sprite names for one level.
+ * Exactly one apple (red or green, chosen randomly) in a random position;
+ * all other cells get random non-apple sprites (duplicates allowed).
+ *
+ * @returns {{ items: string[], apple: string }}
+ */
+function generateLevelForTheModeCalledAppleOfMyEye() {
+    const totalCells = ACTUAL_GRID_COLUMNS * ACTUAL_GRID_ROWS;
+
+    const apple = APPLE_SPRITES[Math.floor(Math.random() * APPLE_SPRITES.length)];
+    const items = [];
+
+    for (let i = 0; i < totalCells; i++) {
+        items.push(
+            NON_APPLE_SPRITES[
+                Math.floor(Math.random() * NON_APPLE_SPRITES.length)
+            ]
         );
-        const totalCells = actualColumns * actualRows;
-
-        const apple = APPLE_SPRITES[Math.floor(Math.random() * APPLE_SPRITES.length)];
-        const items = [];
-
-        for (let i = 0; i < totalCells; i++) {
-            items.push(
-                NON_APPLE_SPRITES[
-                    Math.floor(Math.random() * NON_APPLE_SPRITES.length)
-                ]
-            );
-        }
-
-        const appleIndex = Math.floor(Math.random() * items.length);
-        items[appleIndex] = apple;
-
-        return { items, apple };
     }
+
+    const appleIndex = Math.floor(Math.random() * items.length);
+    items[appleIndex] = apple;
+
+    return { items, apple };
+}
+
+const POST_CLICKEDSPRITE_FADING_PRETRANSITIONING_FADE_MS = 100;
 
     const MODES = window.MODES || {};
     MODES['apple-of-my-eye'] = {
+        /**
+         * @param {HTMLElement} gridEl The #grid element.
+         * @param {Object} opts From app.js: { onWin, shouldIgnoreInput }. Spread into buildGrid.
+         */
         start(gridEl, opts) {
             const { items, apple } = generateLevelForTheModeCalledAppleOfMyEye();
 
             const checkWin = (cell) => {
                 if (cell.dataset.sprite !== apple) return false;
                 playOneshot('audio/Success Jingle Plucking.mp3');
-                return true;
+                return { macguffin: apple, postClickedSpriteFadingPreTransitioningFadeMs: POST_CLICKEDSPRITE_FADING_PRETRANSITIONING_FADE_MS };
             };
 
             startModeLevel(gridEl, opts, MAX_CELLS, { items }, checkWin);
