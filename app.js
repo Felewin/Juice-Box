@@ -37,6 +37,14 @@
  *
  *  Win conditions vary by mode: some check cell.dataset.sprite, others might check
  *  order, pairs, or custom data attributes. buildGrid only needs checkWin and onWin.
+ *
+ * TRANSITION & ESC BEHAVIOR:
+ *  Two transition types: (1) win → next level (drain, then startLevel), (2) ESC/menu
+ *  → title screen (cancel drain, clear grid). ESC works during both so the player can
+ *  abort a win transition. isTransitioning blocks cell input during either type;
+ *  isReturningToMenu is true only during (2), allowing returnToMenu to run during (1)
+ *  but blocking ESC spam once we're already returning. When starting a new drain,
+ *  any existing drain is cancelled instantly.
  * ============================================================
  */
 
@@ -49,9 +57,11 @@ const liquidOverlay = document.getElementById('liquid-overlay');
 const grid = document.getElementById('grid');
 const menuButton = document.getElementById('menu-button');
 
-let isTransitioning = false;
-let isSceneTransitioning = false;
+let isTransitioning = false;      // True during win→level or menu→title; blocks cell input.
+let isSceneTransitioning = false; // True while drain overlay is visible; hides menu button.
+let isReturningToMenu = false;    // True only during menu→title; blocks returnToMenu re-entry.
 let currentMode = null;  // Set when a mode button is clicked; used by startLevel to dispatch.
+let startLevelTimeoutId = null;  // Cleared when returnToMenu or when starting a new drain.
 
 function updateMenuButtonVisibility() {
     if (!menuButton) return;
@@ -79,16 +89,34 @@ function winLevel() {
             updateMenuButtonVisibility();
         }
     });
-    setTimeout(startLevel, LEVEL_TRANSITION_DELAY);
+    if (startLevelTimeoutId) clearTimeout(startLevelTimeoutId);
+    startLevelTimeoutId = setTimeout(startLevel, LEVEL_TRANSITION_DELAY);
 }
 
 /**
  * Returns the player to the title/mode screen. Fades cells, clears the grid,
  * and resets the UI so the next click reveals the mode screen.
+ * Cancels any drain (fades it out) and any scheduled startLevel. Guarded by
+ * isReturningToMenu so ESC spam is ignored.
  */
 function returnToMenu() {
-    if (isTransitioning) return;
+    if (isReturningToMenu) return;
+    isReturningToMenu = true;
     isTransitioning = true;
+
+    cancelLiquidDrain(liquidOverlay, {
+        fadeOut: true,
+        onCancelled: () => {
+            isSceneTransitioning = false;
+            updateMenuButtonVisibility();
+        }
+    });
+
+    if (startLevelTimeoutId) {
+        clearTimeout(startLevelTimeoutId);
+        startLevelTimeoutId = null;
+    }
+
     fadeOutCells(grid);
 
     setTimeout(() => {
@@ -99,6 +127,7 @@ function returnToMenu() {
         modeScreen.setAttribute('aria-hidden', 'true');
         updateMenuButtonVisibility();
         isTransitioning = false;
+        isReturningToMenu = false;
     }, LEVEL_TRANSITION_DELAY);
 }
 
@@ -109,6 +138,7 @@ function returnToMenu() {
  */
 function startLevel() {
     isTransitioning = false;
+    startLevelTimeoutId = null;
     const mode = MODES[currentMode];
     if (!mode || !mode.start) return;
     mode.start(grid, {
@@ -136,7 +166,8 @@ function startGameFromMode(modeId) {
             updateMenuButtonVisibility();
         }
     });
-    setTimeout(startLevel, LEVEL_TRANSITION_DELAY);
+    if (startLevelTimeoutId) clearTimeout(startLevelTimeoutId);
+    startLevelTimeoutId = setTimeout(startLevel, LEVEL_TRANSITION_DELAY);
 }
 
 /**
@@ -168,11 +199,12 @@ function setupModeScreenHandlers() {
 }
 
 /**
- * True when the player is in an active level (title hidden, not transitioning).
+ * True when the player has left the title screen (mode selected or gameplay).
  * Used to show/hide the menu button and to allow ESC/menu to return.
+ * Includes transitions (drain, win) so ESC works immediately to abort.
  */
 function isInLevel() {
-    return titleScreen.classList.contains('hidden') && !isTransitioning;
+    return titleScreen.classList.contains('hidden');
 }
 
 /**
