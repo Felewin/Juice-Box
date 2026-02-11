@@ -153,7 +153,7 @@ function isInLevel() {
 
 /**
  * Recalculates sprite cell size from viewport. Called on load and resize.
- * Uses ACTUAL_GRID_COLUMNS/ROWS from level.js.
+ * Uses ACTUAL_GRID_COLUMNS/ROWS. Each mode sets these when it loads or when it starts.
  */
 function updateCellSize() {
     const widthBasedSize = window.innerWidth / (ACTUAL_GRID_COLUMNS + 2);
