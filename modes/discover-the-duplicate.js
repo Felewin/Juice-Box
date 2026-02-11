@@ -5,9 +5,13 @@
  *  Mode: one sprite appears twice in the grid; the player finds and
  *  clicks the duplicate (macguffin) to win.
  *
- *  Level generation: one of each sprite + one duplicate. The grid
- *  dimensions use the reduction in level.js; for this mode, maxCells
- *  is ALL_SPRITES.length + 1 (e.g. 24 unique + 1 duplicate = 25).
+ *  Level generation flow:
+ *  1. Pick sprites: all unique + one duplicate, or a subset if the grid is small.
+ *  2. Shuffle the chosen sprites into display order.
+ *  3. Avoid adjacent duplicates: retry shuffles or swap one macguffin with a
+ *     non-adjacent cell; accept adjacent only when impossible (very small grids).
+ *
+ *  Grid dimensions come from level.js; maxCells = ALL_SPRITES.length + 1.
  * ============================================================
  */
 
@@ -17,40 +21,49 @@
 
     /**
  * Builds a randomized set of sprite names for one level.
- * The number of items equals ACTUAL_GRID_COLUMNS * ACTUAL_GRID_ROWS,
- * which is guaranteed to be <= MAX_CELLS.
  *
- * SPRITE SELECTION STRATEGY:
- * - If totalCells >= MAX_CELLS: Use all unique sprites + 1 duplicate
- * - If totalCells < MAX_CELLS: Use a random subset of sprites (enough to fill the cells)
- *   In this case, we need (totalCells - 1) unique sprites + 1 duplicate = totalCells items
- *   For example, if totalCells = 10, we pick 9 random unique sprites + 1 duplicate = 10 items
+ * Output length equals ACTUAL_GRID_COLUMNS * ACTUAL_GRID_ROWS (guaranteed <= MAX_CELLS).
  *
- * Ensures the two instances of the macguffin are never placed
- * adjacent to each other (horizontally, vertically, or diagonally).
+ * Sprite selection (Step 1):
+ * - totalCells >= MAX_CELLS: Use all unique sprites + one duplicate of a random sprite.
+ * - totalCells < MAX_CELLS: Use (totalCells - 1) unique sprites + one duplicate = totalCells items.
+ *
+ * Adjacency (Steps 2–3): The two macguffin instances should not be adjacent
+ * (horizontal, vertical, or diagonal). We shuffle, then: if adjacent, swap one
+ * macguffin with a non-adjacent cell; if no valid swap exists, retry with a new
+ * shuffle (up to 50 times). On very small grids where separation is impossible,
+ * we accept adjacent as fallback.
  *
  * @returns {{ items: string[], macguffin: string }}
- *   - items:     Array of sprite names in shuffled order (for grid placement)
- *   - macguffin:  the name of the one sprite that appears twice
+ *   - items:     Sprite names in display order (one sprite appears twice).
+ *   - macguffin: The sprite name that appears twice.
  */
 function generateLevelForTheModeCalledDiscoverTheDuplicate() {
     const totalCells = ACTUAL_GRID_COLUMNS * ACTUAL_GRID_ROWS;
 
-    // Safety check (should never happen after computeGridDimensions)
+    // This mode needs a duplicate, so at least 2 cells are required. With 1 cell,
+    // (totalCells - 1) unique sprites = 0, which would break sprite selection.
+    if (totalCells < 2) {
+        throw new Error(`Discover the Duplicate requires at least 2 cells; got ${totalCells}. Check GRID_COLUMNS and GRID_ROWS in level.js.`);
+    }
+
+    // Sanity check: computeGridDimensions should cap the grid at MAX_CELLS.
     if (totalCells > MAX_CELLS) {
         console.error(`generateLevelForTheModeCalledDiscoverTheDuplicate: totalCells (${totalCells}) exceeds MAX_CELLS (${MAX_CELLS}). This should never happen!`);
     }
 
-    let chosen;   // The subset of sprites we'll use for this level
-    let macguffin;  // The sprite that will appear twice
+    // --- Step 1: Pick which sprites fill the grid ---
+    // chosen = the sprite names we'll place (one appears twice, others once each)
+    let chosen;
+    let macguffin;  // The sprite that appears twice
 
     if (totalCells >= MAX_CELLS) {
-        // We have enough cells for all unique sprites + 1 duplicate
+        // Full grid: use every sprite once, plus one duplicate of a random sprite
         chosen = shuffle(ALL_SPRITES);
         macguffin = chosen[Math.floor(Math.random() * chosen.length)];
         chosen = [...chosen, macguffin];
     } else {
-        // Use a random subset: (totalCells - 1) unique + 1 duplicate
+        // Smaller grid: use (totalCells - 1) unique sprites + 1 duplicate = totalCells items
         const numUniqueSpritesNeeded = totalCells - 1;
         const shuffledAll = shuffle(ALL_SPRITES);
         chosen = shuffledAll.slice(0, numUniqueSpritesNeeded);
@@ -58,37 +71,57 @@ function generateLevelForTheModeCalledDiscoverTheDuplicate() {
         chosen = [...chosen, macguffin];
     }
 
-    // Shuffle the final set so the macguffin duplicate isn't predictably placed
+    // --- Step 2 & 3: Shuffle into display order, then avoid adjacent duplicates ---
+    // We want the two macguffins separated (not horizontally, vertically, or diagonally
+    // adjacent). Strategy: (a) shuffle; (b) if adjacent, try swapping one macguffin
+    // with a cell that isn't adjacent to the other; (c) if no valid swap exists,
+    // retry with a new shuffle—a different random arrangement may place them
+    // non-adjacent or allow a swap; (d) after max attempts, accept adjacent
+    // (fallback for grids where separation is impossible).
     let items = shuffle(chosen);
+    let macguffinIndices = [];
+    const cols = ACTUAL_GRID_COLUMNS;
+    const maxAttempts = 50;
 
-    // Final verification
-    if (items.length !== totalCells) {
-        console.warn(`generateLevelForTheModeCalledDiscoverTheDuplicate: Expected ${totalCells} items but got ${items.length}. This may indicate a logic error.`);
-    }
-    const finalMacguffinCount = items.filter(s => s === macguffin).length;
-    if (finalMacguffinCount !== 2) {
-        console.warn(`generateLevelForTheModeCalledDiscoverTheDuplicate: macguffin should appear twice but appears ${finalMacguffinCount} times. This may indicate a logic error.`);
-    }
+    // Helper: find the two grid indices where the macguffin appears
+    const collectMacguffinIndices = () => {
+        macguffinIndices = [];
+        items.forEach((sprite, index) => {
+            if (sprite === macguffin) macguffinIndices.push(index);
+        });
+    };
 
-    // Find the two positions where the macguffin appears
-    const macguffinIndices = [];
-    items.forEach((sprite, index) => {
-        if (sprite === macguffin) macguffinIndices.push(index);
-    });
+    for (let attempt = 0; attempt < maxAttempts; attempt++) {
+        collectMacguffinIndices();
 
-    // If the two macguffins are adjacent, swap one with a non-adjacent position
-    if (areAdjacent(macguffinIndices[0], macguffinIndices[1], ACTUAL_GRID_COLUMNS)) {
+        if (!areAdjacent(macguffinIndices[0], macguffinIndices[1], cols)) break;
+
+        // Find positions we can swap the second macguffin into: must be a non-macguffin
+        // cell that is not adjacent to the first macguffin (so after swap, the two
+        // macguffins remain separated).
         const validSwapPositions = [];
         for (let i = 0; i < items.length; i++) {
             if (i !== macguffinIndices[0] && i !== macguffinIndices[1] &&
-                !areAdjacent(macguffinIndices[0], i, ACTUAL_GRID_COLUMNS)) {
+                !areAdjacent(macguffinIndices[0], i, cols)) {
                 validSwapPositions.push(i);
             }
         }
         if (validSwapPositions.length > 0) {
             const swapIndex = validSwapPositions[Math.floor(Math.random() * validSwapPositions.length)];
             [items[macguffinIndices[1]], items[swapIndex]] = [items[swapIndex], items[macguffinIndices[1]]];
+            break;
         }
+        if (attempt < maxAttempts - 1) items = shuffle(chosen);
+    }
+
+    // --- Final sanity checks ---
+    // Verify item count matches grid size and macguffin appears exactly twice
+    if (items.length !== totalCells) {
+        console.warn(`generateLevelForTheModeCalledDiscoverTheDuplicate: Expected ${totalCells} items but got ${items.length}. This may indicate a logic error.`);
+    }
+    const finalMacguffinCount = items.filter(s => s === macguffin).length;
+    if (finalMacguffinCount !== 2) {
+        console.warn(`generateLevelForTheModeCalledDiscoverTheDuplicate: macguffin should appear twice but appears ${finalMacguffinCount} times. This may indicate a logic error.`);
     }
 
     return { items, macguffin };
