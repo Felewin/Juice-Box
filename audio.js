@@ -6,13 +6,27 @@
  *  effects. All functions create fresh Audio objects to allow
  *  simultaneous playback without cutting each other off.
  *
- *  LAST_SPLIT_SOUND_REF: Shared ref used by Go Bananas and Peach Party when
- *  playing the "split" sound. Ensures we never repeat the same sound twice in
- *  a row, even when switching between those modes.
+ *  playSplitSound(): Plays a random "split" sound; used by Go Bananas, Peach Party,
+ *  Discover the Duplicate, and Apple Of My Eye. Uses LAST_SPLIT_SOUND_REF internally
+ *  so we never repeat the same sound twice in a row, even when switching modes or levels.
  * ============================================================
  */
 
 window.LAST_SPLIT_SOUND_REF = window.LAST_SPLIT_SOUND_REF || { last: null };
+
+const SPLIT_SOUNDS = [
+    'audio/Banana Split (1).mp3',
+    'audio/Banana Split (2).mp3',
+    'audio/Banana Split (3).mp3'
+];
+
+/**
+ * Play a random "split" sound (banana/peach/apple). Uses LAST_SPLIT_SOUND_REF so
+ * we never repeat the same sound twice in a row, even when switching modes or levels.
+ */
+function playSplitSound() {
+    playRandomExcludingLast(SPLIT_SOUNDS, LAST_SPLIT_SOUND_REF);
+}
 
 /**
  * Create a new Audio object and load its metadata.

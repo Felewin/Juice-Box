@@ -5,8 +5,8 @@
  *  Mode: All sprites are apple-red, tangerine, or mango (random, duplicates allowed).
  *  There is always at least one peach. Click/tap each peach to make it disappear.
  *  When all peaches are gone, the level is won. Plays the banana split sound when
- *  picking a peach; uses shared LAST_SPLIT_SOUND_REF with Go Bananas to avoid
- *  repeating the same sound twice in a row across modes.
+ *  picking a peach; uses shared playSplitSound() to avoid repeating the same
+ *  sound twice in a row across modes.
  *
  *  For this mode, maxCells equals the full grid (GRID_COLUMNS × GRID_ROWS).
  * ============================================================
@@ -55,13 +55,6 @@ function generateLevelForTheModeCalledPeachParty() {
     return { items };
 }
 
-// Same sounds as Go Bananas; uses shared LAST_SPLIT_SOUND_REF to avoid repeats across modes.
-const BANANA_SPLIT_SOUNDS = [
-    'audio/Banana Split (1).mp3',
-    'audio/Banana Split (2).mp3',
-    'audio/Banana Split (3).mp3'
-];
-
 // Extra ms after the last peach fades, before the drain/next-level transition.
 const POST_CLICKEDSPRITE_FADING_PRETRANSITIONING_FADE_MS = 200;
 
@@ -77,7 +70,7 @@ MODES['peach-party'] = {
         // Called when a cell is clicked. Returns true only when the last peach is picked.
         const checkWin = (cell) => {
             if (cell.dataset.sprite !== TARGET) return false;
-            playRandomExcludingLast(BANANA_SPLIT_SOUNDS, LAST_SPLIT_SOUND_REF);
+            playSplitSound();
             cell.classList.add('removed');
 
             const remaining = gridEl.querySelectorAll('.cell[data-sprite="' + TARGET + '"]:not(.removed)');

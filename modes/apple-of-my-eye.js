@@ -61,6 +61,7 @@ MODES['apple-of-my-eye'] = {
         // Clicking the macguffin (apple) wins; macguffin fades later than the rest.
         const checkWin = (cell) => {
             if (cell.dataset.sprite !== apple) return false;
+            playSplitSound();
             playOneshot('audio/Success Jingle Plucking.mp3');
             return { macguffin: apple, postClickedSpriteFadingPreTransitioningFadeMs: POST_CLICKEDSPRITE_FADING_PRETRANSITIONING_FADE_MS };
         };
