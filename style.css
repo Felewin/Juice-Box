@@ -54,8 +54,14 @@ body {
 }
 
 body {
-    /* Warm peach-to-coral gradient background */
-    background: linear-gradient(145deg, #ffecd2 0%, #fcb69f 50%, #f7a99c 100%);
+    /* Pastel moving gradient (pink, lavender, blue only—no green/yellow so mode button text stays legible) */
+    background: linear-gradient(
+        to right,
+        #FFB3BA, #E0BBE4, #BAE1FF, #B8D4FF, #D4BBFF, #FFB3BA
+    );
+    background-size: 200% auto;
+    background-attachment: fixed;
+    animation: pastelGradient 10s linear infinite;
 
     /* Center the grid dead-center in the viewport */
     display: flex;
@@ -119,11 +125,11 @@ body {
     font-family: var(--font-title);
     font-weight: 400;
     font-style: normal;
-    color: white;
-    font-size: clamp(80px, 20vmin, 200px);  /* Very, very big */
+    font-size: calc(50vh / 2.2);  /* Two lines; total block height = 50% of screen */
     line-height: 1.1;
     text-align: center;
     transition: opacity 0.5s ease;
+    animation: titleBreathe 12s ease-in-out infinite;
 
     /* Stack the two <span> children ("Juice" / "Box") vertically */
     flex-direction: column;
@@ -181,7 +187,7 @@ body {
     );
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
-    color: white;
+    color: transparent; /* Gradient shows through via background-clip on label */
     font-family: var(--font-title);
     font-weight: 400;
     font-size: clamp(16px, 4.5vw, 36px);
@@ -205,38 +211,18 @@ body {
         inset 0 1px 0 rgba(255, 255, 255, 0.6);
 }
 
-/* Subtle fruit-tinted glow on hover (cherries / banana) */
-.mode-btn:nth-child(1)::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    border-radius: inherit;
-    background: radial-gradient(
-        ellipse 80% 60% at 20% 50%,
-        rgba(255, 120, 140, 0.25) 0%,
-        transparent 70%
+/* Shared: moving green–yellow gradient clipped to text. Use on title and mode button labels
+   so they stay legible against the pink/blue/lavender background. */
+.moving-gradient-text {
+    background: linear-gradient(
+        to right,
+        #BAFFC9, #E0FF9E, #FFFFBA, #FFFFE0, #E8FFBA, #BAFFC9
     );
-    opacity: 0;
-    transition: opacity 0.35s ease;
-    pointer-events: none;
-}
-.mode-btn:nth-child(2)::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    border-radius: inherit;
-    background: radial-gradient(
-        ellipse 80% 60% at 20% 50%,
-        rgba(255, 220, 120, 0.3) 0%,
-        transparent 70%
-    );
-    opacity: 0;
-    transition: opacity 0.35s ease;
-    pointer-events: none;
-}
-.mode-btn:nth-child(1):hover::before,
-.mode-btn:nth-child(2):hover::before {
-    opacity: 1;
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    animation: pastelGradient 10s linear infinite;
 }
 
 /* Bigger sprites; hover: gentle bounce */
@@ -251,6 +237,18 @@ body {
 
 .mode-btn:hover .mode-btn-icon {
     animation: modeBtnIconBounce 0.5s var(--bounce-ease) forwards;
+}
+
+/* Title: slow scale pulse (breathe larger and smaller) */
+@keyframes titleBreathe {
+    0%, 100% { transform: scale(1); }
+    50%      { transform: scale(1.06); }
+}
+
+/* Pastel gradient scroll (used by body background) */
+@keyframes pastelGradient {
+    0%   { background-position: 0% 50%; }
+    100% { background-position: 200% 50%; }
 }
 
 @keyframes modeBtnIconBounce {
