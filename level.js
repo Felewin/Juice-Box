@@ -7,6 +7,8 @@
  * ============================================================
  */
 
+// Every filename in the sprites/ folder (without the .png extension).
+// There are 20 total.
 const ALL_SPRITES = [
     'apple-green', 'apple-red', 'avocado', 'banana', 'carrot',
     'cherries', 'coconut', 'cucumber', 'grapes', 'greens',
@@ -15,4 +17,6 @@ const ALL_SPRITES = [
     'watermelon'
 ];
 
+// Build the full image path for a sprite name.
+// Single source of truth so the path pattern isn't repeated.
 const spriteSrc = (name) => `sprites/${name}.png`;
