@@ -39,6 +39,8 @@ const FADE_MS = parseInt(getComputedStyle(document.documentElement)
 // ---- DOM references & state ----
 
 const titleScreen = document.getElementById('title-screen');
+const titleHeading = document.getElementById('title');
+const modeScreen = document.getElementById('mode-screen');
 const liquidOverlay = document.getElementById('liquid-overlay');
 const grid = document.getElementById('grid');
 const menuButton = document.getElementById('menu-button');
@@ -308,23 +310,12 @@ function returnToMenu() {
         
         // Show the title screen again (this will hide the menu button via CSS)
         titleScreen.classList.remove('hidden');
+        // Reset to title view: show title, hide mode screen
+        titleHeading.classList.remove('faded');
+        modeScreen.classList.add('hidden');
+        modeScreen.setAttribute('aria-hidden', 'true');
         // Update button visibility since title screen is now visible
         updateMenuButtonVisibility();
-        
-        // Re-enable the click handler to start a new game
-        // (The original handler had { once: true }, so we need to re-attach it)
-        titleScreen.addEventListener('click', () => {
-            titleScreen.classList.add('hidden');
-            // Button visibility will be updated by showLiquidDrain() setting isSceneTransitioning
-
-            // Show the liquid drain effect (it will fade in, play audio, and drain)
-            showLiquidDrain();
-
-            // Start a fresh level
-            setTimeout(() => {
-                startLevel();
-            }, FADE_MS + 100);
-        }, { once: true });
         
         isTransitioning = false;
     }, FADE_MS + 100);
@@ -385,33 +376,48 @@ function updateMenuButtonVisibility() {
     }
 }
 
-// Helper function to set up the title screen click handler
+// Start the game (liquid drain + level). Used when a mode button is clicked.
+function startGameFromMode() {
+    titleScreen.classList.add('hidden');
+    showLiquidDrain();
+    setTimeout(() => {
+        startLevel();
+    }, FADE_MS + 100);
+}
+
+// Click on title screen: if we're showing the title, fade it out and show the mode screen.
+// If we're already on the mode screen, this handler does nothing (mode buttons have their own handlers).
 function setupTitleScreenClickHandler() {
-    titleScreen.addEventListener('click', () => {
-        titleScreen.classList.add('hidden');
-        // Button visibility will be updated by showLiquidDrain() setting isSceneTransitioning
+    titleScreen.addEventListener('click', (e) => {
+        if (!modeScreen.classList.contains('hidden')) return;
+        titleHeading.classList.add('faded');
+        modeScreen.classList.remove('hidden');
+        modeScreen.setAttribute('aria-hidden', 'false');
+    });
+}
 
-        // Show the liquid drain effect (it will fade in, play audio, and drain)
-        showLiquidDrain();
-
-        // Start the level after the same delay as level-to-level transitions
-        // This ensures consistent timing of sprite animations relative to the liquid drain
-        setTimeout(() => {
-            startLevel();
-        }, FADE_MS + 100);  // Match the delay from winLevel()
-    }, { once: true });
+// Mode button click: start the game (same level type for both modes for now).
+function setupModeScreenHandlers() {
+    modeScreen.addEventListener('click', (e) => {
+        const btn = e.target.closest('.mode-btn');
+        if (!btn) return;
+        e.preventDefault();
+        e.stopPropagation();
+        startGameFromMode();
+    });
 }
 
 // Wait for the title font to load before revealing the title screen.
 // This prevents FOUT (Flash of Unstyled Text) — the user never sees
-// the fallback system font. Once ready, clicking anywhere dismisses
-// the title and starts the first level.
+// the fallback system font. Once ready, first click goes to mode screen;
+// choosing a mode starts the level.
 document.fonts.ready.then(() => {
     // Use double-rAF to guarantee the browser has painted the opacity: 0
     // state before we transition to opacity: 1 — ensures a visible fade-in.
     doubleRAF(() => {
         titleScreen.classList.add('ready');
         setupTitleScreenClickHandler();
+        setupModeScreenHandlers();
     });
 });
 
