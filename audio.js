@@ -58,6 +58,23 @@ function playLooped(src, times) {
 }
 
 /**
+ * Play a random audio file from an array of sources, excluding the last played
+ * one (to avoid repeating the same sound twice in a row).
+ *
+ * @param {string[]} srcs              Paths to audio files
+ * @param {{ last: string|null }} ref  Mutable ref; will be updated with the chosen src
+ */
+function playRandomExcludingLast(srcs, ref) {
+    let choices = srcs;
+    if (ref.last != null && srcs.length > 1) {
+        choices = srcs.filter((s) => s !== ref.last);
+    }
+    const chosen = choices[Math.floor(Math.random() * choices.length)];
+    ref.last = chosen;
+    playOneshot(chosen);
+}
+
+/**
  * Play an audio file multiple times with overlapping starts.
  * Each subsequent play begins at a random percentage through
  * the previous play (within a specified range), creating a

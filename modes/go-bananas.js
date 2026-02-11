@@ -45,12 +45,21 @@ function generateLevelForTheModeCalledGoBananas() {
     return { items };
 }
 
+const BANANA_SPLIT_SOUNDS = [
+    'audio/Banana Split (1).mp3',
+    'audio/Banana Split (2).mp3',
+    'audio/Banana Split (3).mp3'
+];
+
+let lastBananaSound = { last: null };
+
 const MODES = window.MODES || {};
 MODES['go-bananas'] = {
     start(gridEl, opts) {
         const { items } = generateLevelForTheModeCalledGoBananas();
         const checkWin = (cell) => {
             if (cell.dataset.sprite !== 'banana') return false;
+            playRandomExcludingLast(BANANA_SPLIT_SOUNDS, lastBananaSound);
             cell.classList.add('removed');
 
             const remaining = gridEl.querySelectorAll('.cell[data-sprite="banana"]:not(.removed)');
