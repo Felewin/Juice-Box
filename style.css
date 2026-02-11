@@ -136,9 +136,8 @@ body {
 }
 
 /* ---- Mode screen ----
-   Two wide borderless buttons; hover reveals a shiny line that grows left-to-right.
-   Buttons and their contents scale with screen width (inner 70% of viewport),
-   horizontally centered. */
+   Juicy card–style buttons: pill shape, frosted glass, larger icons.
+   Hover: card lifts with subtle scale, shadow deepens, icon bounces. */
 #mode-screen {
     flex-direction: column;
     align-items: center;
@@ -166,16 +165,22 @@ body {
     transition-duration: 0.3s;  /* Matches Juice Box button fade */
 }
 
-/* Wide borderless mode button: icon + text left-aligned; hover shows top/bottom shimmer line.
-   Sized to fill the mode screen (70vw); font and icon scale proportionally. */
+/* Juicy pill-shaped card; frosted glass effect; hover: lift + icon bounce */
 .mode-btn {
     display: flex;
     align-items: center;
-    gap: 0.5em;
+    gap: clamp(0.4em, 2vw, 1em);
     width: 100%;
-    padding: clamp(0.4rem, 1.5vw, 1rem) 0;
-    border: none;
-    background: transparent;
+    padding: clamp(0.5rem, 2vw, 1.25rem) clamp(1rem, 3vw, 1.5rem);
+    border: 1px solid rgba(255, 255, 255, 0.45);
+    border-radius: 9999px;
+    background: linear-gradient(
+        135deg,
+        rgba(255, 255, 255, 0.35) 0%,
+        rgba(255, 255, 255, 0.15) 100%
+    );
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
     color: white;
     font-family: var(--font-title);
     font-weight: 400;
@@ -183,45 +188,76 @@ body {
     text-align: left;
     cursor: pointer;
     position: relative;
+    overflow: hidden;
     -webkit-tap-highlight-color: transparent;
     outline: none;
+
+    box-shadow:
+        0 2px 12px rgba(0, 0, 0, 0.08),
+        inset 0 1px 0 rgba(255, 255, 255, 0.5);
+    transition: transform 0.3s var(--bounce-ease), box-shadow 0.3s ease;
 }
 
-/* Icon scales with font-size (em) so it stays proportionate to the label */
+.mode-btn:hover {
+    transform: scale(1.04);
+    box-shadow:
+        0 8px 24px rgba(0, 0, 0, 0.15),
+        inset 0 1px 0 rgba(255, 255, 255, 0.6);
+}
+
+/* Subtle fruit-tinted glow on hover (cherries / banana) */
+.mode-btn:nth-child(1)::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: radial-gradient(
+        ellipse 80% 60% at 20% 50%,
+        rgba(255, 120, 140, 0.25) 0%,
+        transparent 70%
+    );
+    opacity: 0;
+    transition: opacity 0.35s ease;
+    pointer-events: none;
+}
+.mode-btn:nth-child(2)::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: radial-gradient(
+        ellipse 80% 60% at 20% 50%,
+        rgba(255, 220, 120, 0.3) 0%,
+        transparent 70%
+    );
+    opacity: 0;
+    transition: opacity 0.35s ease;
+    pointer-events: none;
+}
+.mode-btn:nth-child(1):hover::before,
+.mode-btn:nth-child(2):hover::before {
+    opacity: 1;
+}
+
+/* Bigger sprites; hover: gentle bounce */
 .mode-btn-icon {
-    width: 1.2em;
-    height: 1.2em;
+    width: 2.2em;
+    height: 2.2em;
     object-fit: contain;
     flex-shrink: 0;
     pointer-events: none;
+    transition: transform 0.35s var(--bounce-ease);
 }
 
-/* Top and bottom "border" lines: shiny gradient that grows left→right on hover */
-.mode-btn::before,
-.mode-btn::after {
-    content: '';
-    position: absolute;
-    left: 0;
-    height: 2px;
-    width: 0;
-    background: linear-gradient(
-        90deg,
-        transparent 0%,
-        rgba(255, 255, 255, 0.4) 25%,
-        rgba(255, 255, 255, 0.95) 50%,
-        rgba(255, 255, 255, 0.4) 75%,
-        transparent 100%
-    );
-    transition: width 0.4s ease;
-    box-shadow: 0 0 8px rgba(255, 255, 255, 0.5);
+.mode-btn:hover .mode-btn-icon {
+    animation: modeBtnIconBounce 0.5s var(--bounce-ease) forwards;
 }
 
-.mode-btn::before { top: 0; }
-.mode-btn::after { bottom: 0; }
-
-.mode-btn:hover::before,
-.mode-btn:hover::after {
-    width: 100%;
+@keyframes modeBtnIconBounce {
+    0%   { transform: scale(1); }
+    40%  { transform: scale(1.15); }
+    70%  { transform: scale(0.95); }
+    100% { transform: scale(1.08); }
 }
 
 /* ---- The invisible grid that holds all sprite cells ---- */
