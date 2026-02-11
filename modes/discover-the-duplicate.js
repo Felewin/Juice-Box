@@ -137,8 +137,7 @@ MODES['discover-the-duplicate'] = {
         const { items, macguffin } = generateLevelForTheModeCalledDiscoverTheDuplicate();
         const checkWin = (cell) => {
             if (cell.dataset.sprite !== macguffin) return false;
-            cell.classList.add('removed');
-            return true;
+            return { macguffin };
         };
         startModeLevel(gridEl, opts, MAX_CELLS, { items }, checkWin);
     }

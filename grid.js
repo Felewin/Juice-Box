@@ -27,7 +27,7 @@ function getCellUnderTouch(gridEl, touchEvent) {
 }
 
 /**
- * Attaches touch handlers to the grid (once per page load). Handlers read the
+ * Attaches pointer handlers to the grid (once per page load). Handlers read the
  * current level's checkWin/onWin from gridEl.__levelHandlers, which is updated
  * each time buildGrid runs. This lets touch work for any mode without re-binding.
  *
@@ -46,28 +46,54 @@ function setupTouchHandlers(gridEl) {
         if (!h || h.shouldIgnoreInput()) return;
         e.preventDefault();
         updateTrackedCell(e);
+        if (touchStartCell) touchStartCell.classList.add('incorrect-tap');
     }, { passive: false });
 
     gridEl.addEventListener('touchmove', (e) => {
         const h = gridEl.__levelHandlers;
         if (!h || h.shouldIgnoreInput()) return;
         e.preventDefault();
+        const prev = touchStartCell;
         updateTrackedCell(e);
+        if (prev && prev !== touchStartCell) prev.classList.remove('incorrect-tap');
+        if (touchStartCell) touchStartCell.classList.add('incorrect-tap');
     }, { passive: false });
 
     gridEl.addEventListener('touchend', (e) => {
         const h = gridEl.__levelHandlers;
         if (!h || h.shouldIgnoreInput()) return;
         const finalCell = getCellUnderTouch(gridEl, e) || touchStartCell;
-        if (finalCell && h.checkWin(finalCell)) {
-            h.onWin();
+        if (touchStartCell) touchStartCell.classList.remove('incorrect-tap');
+        if (finalCell) {
+            const result = h.checkWin(finalCell);
+            if (result) {
+                h.onWin(result === true ? {} : result);
+            }
         }
         touchStartCell = null;
     }, { passive: true });
 
     gridEl.addEventListener('touchcancel', () => {
+        if (touchStartCell) touchStartCell.classList.remove('incorrect-tap');
         touchStartCell = null;
     }, { passive: true });
+
+    gridEl.addEventListener('mousedown', (e) => {
+        const h = gridEl.__levelHandlers;
+        if (!h || h.shouldIgnoreInput()) return;
+        const cell = e.target.closest('.cell');
+        if (cell && gridEl.contains(cell) && !cell.classList.contains('fade-out') && !cell.classList.contains('removed')) {
+            cell.classList.add('incorrect-tap');
+            gridEl.__pressedCell = cell;
+        }
+    });
+
+    document.addEventListener('mouseup', () => {
+        if (gridEl.__pressedCell) {
+            gridEl.__pressedCell.classList.remove('incorrect-tap');
+            gridEl.__pressedCell = null;
+        }
+    });
 }
 
 /**
@@ -115,8 +141,9 @@ function buildGrid(gridEl, items, { checkWin, onWin, shouldIgnoreInput }) {
 
         cell.addEventListener('click', () => {
             if (shouldIgnoreInput()) return;
-            if (checkWin(cell)) {
-                onWin();
+            const result = checkWin(cell);
+            if (result) {
+                onWin(result === true ? {} : result);
             }
         });
 

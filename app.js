@@ -93,25 +93,65 @@ function updateJuiceboxButtonVisibility() {
     }
 }
 
+const MACGUFFIN_FADE_DELAY_MS = 600;
+
 /**
  * Called when the player wins a level. Fades cells, plays liquid drain, then
  * starts the next level via startLevel() (which dispatches to the current mode).
+ *
+ * @param {Object} [winData] Optional data from the mode. If winData.macguffin is set
+ *   (Discover the Duplicate), the two macguffin cells fade 600ms later than the rest,
+ *   so the player can see where the duplicates were. Drain and level transition wait
+ *   for macguffins to finish fading (600ms + FADE_MS) before starting.
  */
-function winLevel() {
+function winLevel(winData = {}) {
     isTransitioning = true;
-    fadeOutCells(grid);
-    showLiquidDrain(liquidOverlay, {
-        onTransitionStart: () => {
-            isSceneTransitioning = true;
-            updateJuiceboxButtonVisibility();
-        },
-        onTransitionEnd: () => {
-            isSceneTransitioning = false;
-            updateJuiceboxButtonVisibility();
-        }
-    });
-    if (startLevelTimeoutId) clearTimeout(startLevelTimeoutId);
-    startLevelTimeoutId = setTimeout(startLevel, LEVEL_TRANSITION_DELAY);
+
+    if (winData.macguffin) {
+        // Fade non-macguffins first; macguffins fade 600ms later so the player
+        // can see where the duplicates were.
+        grid.querySelectorAll('.cell').forEach((cell) => {
+            if (cell.dataset.sprite !== winData.macguffin) {
+                cell.classList.add('fade-out');
+            }
+        });
+        setTimeout(() => {
+            grid.querySelectorAll('.cell').forEach((cell) => {
+                if (cell.dataset.sprite === winData.macguffin) {
+                    cell.classList.add('fade-out');
+                }
+            });
+            // Wait for macguffins to finish fading, plus 100ms, before starting drain and next level
+            setTimeout(() => {
+                showLiquidDrain(liquidOverlay, {
+                    onTransitionStart: () => {
+                        isSceneTransitioning = true;
+                        updateJuiceboxButtonVisibility();
+                    },
+                    onTransitionEnd: () => {
+                        isSceneTransitioning = false;
+                        updateJuiceboxButtonVisibility();
+                    }
+                });
+                if (startLevelTimeoutId) clearTimeout(startLevelTimeoutId);
+                startLevelTimeoutId = setTimeout(startLevel, LEVEL_TRANSITION_DELAY);
+            }, FADE_MS + 100);
+        }, MACGUFFIN_FADE_DELAY_MS);
+    } else {
+        fadeOutCells(grid);
+        showLiquidDrain(liquidOverlay, {
+            onTransitionStart: () => {
+                isSceneTransitioning = true;
+                updateJuiceboxButtonVisibility();
+            },
+            onTransitionEnd: () => {
+                isSceneTransitioning = false;
+                updateJuiceboxButtonVisibility();
+            }
+        });
+        if (startLevelTimeoutId) clearTimeout(startLevelTimeoutId);
+        startLevelTimeoutId = setTimeout(startLevel, LEVEL_TRANSITION_DELAY);
+    }
 }
 
 /**

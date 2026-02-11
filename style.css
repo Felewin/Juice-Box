@@ -340,6 +340,11 @@ body {
     transform: scale(1);
 }
 
+/* Incorrect tap: squish while held, spring back on release (wrong sprite only) */
+.cell.incorrect-tap img {
+    transform: scale(0.88);
+}
+
 /* ---- Juice Box button ----
    Positioned in top-left corner, half the size of sprites.
    Uses favicon.png and animates on mouse hover (same as sprites). */
