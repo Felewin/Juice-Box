@@ -72,7 +72,7 @@ function setupTouchHandlers(gridEl) {
 
 /**
  * Adds .fade-out to all cells to trigger the CSS opacity transition.
- * Used by app.js for win and return-to-menu transitions.
+ * Used by app.js for win and return-to-mode-select transitions.
  *
  * @param {HTMLElement} gridEl The grid container.
  */

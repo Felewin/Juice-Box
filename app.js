@@ -6,7 +6,7 @@
  * SCREEN FLOW:
  *   Title screen → (click) → Mode screen → (click mode) → Level
  *   Level → (win) → Level (level-to-level via liquid drain)
- *   Level → (ESC/menu) → Title screen
+ *   Level → (ESC or Juice Box button) → Mode screen → (ESC) → Title screen
  *
  * MODE REGISTRY:
  *   Modes register themselves on window.MODES in their own files.
@@ -39,12 +39,21 @@
  *  order, pairs, or custom data attributes. buildGrid only needs checkWin and onWin.
  *
  * TRANSITION & ESC BEHAVIOR:
- *  Two transition types: (1) win → next level (drain, then startLevel), (2) ESC/menu
- *  → title screen (cancel drain, clear grid). ESC works during both so the player can
- *  abort a win transition. isTransitioning blocks cell input during either type;
- *  isReturningToMenu is true only during (2), allowing returnToMenu to run during (1)
- *  but blocking ESC spam once we're already returning. When starting a new drain,
- *  any existing drain is cancelled instantly.
+ *  ESC (or the Juice Box button) goes back one screen: level → mode select → title.
+ *
+ *  Two kinds of transitions that use the drain animation:
+ *  (1) Win transition: Player wins a level → drain plays → next level loads.
+ *  (2) Return transition: Player presses ESC or clicks the Juice Box button during a
+ *      level → we stop the drain (timers, audio) and fade the overlay out, clear the
+ *      grid, and show the mode select.
+ *
+ *  ESC works during both, so the player can abort a win transition. isTransitioning
+ *  blocks cell clicks during either; isReturningToModeSelect blocks ESC spam once we're
+ *  already returning. When starting a new drain, any existing drain is cancelled.
+ *
+ *  Juice Box button is visible on mode select and in level. It fades out during
+ *  transitions (drain, return) and fades in when settled. isReturningToTitle is
+ *  Uses .visible for display and .hidden-during-transition for fade (see style.css).
  * ============================================================
  */
 
@@ -55,20 +64,32 @@ const titleHeading = document.getElementById('title');
 const modeScreen = document.getElementById('mode-screen');
 const liquidOverlay = document.getElementById('liquid-overlay');
 const grid = document.getElementById('grid');
-const menuButton = document.getElementById('menu-button');
+const juiceboxButton = document.getElementById('juicebox-button');
 
-let isTransitioning = false;      // True during win→level or menu→title; blocks cell input.
-let isSceneTransitioning = false; // True while drain overlay is visible; hides menu button.
-let isReturningToMenu = false;    // True only during menu→title; blocks returnToMenu re-entry.
+let isTransitioning = false;      // True during win→level or level→mode-select; blocks cell input.
+let isSceneTransitioning = false; // True while drain overlay is visible; fades out Juice Box button.
+let isReturningToModeSelect = false;    // True only during level→mode-select; blocks returnToModeSelect re-entry.
+let isReturningToTitle = false;         // True during mode-select→title; used for Juice Box button fade.
 let currentMode = null;  // Set when a mode button is clicked; used by startLevel to dispatch.
-let startLevelTimeoutId = null;  // Cleared when returnToMenu or when starting a new drain.
+let startLevelTimeoutId = null;  // Cleared when returnToModeSelect or when starting a new drain.
 
-function updateMenuButtonVisibility() {
-    if (!menuButton) return;
-    if (isSceneTransitioning || !titleScreen.classList.contains('hidden')) {
-        menuButton.classList.add('hidden-during-drain');
+/**
+ * Updates Juice Box button visibility: .visible when on mode select or level,
+ * .hidden-during-transition (fade out) during any transition.
+ */
+function updateJuiceboxButtonVisibility() {
+    if (!juiceboxButton) return;
+    const isOnModeSelectOrLevel = !modeScreen.classList.contains('hidden') || titleScreen.classList.contains('hidden');
+    if (isOnModeSelectOrLevel) {
+        juiceboxButton.classList.add('visible');
     } else {
-        menuButton.classList.remove('hidden-during-drain');
+        juiceboxButton.classList.remove('visible');
+    }
+    const shouldFadeOut = isSceneTransitioning || isReturningToModeSelect || isReturningToTitle;
+    if (shouldFadeOut) {
+        juiceboxButton.classList.add('hidden-during-transition');
+    } else {
+        juiceboxButton.classList.remove('hidden-during-transition');
     }
 }
 
@@ -82,11 +103,11 @@ function winLevel() {
     showLiquidDrain(liquidOverlay, {
         onTransitionStart: () => {
             isSceneTransitioning = true;
-            updateMenuButtonVisibility();
+            updateJuiceboxButtonVisibility();
         },
         onTransitionEnd: () => {
             isSceneTransitioning = false;
-            updateMenuButtonVisibility();
+            updateJuiceboxButtonVisibility();
         }
     });
     if (startLevelTimeoutId) clearTimeout(startLevelTimeoutId);
@@ -94,21 +115,22 @@ function winLevel() {
 }
 
 /**
- * Returns the player to the title/mode screen. Fades cells, clears the grid,
- * and resets the UI so the next click reveals the mode screen.
- * Cancels any drain (fades it out) and any scheduled startLevel. Guarded by
- * isReturningToMenu so ESC spam is ignored.
+ * Returns the player to the mode select screen from a level. Cancels any drain
+ * (fades it out), clears the grid, and shows the mode screen. Guarded by
+ * isReturningToModeSelect so ESC spam is ignored.
  */
-function returnToMenu() {
-    if (isReturningToMenu) return;
-    isReturningToMenu = true;
+function returnToModeSelect() {
+    if (isReturningToModeSelect) return;
+    isReturningToModeSelect = true;
     isTransitioning = true;
+
+    juiceboxButton?.classList.add('hidden-during-transition');
 
     cancelLiquidDrain(liquidOverlay, {
         fadeOut: true,
         onCancelled: () => {
             isSceneTransitioning = false;
-            updateMenuButtonVisibility();
+            updateJuiceboxButtonVisibility();
         }
     });
 
@@ -122,13 +144,32 @@ function returnToMenu() {
     setTimeout(() => {
         grid.innerHTML = '';
         titleScreen.classList.remove('hidden');
+        titleHeading.classList.add('faded');
+        modeScreen.classList.remove('hidden');
+        modeScreen.setAttribute('aria-hidden', 'false');
+        isTransitioning = false;
+        isReturningToModeSelect = false;
+        updateJuiceboxButtonVisibility();
+    }, LEVEL_TRANSITION_DELAY);
+}
+
+/**
+ * Returns from mode select to the title screen (title only, mode buttons hidden).
+ * Fades the Juice Box button and mode buttons out together (300ms), then hides.
+ */
+function returnToTitle() {
+    if (isReturningToTitle) return;
+    isReturningToTitle = true;
+    juiceboxButton?.classList.add('hidden-during-transition');
+    modeScreen.classList.add('fade-out');
+    setTimeout(() => {
         titleHeading.classList.remove('faded');
+        modeScreen.classList.remove('fade-out');
         modeScreen.classList.add('hidden');
         modeScreen.setAttribute('aria-hidden', 'true');
-        updateMenuButtonVisibility();
-        isTransitioning = false;
-        isReturningToMenu = false;
-    }, LEVEL_TRANSITION_DELAY);
+        juiceboxButton?.classList.remove('visible');
+        isReturningToTitle = false;
+    }, 300);
 }
 
 /**
@@ -159,11 +200,11 @@ function startGameFromMode(modeId) {
     showLiquidDrain(liquidOverlay, {
         onTransitionStart: () => {
             isSceneTransitioning = true;
-            updateMenuButtonVisibility();
+            updateJuiceboxButtonVisibility();
         },
         onTransitionEnd: () => {
             isSceneTransitioning = false;
-            updateMenuButtonVisibility();
+            updateJuiceboxButtonVisibility();
         }
     });
     if (startLevelTimeoutId) clearTimeout(startLevelTimeoutId);
@@ -180,6 +221,8 @@ function setupTitleScreenClickHandler() {
         titleHeading.classList.add('faded');
         modeScreen.classList.remove('hidden');
         modeScreen.setAttribute('aria-hidden', 'false');
+        juiceboxButton?.classList.add('visible', 'hidden-during-transition');
+        doubleRAF(() => juiceboxButton?.classList.remove('hidden-during-transition'));
     });
 }
 
@@ -199,12 +242,17 @@ function setupModeScreenHandlers() {
 }
 
 /**
- * True when the player has left the title screen (mode selected or gameplay).
- * Used to show/hide the menu button and to allow ESC/menu to return.
- * Includes transitions (drain, win) so ESC works immediately to abort.
+ * True when the player is in a level (title hidden). Used for ESC and Juice Box button.
  */
 function isInLevel() {
     return titleScreen.classList.contains('hidden');
+}
+
+/**
+ * True when the player is on the mode select screen (mode buttons visible).
+ */
+function isOnModeSelect() {
+    return !modeScreen.classList.contains('hidden');
 }
 
 /**
@@ -236,12 +284,16 @@ document.fonts.ready.then(() => {
 });
 
 document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape' && isInLevel()) returnToMenu();
+    if (e.key !== 'Escape') return;
+    if (isInLevel()) returnToModeSelect();
+    else if (isOnModeSelect()) returnToTitle();
 });
 
-menuButton.addEventListener('click', () => {
+juiceboxButton.addEventListener('click', () => {
     if (isInLevel()) {
-        menuButton.classList.add('hidden-during-drain');
-        returnToMenu();
+        juiceboxButton.classList.add('hidden-during-transition');
+        returnToModeSelect();
+    } else if (isOnModeSelect()) {
+        returnToTitle();
     }
 });

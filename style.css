@@ -26,9 +26,9 @@
     --cell-size: 60px;
 
     /* How long the fade-out lasts when transitioning between levels.
-       game.js reads this value so the JS timeout stays in sync
-       automatically — change it here and both CSS & JS update. */
-    --fade-duration: 400ms;
+       utils.js reads this as FADE_MS so LEVEL_TRANSITION_DELAY stays in sync.
+       Matches Juice Box button and mode screen (300ms). */
+    --fade-duration: 300ms;
 }
 
 /* ---- Reset & global defaults ---- */
@@ -155,6 +155,11 @@ body {
     visibility: hidden;
 }
 
+#mode-screen.fade-out {
+    opacity: 0;
+    transition-duration: 0.3s;  /* Matches Juice Box button fade */
+}
+
 /* Wide borderless mode button: icon + text left-aligned; hover shows top/bottom shimmer line */
 .mode-btn {
     display: flex;
@@ -270,9 +275,9 @@ body {
 }
 
 /* ---- Sprite image inside each cell ---- */
-/* Shared styles: sprite images and menu button icon (scale, no-drag) */
+/* Shared styles: sprite images and Juice Box button icon (scale, no-drag) */
 .cell img,
-#menu-button img {
+#juicebox-button img {
     width: 100%;
     height: 100%;
     object-fit: contain;
@@ -293,10 +298,10 @@ body {
     transform: scale(1);
 }
 
-/* ---- Menu button ----
+/* ---- Juice Box button ----
    Positioned in top-left corner, half the size of sprites.
    Uses favicon.png and animates on mouse hover (same as sprites). */
-#menu-button {
+#juicebox-button {
     position: fixed;
     top: calc(var(--cell-size) / 2);
     left: calc(var(--cell-size) / 2);
@@ -314,38 +319,36 @@ body {
     -webkit-tap-highlight-color: transparent;
     outline: none;
     
-    /* Hidden by default, shown when title screen is hidden */
+    /* Hidden by default. JS adds .visible when on mode select or in level. */
     display: none;
 }
 
-/* Show menu button when title screen is hidden (during gameplay) */
-/* Temporarily disabled on mobile/touch devices */
-#title-screen.hidden ~ #menu-button {
+/* Show Juice Box button when on mode select or in level (class added by app.js) */
+#juicebox-button.visible {
     display: block;
 }
 
-/* Temporarily hide menu button on touch devices (mobile/tablet) */
+/* Temporarily hide Juice Box button on touch devices (mobile/tablet) */
 @media (hover: none) and (pointer: coarse) {
-    #menu-button {
+    #juicebox-button {
         display: none !important;
     }
 }
 
-/* Fade transition for the menu button */
-#menu-button {
+/* Fade transition for the Juice Box button */
+#juicebox-button {
     transition: opacity 0.3s ease;
     opacity: 1;
 }
 
-/* Hide menu button when liquid drain animation is playing */
-/* Hidden during liquid drain transitions (mode screen→level or level→level) */
-#menu-button.hidden-during-drain {
+/* Fade out the Juice Box button during any transition (drain, return, mode-select→title) */
+#juicebox-button.hidden-during-transition {
     opacity: 0;
     pointer-events: none;
 }
 
 /* Hover animation: same as sprite hover (mouse only, not touch) */
-#menu-button:hover img {
+#juicebox-button:hover img {
     transform: scale(1.22);
 }
 

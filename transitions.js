@@ -6,7 +6,7 @@
  *  then drains downward to reveal the game. Duration synced to audio.
  *
  *  When starting a new drain, any existing drain is cancelled instantly.
- *  When the player presses ESC (returnToMenu), the drain is cancelled with
+ *  When the player presses ESC (returnToModeSelect), the drain is cancelled with
  *  fadeOut so it fades away rather than vanishing.
  *
  *  Dependencies: utils.js (doubleRAF), audio.js (loadAudioMetadata, playOneshot).
@@ -43,7 +43,7 @@ function resetOverlayToHidden(liquidOverlay) {
 /**
  * Plays the liquid drain transition. Used when going from mode screen to a
  * level, or between levels after a win. Callbacks let the app update UI state
- * (e.g. hide menu button during the drain).
+ * (e.g. fade out Juice Box button during the drain).
  *
  * If a drain is already running, it is cancelled first (no overlap). The new
  * drain then starts clean.
