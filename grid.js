@@ -6,7 +6,7 @@
  *  All modes use this shared grid. Win logic is delegated to the active mode
  *  via checkWin(cell) and onWin(). Each mode implements its own win condition.
  *
- *  Dependencies: level.js (spriteSrc), utils.js (none; grid is stateless).
+ *  Dependencies: level.js (spriteSrc), audio.js (playOneshot), utils.js (none; grid is stateless).
  * ============================================================
  */
 
@@ -68,6 +68,8 @@ function setupTouchHandlers(gridEl) {
             const result = h.checkWin(finalCell);
             if (result) {
                 h.onWin(result === true ? {} : result);
+            } else {
+                playOneshot('audio/Mouth Pop - Quiet.mp3');
             }
         }
         touchStartCell = null;
@@ -144,6 +146,8 @@ function buildGrid(gridEl, items, { checkWin, onWin, shouldIgnoreInput }) {
             const result = checkWin(cell);
             if (result) {
                 onWin(result === true ? {} : result);
+            } else {
+                playOneshot('audio/Mouth Pop - Quiet.mp3');
             }
         });
 

@@ -276,6 +276,7 @@ function setupModeScreenHandlers() {
         if (!btn) return;
         e.preventDefault();
         e.stopPropagation();
+        playOneshot('audio/Mouth Pop - Loud.mp3');
         const modeId = btn.dataset.mode || Object.keys(MODES)[0] || 'discover-the-duplicate';  // Fallback: first registered mode
         startGameFromMode(modeId);
     });
