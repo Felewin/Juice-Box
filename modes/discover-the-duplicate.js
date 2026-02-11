@@ -7,22 +7,22 @@
  *
  *  Level generation: one of each sprite + one duplicate. The grid
  *  dimensions use the reduction in level.js; for this mode, maxCells
- *  is 20 unique + 1 duplicate = 21.
+ *  is ALL_SPRITES.length + 1 (e.g. 25 unique + 1 duplicate = 26).
  * ============================================================
  */
 
 (function () {
-    // For this mode, the max cells is 20 unique sprites + 1 duplicate = 21.
+    // For this mode, the max cells is all unique sprites + 1 duplicate.
     const MAX_CELLS = ALL_SPRITES.length + 1;
 
     /**
  * Builds a randomized set of sprite names for one level.
  * The number of items equals ACTUAL_GRID_COLUMNS * ACTUAL_GRID_ROWS,
- * which is guaranteed to be <= MAX_CELLS (21 for this mode).
+ * which is guaranteed to be <= MAX_CELLS.
  *
  * SPRITE SELECTION STRATEGY:
- * - If totalCells >= 21: Use all 20 unique sprites + 1 duplicate = 21 items
- * - If totalCells < 21: Use a random subset of sprites (enough to fill the cells)
+ * - If totalCells >= MAX_CELLS: Use all unique sprites + 1 duplicate
+ * - If totalCells < MAX_CELLS: Use a random subset of sprites (enough to fill the cells)
  *   In this case, we need (totalCells - 1) unique sprites + 1 duplicate = totalCells items
  *   For example, if totalCells = 10, we pick 9 random unique sprites + 1 duplicate = 10 items
  *
@@ -45,7 +45,7 @@ function generateLevelForTheModeCalledDiscoverTheDuplicate() {
     let macguffin;  // The sprite that will appear twice
 
     if (totalCells >= MAX_CELLS) {
-        // We have enough cells for all 20 unique sprites + 1 duplicate
+        // We have enough cells for all unique sprites + 1 duplicate
         chosen = shuffle(ALL_SPRITES);
         macguffin = chosen[Math.floor(Math.random() * chosen.length)];
         chosen = [...chosen, macguffin];

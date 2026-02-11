@@ -35,6 +35,7 @@ function cancelLiquidDrain(liquidOverlay, { onCancelled, fadeOut } = {}) {
     }
 }
 
+/** Hides overlay immediately (no fade). Used when cancelling to start a new drain. */
 function resetOverlayToHidden(liquidOverlay) {
     liquidOverlay.classList.remove('visible', 'draining');
     liquidOverlay.classList.add('hidden');
@@ -97,7 +98,7 @@ function showLiquidDrain(liquidOverlay, { onTransitionStart, onTransitionEnd }) 
         if (cancelled) return;
         liquidOverlay.classList.add('visible');
 
-        const t1 = setTimeout(() => {
+        const t1 = setTimeout(() => {  // 300ms pause before drain starts (fade-in holds)
             if (cancelled) return;
             loadAudioMetadata(DRAIN_AUDIO_SRC).then((audio) => {
                 if (cancelled) return;
@@ -123,7 +124,7 @@ function showLiquidDrain(liquidOverlay, { onTransitionStart, onTransitionEnd }) 
                     timeouts.push(t2);
                 });
             });
-        }, 300);
+        }, 300);  // Matches liquid overlay fade-in in liquid.css
         timeouts.push(t1);
     });
 }

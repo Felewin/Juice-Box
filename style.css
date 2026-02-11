@@ -7,7 +7,7 @@
  *
  *  Design tokens (shared values) are stored as CSS custom
  *  properties on :root so they can be reused across rules —
- *  and even read from JavaScript (see game.js → FADE_MS).
+ *  and even read from JavaScript (see utils.js → FADE_MS).
  * ============================================================
  */
 
@@ -21,8 +21,8 @@
     --font-title: "Cherry Bomb One", system-ui;
 
     /* Each grid cell is a square whose side length is dynamically calculated
-       in JavaScript as min(1/5 of screen width, 1/9 of screen height).
-       Default fallback value for initial render before JS runs. */
+       in JavaScript as min(1/(cols+2) of width, 1/(rows+2) of height). With 3×8
+       grid that's 1/5 width, 1/10 height. Default fallback for initial render. */
     --cell-size: 60px;
 
     /* How long the fade-out lasts when transitioning between levels.
@@ -221,7 +221,7 @@ body {
 #grid {
     display: grid;
     grid-template-columns: repeat(var(--grid-columns, 3), auto);
-    grid-template-rows: repeat(var(--grid-rows, 7), auto);
+    grid-template-rows: repeat(var(--grid-rows, 8), auto);
     overflow: visible;                        /* Allow sprites to scale without clipping */
     max-width: 100vw;
     max-height: 100vh;

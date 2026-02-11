@@ -51,9 +51,9 @@
  *  blocks cell clicks during either; isReturningToModeSelect blocks ESC spam once we're
  *  already returning. When starting a new drain, any existing drain is cancelled.
  *
- *  Juice Box button is visible on mode select and in level. It fades out during
- *  transitions (drain, return) and fades in when settled. isReturningToTitle is
- *  Uses .visible for display and .hidden-during-transition for fade (see style.css).
+ *  Juice Box button: shown on mode select and in level; hidden on title-only. It
+ *  fades out during any screen change and fades in when the new screen is ready.
+ *  Uses .visible and .hidden-during-transition (see style.css).
  * ============================================================
  */
 
@@ -266,6 +266,8 @@ function updateCellSize() {
     document.documentElement.style.setProperty('--cell-size', `${cellSize}px`);
 }
 
+// Startup: init grid dimensions, set cell size, preload sprites. After fonts load, add .ready
+// and wire up title/mode click handlers.
 initDefaultGridDimensions();
 updateCellSize();
 window.addEventListener('resize', updateCellSize);

@@ -12,13 +12,12 @@
  */
 
 // Every filename in the sprites/ folder (without the .png extension).
-// There are 20 total.
+// There are 25 total.
 const ALL_SPRITES = [
-    'apple-green', 'apple-red', 'avocado', 'banana', 'carrot',
-    'cherries', 'coconut', 'cucumber', 'grapes', 'greens',
-    'kiwi', 'lemon', 'mango', 'melon', 'peach',
-    'pear', 'pineapple', 'strawberry', 'tangerine',
-    'watermelon'
+    'apple-green', 'apple-red', 'avocado', 'banana', 'beet', 'blueberries',
+    'carrot', 'cherries', 'coconut', 'cucumber', 'ginger', 'grapes', 'greens',
+    'kiwi', 'lemon', 'lime', 'mango', 'melon', 'olives', 'peach',
+    'pear', 'pineapple', 'strawberry', 'tangerine', 'watermelon'
 ];
 
 // Build the full image path for a sprite name.
@@ -38,7 +37,7 @@ const spriteSrc = (name) => `sprites/${name}.png`;
 
 // Desired grid dimensions (may be reduced if they would exceed a mode's maxCells)
 const GRID_COLUMNS = 3;
-const GRID_ROWS = 7;
+const GRID_ROWS = 8;
 
 /**
  * Reduces desired dimensions to fit within maxCells. Generic logic used by any
