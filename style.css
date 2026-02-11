@@ -243,9 +243,7 @@ body {
        The .appear class below will animate them sliding up and scaling in. */
     transform: scale(0) translateY(200%);
 
-    /* When .fade-out is added, opacity transitions smoothly to 0
-       over --fade-duration. The transition is always defined so
-       that adding the class is all it takes to trigger the fade. */
+    /* When .fade-out or .removed is added, opacity transitions smoothly to 0. */
     transition: opacity var(--fade-duration) ease;
 }
 
@@ -260,6 +258,13 @@ body {
    The opacity transition on .cell handles the smooth fade.
    pointer-events: none prevents further clicks during the fade. */
 .cell.fade-out {
+    opacity: 0;
+    pointer-events: none;
+}
+
+/* Applied when a cell is removed during play (Go Bananas, Discover the Duplicate).
+   Fades out and stops receiving input. */
+.cell.removed {
     opacity: 0;
     pointer-events: none;
 }
@@ -282,9 +287,9 @@ body {
     transform: scale(1.22);
 }
 
-/* Cancel the hover scale-up during the fade-out so sprites
-   don't pop bigger while disappearing */
-.cell.fade-out:hover img {
+/* Cancel the hover scale-up during fade-out or when removed */
+.cell.fade-out:hover img,
+.cell.removed:hover img {
     transform: scale(1);
 }
 

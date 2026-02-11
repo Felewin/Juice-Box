@@ -23,7 +23,7 @@ function getCellUnderTouch(gridEl, touchEvent) {
     if (!touch) return null;
     const el = document.elementFromPoint(touch.clientX, touch.clientY);
     const cell = el?.closest('.cell');
-    return cell && gridEl.contains(cell) && !cell.classList.contains('fade-out') ? cell : null;
+    return cell && gridEl.contains(cell) && !cell.classList.contains('fade-out') && !cell.classList.contains('removed') ? cell : null;
 }
 
 /**

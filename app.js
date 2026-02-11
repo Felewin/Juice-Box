@@ -16,20 +16,22 @@
  *
  * HOW TO ADD A NEW MODE (for future programmers):
  *  1. Create a new file in modes/ (e.g. modes/mynewmode.js).
- *  2. Call computeGridDimensions(maxCells) with your mode's max (from level.js).
- *     maxCells depends on your sprite rules; e.g. discover-the-duplicate uses 21.
- *  3. Add your mode to window.MODES:
- *       const MODES = window.MODES || {};
- *       MODES.mynewmode = {
- *         start(gridEl, opts) {
- *           // opts contains: onWin, shouldIgnoreInput (from app.js)
- *           // 1. Get level data (from your own generator)
- *           // 2. Define checkWin(cell) => boolean — your win condition
- *           // 3. Optionally play sounds
- *           // 4. Call buildGrid(gridEl, items, { ...opts, checkWin })
- *         }
- *       };
- *       window.MODES = MODES;
+ *  2. Wrap your mode in an IIFE so MAX_CELLS is file-scoped. In start(),
+ *     generate level data, define checkWin, then call
+ *     startModeLevel(gridEl, opts, MAX_CELLS, { items }, checkWin).
+ *  3. Add your mode to window.MODES (inside the IIFE):
+ *       (function () {
+ *         const MAX_CELLS = ...;
+ *         const MODES = window.MODES || {};
+ *         MODES.mynewmode = {
+ *           start(gridEl, opts) {
+ *             const { items } = generateLevel();
+ *             const checkWin = (cell) => ...;
+ *             startModeLevel(gridEl, opts, MAX_CELLS, { items }, checkWin);
+ *           }
+ *         };
+ *         window.MODES = MODES;
+ *       })();
  *  4. Add a mode button in index.html: <button class="mode-btn" data-mode="mynewmode">My New Mode</button>
  *  5. Add <script src="modes/mynewmode.js"></script> before app.js in index.html.
  *
@@ -184,9 +186,7 @@ function updateCellSize() {
     document.documentElement.style.setProperty('--cell-size', `${cellSize}px`);
 }
 
-document.documentElement.style.setProperty('--grid-columns', ACTUAL_GRID_COLUMNS);
-document.documentElement.style.setProperty('--grid-rows', ACTUAL_GRID_ROWS);
-
+initDefaultGridDimensions();
 updateCellSize();
 window.addEventListener('resize', updateCellSize);
 

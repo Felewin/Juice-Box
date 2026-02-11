@@ -5,9 +5,9 @@
  *  Shared sprite list, path helper, and generic grid utilities.
  *  Level generation logic (how to fill the grid) lives in each mode.
  *
- *  MODE CONTRACT: Each mode must call computeGridDimensions(maxCells) with its
- *  mode-specific max (derived from how many sprite instances it uses). This
- *  ensures every mode validates its dimensions against its own limits.
+ *  MODE CONTRACT: Each mode must be wrapped in an IIFE so MAX_CELLS is
+ *  file-scoped. In start(), call startModeLevel(gridEl, opts, MAX_CELLS, { items }, checkWin).
+ *  Dimensions are set when switching to that mode, not at script load.
  * ============================================================
  */
 
@@ -77,9 +77,8 @@ function reduceDimensions(desiredCols, desiredRows, maxCells) {
 }
 
 /**
- * Computes grid dimensions for a mode and exposes them for app.js. Each mode
- * must call this with its mode-specific maxCells when it loads. The reduction
- * is generic; the limit is mode-specific.
+ * Computes grid dimensions for a mode and exposes them. Each mode must call
+ * this at the start of its start() method when the user switches to that mode.
  *
  * @param {number} maxCells  Maximum cells this mode can use (mode-specific)
  * @returns {{ actualColumns: number, actualRows: number }}
@@ -88,7 +87,34 @@ function computeGridDimensions(maxCells) {
     const { actualColumns, actualRows } = reduceDimensions(GRID_COLUMNS, GRID_ROWS, maxCells);
     window.ACTUAL_GRID_COLUMNS = actualColumns;
     window.ACTUAL_GRID_ROWS = actualRows;
+    document.documentElement.style.setProperty('--grid-columns', actualColumns);
+    document.documentElement.style.setProperty('--grid-rows', actualRows);
     return { actualColumns, actualRows };
+}
+
+/**
+ * Runs the common mode setup: dimensions, cell size, audio, grid build.
+ * Each mode calls this with its MAX_CELLS, level data (with .items), and checkWin.
+ *
+ * @param {HTMLElement} gridEl
+ * @param {Object} opts From app.js: { onWin, shouldIgnoreInput }
+ * @param {number} maxCells
+ * @param {{ items: string[] }} levelData From the mode's generateLevel()
+ * @param {(cell: HTMLElement) => boolean} checkWin
+ */
+function startModeLevel(gridEl, opts, maxCells, levelData, checkWin) {
+    computeGridDimensions(maxCells);
+    updateCellSize();
+    playOverlapping('audio/Scatter Plops.mp3', 3, 0.25, 0.35);
+    buildGrid(gridEl, levelData.items, { ...opts, checkWin });
+}
+
+/**
+ * Sets default grid dimensions for app init (before any mode is selected).
+ * Uses full desired grid as default.
+ */
+function initDefaultGridDimensions() {
+    computeGridDimensions(GRID_COLUMNS * GRID_ROWS);
 }
 
 /**

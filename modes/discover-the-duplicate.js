@@ -11,13 +11,11 @@
  * ============================================================
  */
 
-// For this mode, the max cells is 20 unique sprites + 1 duplicate = 21.
-const MAX_CELLS = ALL_SPRITES.length + 1;
+(function () {
+    // For this mode, the max cells is 20 unique sprites + 1 duplicate = 21.
+    const MAX_CELLS = ALL_SPRITES.length + 1;
 
-// Calls level.js to compute dimensions; we pass our max.
-computeGridDimensions(MAX_CELLS);
-
-/**
+    /**
  * Builds a randomized set of sprite names for one level.
  * The number of items equals ACTUAL_GRID_COLUMNS * ACTUAL_GRID_ROWS,
  * which is guaranteed to be <= MAX_CELLS (21 for this mode).
@@ -104,9 +102,13 @@ MODES['discover-the-duplicate'] = {
      */
     start(gridEl, opts) {
         const { items, macguffin } = generateLevelForTheModeCalledDiscoverTheDuplicate();
-        const checkWin = (cell) => cell.dataset.sprite === macguffin;
-        playOverlapping('audio/Scatter Plops.mp3', 3, 0.25, 0.35);
-        buildGrid(gridEl, items, { ...opts, checkWin });
+        const checkWin = (cell) => {
+            if (cell.dataset.sprite !== macguffin) return false;
+            cell.classList.add('removed');
+            return true;
+        };
+        startModeLevel(gridEl, opts, MAX_CELLS, { items }, checkWin);
     }
 };
-window.MODES = MODES;
+    window.MODES = MODES;
+})();
