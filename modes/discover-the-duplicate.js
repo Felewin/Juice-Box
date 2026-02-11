@@ -127,6 +127,7 @@ function generateLevelForTheModeCalledDiscoverTheDuplicate() {
     return { items, macguffin };
 }
 
+// Extra ms after the macguffins finish fading, before the drain/next-level transition.
 const POST_CLICKEDSPRITE_FADING_PRETRANSITIONING_FADE_MS = 100;
 
 const MODES = window.MODES || {};
@@ -137,6 +138,8 @@ MODES['discover-the-duplicate'] = {
      */
     start(gridEl, opts) {
         const { items, macguffin } = generateLevelForTheModeCalledDiscoverTheDuplicate();
+
+        // Clicking either macguffin wins; macguffins fade later than the rest.
         const checkWin = (cell) => {
             if (cell.dataset.sprite !== macguffin) return false;
             playOneshot('audio/Success Jingle Plucking.mp3');

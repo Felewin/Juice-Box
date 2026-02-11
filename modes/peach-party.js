@@ -7,6 +7,8 @@
  *  When all peaches are gone, the level is won. Plays the banana split sound when
  *  picking a peach; uses shared LAST_SPLIT_SOUND_REF with Go Bananas to avoid
  *  repeating the same sound twice in a row across modes.
+ *
+ *  For this mode, maxCells equals the full grid (GRID_COLUMNS × GRID_ROWS).
  * ============================================================
  */
 

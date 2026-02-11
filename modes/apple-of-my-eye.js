@@ -6,6 +6,8 @@
  *  Each level, one apple type is chosen at random (apple-red or apple-green);
  *  exactly one instance of that apple appears. The rest of the cells are
  *  filled with random sprites (duplicates allowed).
+ *
+ *  For this mode, maxCells equals the full grid (GRID_COLUMNS × GRID_ROWS).
  * ============================================================
  */
 
@@ -44,6 +46,7 @@ function generateLevelForTheModeCalledAppleOfMyEye() {
     return { items, apple };
 }
 
+// Extra ms after the macguffin (apple) finishes fading, before the drain/next-level transition.
 const POST_CLICKEDSPRITE_FADING_PRETRANSITIONING_FADE_MS = 100;
 
 const MODES = window.MODES || {};
@@ -55,6 +58,7 @@ MODES['apple-of-my-eye'] = {
     start(gridEl, opts) {
         const { items, apple } = generateLevelForTheModeCalledAppleOfMyEye();
 
+        // Clicking the macguffin (apple) wins; macguffin fades later than the rest.
         const checkWin = (cell) => {
             if (cell.dataset.sprite !== apple) return false;
             playOneshot('audio/Success Jingle Plucking.mp3');
