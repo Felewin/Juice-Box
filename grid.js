@@ -69,7 +69,7 @@ function setupTouchHandlers(gridEl) {
             if (result) {
                 h.onWin(result === true ? {} : result);
             } else {
-                playOneshot('audio/Mouth Pop - Quiet.mp3');
+                playOneshot('audio/Mouth Pop.mp3');
             }
         }
         touchStartCell = null;
@@ -147,7 +147,7 @@ function buildGrid(gridEl, items, { checkWin, onWin, shouldIgnoreInput }) {
             if (result) {
                 onWin(result === true ? {} : result);
             } else {
-                playOneshot('audio/Mouth Pop - Quiet.mp3');
+                playOneshot('audio/Mouth Pop.mp3');
             }
         });
 

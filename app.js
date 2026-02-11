@@ -187,6 +187,7 @@ function returnToModeSelect() {
         titleHeading.classList.add('faded');
         modeScreen.classList.remove('hidden');
         modeScreen.setAttribute('aria-hidden', 'false');
+        modeScreen.querySelectorAll('.mode-btn').forEach((btn) => btn.classList.remove('fade-out'));
         isTransitioning = false;
         isReturningToModeSelect = false;
         updateJuiceboxButtonVisibility();
@@ -228,27 +229,58 @@ function startLevel() {
     });
 }
 
+const MODE_BUTTON_FADE_DELAY_MS = 850;
+
 /**
- * Called when the player clicks a mode button. Sets currentMode, hides the
- * title/mode screen, plays the liquid drain, then schedules startLevel.
+ * Called when the player clicks a mode button. Sets currentMode. Fades juicebox
+ * and other mode buttons immediately; delays the clicked button's fade by 850ms,
+ * then hides the title screen, plays the liquid drain, and schedules startLevel.
  *
  * @param {string} modeId The data-mode value from the clicked button (e.g. 'discover-the-duplicate').
+ * @param {HTMLElement} [clickedBtn] The mode button that was clicked; if provided, it fades 850ms later.
  */
-function startGameFromMode(modeId) {
+function startGameFromMode(modeId, clickedBtn) {
     currentMode = modeId;
-    titleScreen.classList.add('hidden');
-    showLiquidDrain(liquidOverlay, {
-        onTransitionStart: () => {
-            isSceneTransitioning = true;
-            updateJuiceboxButtonVisibility();
-        },
-        onTransitionEnd: () => {
-            isSceneTransitioning = false;
-            updateJuiceboxButtonVisibility();
-        }
-    });
-    if (startLevelTimeoutId) clearTimeout(startLevelTimeoutId);
-    startLevelTimeoutId = setTimeout(startLevel, LEVEL_TRANSITION_DELAY);
+
+    if (clickedBtn) {
+        // Fade juicebox and non-clicked mode buttons immediately
+        juiceboxButton?.classList.add('hidden-during-transition');
+        modeScreen.querySelectorAll('.mode-btn').forEach((btn) => {
+            if (btn !== clickedBtn) btn.classList.add('fade-out');
+        });
+
+        // After 850ms, fade the clicked button and start the drain/level
+        setTimeout(() => {
+            clickedBtn.classList.add('fade-out');
+            titleScreen.classList.add('hidden');
+            showLiquidDrain(liquidOverlay, {
+                onTransitionStart: () => {
+                    isSceneTransitioning = true;
+                    updateJuiceboxButtonVisibility();
+                },
+                onTransitionEnd: () => {
+                    isSceneTransitioning = false;
+                    updateJuiceboxButtonVisibility();
+                }
+            });
+            if (startLevelTimeoutId) clearTimeout(startLevelTimeoutId);
+            startLevelTimeoutId = setTimeout(startLevel, LEVEL_TRANSITION_DELAY);
+        }, MODE_BUTTON_FADE_DELAY_MS);
+    } else {
+        titleScreen.classList.add('hidden');
+        showLiquidDrain(liquidOverlay, {
+            onTransitionStart: () => {
+                isSceneTransitioning = true;
+                updateJuiceboxButtonVisibility();
+            },
+            onTransitionEnd: () => {
+                isSceneTransitioning = false;
+                updateJuiceboxButtonVisibility();
+            }
+        });
+        if (startLevelTimeoutId) clearTimeout(startLevelTimeoutId);
+        startLevelTimeoutId = setTimeout(startLevel, LEVEL_TRANSITION_DELAY);
+    }
 }
 
 /**
@@ -276,9 +308,8 @@ function setupModeScreenHandlers() {
         if (!btn) return;
         e.preventDefault();
         e.stopPropagation();
-        playOneshot('audio/Mouth Pop - Loud.mp3');
         const modeId = btn.dataset.mode || Object.keys(MODES)[0] || 'discover-the-duplicate';  // Fallback: first registered mode
-        startGameFromMode(modeId);
+        startGameFromMode(modeId, btn);
     });
 }
 

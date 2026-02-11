@@ -178,6 +178,7 @@ body {
 /* Juicy pill-shaped card; frosted glass effect; hover: lift + icon bounce.
    Height is set by JS: 1/(n+2) of viewport height, where n = number of buttons. */
 .mode-btn {
+    transition: opacity 0.3s ease, transform 0.3s var(--bounce-ease), box-shadow 0.3s ease;
     display: flex;
     align-items: center;
     gap: clamp(0.4em, 2vw, 1em);
@@ -207,7 +208,11 @@ body {
     box-shadow:
         0 2px 12px rgba(0, 0, 0, 0.08),
         inset 0 1px 0 rgba(255, 255, 255, 0.5);
-    transition: transform 0.3s var(--bounce-ease), box-shadow 0.3s ease;
+}
+
+.mode-btn.fade-out {
+    opacity: 0;
+    pointer-events: none;
 }
 
 .mode-btn:hover {
