@@ -12,11 +12,11 @@
  */
 
 // Every filename in the sprites/ folder (without the .png extension).
-// There are 25 total.
+// There are 24 total.
 const ALL_SPRITES = [
     'apple-green', 'apple-red', 'avocado', 'banana', 'beet', 'blueberries',
     'carrot', 'cherries', 'coconut', 'cucumber', 'ginger', 'grapes', 'greens',
-    'kiwi', 'lemon', 'lime', 'mango', 'melon', 'olives', 'peach',
+    'kiwi', 'lemon', 'lime', 'mango', 'melon', 'peach',
     'pear', 'pineapple', 'strawberry', 'tangerine', 'watermelon'
 ];
 
@@ -35,9 +35,14 @@ const spriteSrc = (name) => `sprites/${name}.png`;
 // If the product exceeds maxCells, we reduce the larger dimension first (to
 // maintain a more square-like aspect ratio), then reduce further if needed.
 
-// Desired grid dimensions (may be reduced if they would exceed a mode's maxCells)
-const GRID_COLUMNS = 3;
-const GRID_ROWS = 8;
+// Desired grid dimensions. reduceDimensions() may shrink them when a mode's maxCells
+// is lower (called via computeGridDimensions). SINGLE SOURCE: change these two; all
+// grid layout, comments, and mode logic follow.
+const GRID_COLUMNS = 4;
+const GRID_ROWS = 6;
+
+document.documentElement.style.setProperty('--grid-columns', GRID_COLUMNS);
+document.documentElement.style.setProperty('--grid-rows', GRID_ROWS);
 
 /**
  * Reduces desired dimensions to fit within maxCells. Generic logic used by any

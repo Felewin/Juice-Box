@@ -7,7 +7,7 @@
  *
  *  Level generation: one of each sprite + one duplicate. The grid
  *  dimensions use the reduction in level.js; for this mode, maxCells
- *  is ALL_SPRITES.length + 1 (e.g. 25 unique + 1 duplicate = 26).
+ *  is ALL_SPRITES.length + 1 (e.g. 24 unique + 1 duplicate = 25).
  * ============================================================
  */
 
