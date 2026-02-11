@@ -45,18 +45,23 @@ function generateLevelForTheModeCalledGoBananas() {
     return { items };
 }
 
+// One of these plays randomly when a banana is picked; playRandomExcludingLast avoids repeats.
 const BANANA_SPLIT_SOUNDS = [
     'audio/Banana Split (1).mp3',
     'audio/Banana Split (2).mp3',
     'audio/Banana Split (3).mp3'
 ];
+let lastBananaSound = { last: null };  // Persists across levels so we never play the same one twice in a row.
 
-let lastBananaSound = { last: null };
+// Extra ms after the last banana fades, before the drain/next-level transition.
+const POST_CLICKEDSPRITE_FADING_PRETRANSITIONING_FADE_MS = 200;
 
 const MODES = window.MODES || {};
 MODES['go-bananas'] = {
     start(gridEl, opts) {
         const { items } = generateLevelForTheModeCalledGoBananas();
+
+        // Called when a cell is clicked. Returns true only when the last banana is picked.
         const checkWin = (cell) => {
             if (cell.dataset.sprite !== 'banana') return false;
             playRandomExcludingLast(BANANA_SPLIT_SOUNDS, lastBananaSound);
@@ -65,7 +70,16 @@ MODES['go-bananas'] = {
             const remaining = gridEl.querySelectorAll('.cell[data-sprite="banana"]:not(.removed)');
             return remaining.length === 0;
         };
-        startModeLevel(gridEl, opts, MAX_CELLS, { items }, checkWin);
+
+        // Wraps opts.onWin (app.js winLevel) so we play the success jingle and wait for the last
+        // banana to finish fading before starting the drain/next level. The real onWin runs after
+        // FADE_MS + POST_CLICKEDSPRITE_FADING_PRETRANSITIONING_FADE_MS.
+        const wrappedOnWin = (result) => {
+            playOneshot('audio/Success Jingle Plucking.mp3');
+            setTimeout(() => opts.onWin(result), FADE_MS + POST_CLICKEDSPRITE_FADING_PRETRANSITIONING_FADE_MS);
+        };
+
+        startModeLevel(gridEl, { ...opts, onWin: wrappedOnWin }, MAX_CELLS, { items }, checkWin);
     }
 };
     window.MODES = MODES;

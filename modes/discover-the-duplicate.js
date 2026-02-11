@@ -127,6 +127,8 @@ function generateLevelForTheModeCalledDiscoverTheDuplicate() {
     return { items, macguffin };
 }
 
+const POST_CLICKEDSPRITE_FADING_PRETRANSITIONING_FADE_MS = 100;
+
 const MODES = window.MODES || {};
 MODES['discover-the-duplicate'] = {
     /**
@@ -137,7 +139,8 @@ MODES['discover-the-duplicate'] = {
         const { items, macguffin } = generateLevelForTheModeCalledDiscoverTheDuplicate();
         const checkWin = (cell) => {
             if (cell.dataset.sprite !== macguffin) return false;
-            return { macguffin };
+            playOneshot('audio/Success Jingle Plucking.mp3');
+            return { macguffin, postClickedSpriteFadingPreTransitioningFadeMs: POST_CLICKEDSPRITE_FADING_PRETRANSITIONING_FADE_MS };
         };
         startModeLevel(gridEl, opts, MAX_CELLS, { items }, checkWin);
     }

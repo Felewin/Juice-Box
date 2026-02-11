@@ -121,7 +121,7 @@ function winLevel(winData = {}) {
                     cell.classList.add('fade-out');
                 }
             });
-            // Wait for macguffins to finish fading, plus 100ms, before starting drain and next level
+            // Wait for macguffins to finish fading, plus the mode's buffer ms, before starting drain and next level
             setTimeout(() => {
                 showLiquidDrain(liquidOverlay, {
                     onTransitionStart: () => {
@@ -135,7 +135,7 @@ function winLevel(winData = {}) {
                 });
                 if (startLevelTimeoutId) clearTimeout(startLevelTimeoutId);
                 startLevelTimeoutId = setTimeout(startLevel, LEVEL_TRANSITION_DELAY);
-            }, FADE_MS + 100);
+            }, FADE_MS + winData.postClickedSpriteFadingPreTransitioningFadeMs);
         }, MACGUFFIN_FADE_DELAY_MS);
     } else {
         fadeOutCells(grid);
