@@ -46,23 +46,23 @@ function generateLevelForTheModeCalledAppleOfMyEye() {
 
 const POST_CLICKEDSPRITE_FADING_PRETRANSITIONING_FADE_MS = 100;
 
-    const MODES = window.MODES || {};
-    MODES['apple-of-my-eye'] = {
-        /**
-         * @param {HTMLElement} gridEl The #grid element.
-         * @param {Object} opts From app.js: { onWin, shouldIgnoreInput }. Spread into buildGrid.
-         */
-        start(gridEl, opts) {
-            const { items, apple } = generateLevelForTheModeCalledAppleOfMyEye();
+const MODES = window.MODES || {};
+MODES['apple-of-my-eye'] = {
+    /**
+     * @param {HTMLElement} gridEl The #grid element.
+     * @param {Object} opts From app.js: { onWin, shouldIgnoreInput }. Spread into buildGrid.
+     */
+    start(gridEl, opts) {
+        const { items, apple } = generateLevelForTheModeCalledAppleOfMyEye();
 
-            const checkWin = (cell) => {
-                if (cell.dataset.sprite !== apple) return false;
-                playOneshot('audio/Success Jingle Plucking.mp3');
-                return { macguffin: apple, postClickedSpriteFadingPreTransitioningFadeMs: POST_CLICKEDSPRITE_FADING_PRETRANSITIONING_FADE_MS };
-            };
+        const checkWin = (cell) => {
+            if (cell.dataset.sprite !== apple) return false;
+            playOneshot('audio/Success Jingle Plucking.mp3');
+            return { macguffin: apple, postClickedSpriteFadingPreTransitioningFadeMs: POST_CLICKEDSPRITE_FADING_PRETRANSITIONING_FADE_MS };
+        };
 
-            startModeLevel(gridEl, opts, MAX_CELLS, { items }, checkWin);
-        }
-    };
+        startModeLevel(gridEl, opts, MAX_CELLS, { items }, checkWin);
+    }
+};
     window.MODES = MODES;
 })();

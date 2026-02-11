@@ -58,6 +58,10 @@ const POST_CLICKEDSPRITE_FADING_PRETRANSITIONING_FADE_MS = 200;
 
 const MODES = window.MODES || {};
 MODES['go-bananas'] = {
+    /**
+     * @param {HTMLElement} gridEl The #grid element.
+     * @param {Object} opts From app.js: { onWin, shouldIgnoreInput }. Spread into buildGrid.
+     */
     start(gridEl, opts) {
         const { items } = generateLevelForTheModeCalledGoBananas();
 
