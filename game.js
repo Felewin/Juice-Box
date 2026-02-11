@@ -2,23 +2,23 @@
  * ============================================================
  *  JUICE BOX — Main Game Logic
  * ============================================================
- *  Core gameplay loop:
  *
- *  1. generateLevel() picks all available fruit/veggie sprites,
- *     then duplicates one of them — the "macguffin."
- *     This gives us exactly GRID_COLUMNS × GRID_ROWS items where
- *     one sprite appears twice and the rest appear once each.
+ * SCREEN FLOW (we never go directly from title to level):
+ *   Title screen → (click) → Mode screen → (click mode) → Level
+ *   Level → (win) → Level (level-to-level via liquid drain)
+ *   Level → (ESC/menu) → Title screen
  *
- *  2. startLevel() clears the grid, creates a DOM cell for each
- *     item, and animates them in with staggered random delays.
+ * CORE GAMEPLAY LOOP:
+ *  1. generateLevel() (level.js) picks fruit/veggie sprites and duplicates
+ *     one — the "macguffin." One sprite appears twice, the rest once each.
  *
- *  3. The player scans the grid and clicks whichever sprite they
- *     think appears twice. Clicking a correct (macguffin) cell
- *     triggers winLevel(); clicking any other cell does nothing.
+ *  2. startLevel() clears the grid, creates a DOM cell per item, animates them
+ *     in with staggered delays.
  *
- *  4. winLevel() fades all cells out simultaneously, then after
- *     the fade finishes, loops back to step 1 with a fresh
- *     random board.
+ *  3. Player finds and clicks the duplicate. Correct click → winLevel();
+ *     wrong click → nothing.
+ *
+ *  4. winLevel() fades cells out, plays liquid drain, starts the next level.
  * ============================================================
  */
 
@@ -36,6 +36,9 @@
 const FADE_MS = parseInt(getComputedStyle(document.documentElement)
     .getPropertyValue('--fade-duration'));
 
+// Delay before starting a level (fade-out + buffer). Used for mode screen→level and level→level.
+const LEVEL_TRANSITION_DELAY = FADE_MS + 100;
+
 // ---- DOM references & state ----
 
 const titleScreen = document.getElementById('title-screen');
@@ -49,7 +52,7 @@ const menuButton = document.getElementById('menu-button');
 // clicks should be ignored so the player can't "double-win."
 let isTransitioning = false;
 
-// When true, we're transitioning between scenes (title to level, or level to level)
+// When true, we're transitioning between scenes (mode screen→level or level→level)
 // The menu button should be hidden during these transitions
 let isSceneTransitioning = false;
 
@@ -60,10 +63,13 @@ let currentMacguffin = null;
 // ---- Helpers ----
 
 /**
- * Double requestAnimationFrame helper — ensures the browser has painted
- * the current state before applying a change, useful for CSS transitions/animations.
+ * Double requestAnimationFrame — waits for the browser to finish painting the current
+ * frame before running the callback. This is useful when you need to apply a CSS
+ * change (e.g. add a class) and then immediately trigger a transition; without
+ * double-rAF, the browser might batch the paint and the transition would not be
+ * visible. One rAF runs before the next paint; two ensures we've painted once.
  *
- * @param {Function} callback  Function to call after double-rAF
+ * @param {Function} callback  Function to run after the browser has painted
  */
 function doubleRAF(callback) {
     requestAnimationFrame(() => {
@@ -74,12 +80,14 @@ function doubleRAF(callback) {
 // ---- Level lifecycle ----
 
 /**
- * Shows a random-colored liquid overlay that fills the screen, then drains
- * downward to reveal the game underneath. Used when transitioning from
- * the title screen to the first level, and between levels. The drain animation
- * duration matches the length of the Juicebox Straw.mp3 audio file.
- * 
- * Fades in the liquid first, then starts draining and plays audio.
+ * Plays the liquid drain transition: a random-colored overlay fills the screen,
+ * fades in, then drains downward to reveal the game. Used when going from the
+ * mode screen to a level, or when transitioning between levels after a win.
+ * The drain animation duration is synced to the Juicebox Straw.mp3 audio length.
+ *
+ * Sequence: reset overlay → fade in → load audio → play audio + start drain →
+ * hide overlay when done. During this time, isSceneTransitioning is true so the
+ * menu button stays hidden.
  */
 function showLiquidDrain() {
     // Mark that we're transitioning between scenes
@@ -195,62 +203,61 @@ function startLevel() {
 }
 
 /**
- * Sets up touch event handlers on the grid to handle drag-to-select behavior.
- * Tracks which cell is under the finger during touch drag and updates hover state.
- * Only triggers click on the cell under the finger when touch ends.
- * Uses currentMacguffin from module scope.
+ * Finds which grid cell (if any) is under the user's finger during a touch event.
+ * Used by touch handlers to determine which cell was tapped or is being dragged over.
+ * Returns null if no touch data, no cell at that position, or the cell is fading out
+ * (we don't want to register hits on cells that are already disappearing).
+ *
+ * Handles both touchstart/touchmove (touches[0]) and touchend (changedTouches[0])
+ * since touch-end events only have changedTouches.
+ *
+ * @param {TouchEvent} touchEvent  A touchstart, touchmove, or touchend event
+ * @returns {Element|null}       The .cell element under the touch, or null
+ */
+function getCellUnderTouch(touchEvent) {
+    const touch = touchEvent.touches?.[0] ?? touchEvent.changedTouches?.[0];
+    if (!touch) return null;
+    const el = document.elementFromPoint(touch.clientX, touch.clientY);
+    const cell = el?.closest('.cell');
+    return cell && !cell.classList.contains('fade-out') ? cell : null;
+}
+
+/**
+ * Sets up touch handlers on the grid so mobile users can "tap" a cell by touching
+ * and releasing, even if their finger drifts slightly. On touch devices, :hover
+ * doesn't work reliably, so we track which cell the finger is over during touchstart
+ * and touchmove. When touchend fires, we check if that cell (or the last cell the
+ * finger was over) is the macguffin — if so, the player wins.
+ *
+ * We use getCellUnderTouch() to avoid duplicating the "find cell under finger" logic.
+ * currentMacguffin is read from module scope (updated each level by startLevel).
  */
 function setupTouchDragHandling() {
-    // Simple touch handling: just detect which cell was tapped/released on
-    // No hover state management - CSS :hover handles mouse hover naturally
-    
     let touchStartCell = null;
-    
+
+    const updateTrackedCell = (e) => {
+        const cell = getCellUnderTouch(e);
+        if (cell) touchStartCell = cell;
+    };
+
     grid.addEventListener('touchstart', (e) => {
         if (isTransitioning) return;
-        e.preventDefault(); // Prevent default touch behavior
-        
-        const touch = e.touches[0];
-        const elementUnderTouch = document.elementFromPoint(touch.clientX, touch.clientY);
-        const cellUnderTouch = elementUnderTouch?.closest('.cell');
-        
-        if (cellUnderTouch && !cellUnderTouch.classList.contains('fade-out')) {
-            touchStartCell = cellUnderTouch;
-        }
+        e.preventDefault();
+        updateTrackedCell(e);
     }, { passive: false });
-    
+
     grid.addEventListener('touchmove', (e) => {
         if (isTransitioning) return;
-        e.preventDefault(); // Prevent scrolling while dragging
-        
-        // Track which cell the finger is currently over
-        const touch = e.touches[0];
-        const elementUnderTouch = document.elementFromPoint(touch.clientX, touch.clientY);
-        const cellUnderTouch = elementUnderTouch?.closest('.cell');
-        
-        if (cellUnderTouch && !cellUnderTouch.classList.contains('fade-out')) {
-            touchStartCell = cellUnderTouch;
-        }
+        e.preventDefault();
+        updateTrackedCell(e);
     }, { passive: false });
     
     grid.addEventListener('touchend', (e) => {
         if (isTransitioning) return;
-        
-        // Find which cell the touch ended over
-        const touch = e.changedTouches[0];
-        const elementUnderTouch = document.elementFromPoint(touch.clientX, touch.clientY);
-        const cellUnderTouch = elementUnderTouch?.closest('.cell');
-        
-        // Use the cell the touch ended over, or fall back to the last tracked cell
-        const finalCell = cellUnderTouch || touchStartCell;
-        
-        // If touch ended over a cell, trigger click on that cell
-        if (finalCell && !finalCell.classList.contains('fade-out')) {
-            if (finalCell.dataset.sprite === currentMacguffin) {
-                winLevel();
-            }
+        const finalCell = getCellUnderTouch(e) || touchStartCell;
+        if (finalCell && finalCell.dataset.sprite === currentMacguffin) {
+            winLevel();
         }
-        
         touchStartCell = null;
     }, { passive: true });
     
@@ -260,50 +267,47 @@ function setupTouchDragHandling() {
 }
 
 /**
- * Called when the player correctly identifies the macguffin.
- * - Locks out further clicks via isTransitioning
- * - Fades all cells out simultaneously (CSS handles the animation)
- * - After the fade finishes (plus a small buffer), starts the next level
+ * Fades out all grid cells by adding the .fade-out class. The CSS on .cell defines
+ * an opacity transition, so this triggers a smooth fade. Used in two places: when
+ * the player wins a level (winLevel) and when they return to the menu (returnToMenu).
+ * Extracting this keeps the fade logic in one place.
  */
-function winLevel() {
-    isTransitioning = true;
-
-    const cells = grid.querySelectorAll('.cell');
-
-    // Adding .fade-out triggers the opacity transition defined in
-    // style.css on every cell at the same time.
-    cells.forEach((cell) => {
+function fadeOutCells() {
+    grid.querySelectorAll('.cell').forEach((cell) => {
         cell.classList.add('fade-out');
     });
-
-    // Show the liquid drain animation (fades in, then drains)
-    showLiquidDrain();
-
-    // Start the next level immediately - don't wait for liquid animation
-    // The liquid will fade in and drain while the new level loads
-    setTimeout(startLevel, FADE_MS + 100);
 }
 
 /**
- * Returns to the title screen by fading out the current level.
- * Called when the player presses ESC or when returning to menu.
- * - Fades all cells out
- * - Shows the title screen again
- * - Next click on title screen will start a fresh level
+ * Called when the player correctly clicks the duplicate (macguffin) sprite.
+ * 1. Sets isTransitioning so no more clicks register
+ * 2. Fades out all cells (fadeOutCells)
+ * 3. Plays the liquid drain transition (showLiquidDrain)
+ * 4. Schedules startLevel after LEVEL_TRANSITION_DELAY so the new level appears
+ *    as the liquid drains away (level-to-level transition)
+ */
+function winLevel() {
+    isTransitioning = true;
+    fadeOutCells();
+    showLiquidDrain();
+    setTimeout(startLevel, LEVEL_TRANSITION_DELAY);
+}
+
+/**
+ * Returns the player to the title/mode screen from an active level. Called when
+ * they press ESC or click the menu button.
+ *
+ * 1. Fades out all cells (fadeOutCells)
+ * 2. After LEVEL_TRANSITION_DELAY: clears the grid, shows the title screen again,
+ *    resets to title view (title visible, mode screen hidden), and re-enables
+ *    interaction. Next click on the title reveals the mode screen; choosing a
+ *    mode starts a fresh level.
  */
 function returnToMenu() {
     if (isTransitioning) return; // Don't allow multiple calls
-    
     isTransitioning = true;
+    fadeOutCells();
 
-    const cells = grid.querySelectorAll('.cell');
-
-    // Fade out all cells
-    cells.forEach((cell) => {
-        cell.classList.add('fade-out');
-    });
-
-    // After fade completes, show title screen and clear the grid
     setTimeout(() => {
         // Clear the grid
         grid.innerHTML = '';
@@ -318,18 +322,20 @@ function returnToMenu() {
         updateMenuButtonVisibility();
         
         isTransitioning = false;
-    }, FADE_MS + 100);
+    }, LEVEL_TRANSITION_DELAY);
 }
 
 // ---- Sprite sizing ----
 
 /**
- * Updates the sprite cell size dynamically based on viewport dimensions.
- * Uses whichever is smaller: screen width / (columns + 2), or screen height / (rows + 2).
- * The +2 accounts for one extra column/row worth of margin on each side.
- * 
- * IMPORTANT: Uses ACTUAL_GRID_COLUMNS and ACTUAL_GRID_ROWS (not the desired
- * GRID_COLUMNS/GRID_ROWS) to ensure sprite sizing matches the actual grid layout.
+ * Recalculates and sets the sprite cell size based on the current viewport.
+ * We want sprites to fit on screen: we divide width by (columns + 2) and height
+ * by (rows + 2), then use the smaller result. The +2 gives a margin of one
+ * extra column/row on each side. This sets the CSS variable --cell-size that
+ * the grid and sprites use. Called on load and on window resize.
+ *
+ * Uses ACTUAL_GRID_COLUMNS and ACTUAL_GRID_ROWS from level.js (not the desired
+ * dimensions) so we never try to display more cells than we have sprites for.
  */
 function updateCellSize() {
     // Calculate sprite size based on ACTUAL grid dimensions + margin (1 extra column/row on each side)
@@ -361,8 +367,11 @@ ALL_SPRITES.forEach((name) => {
 });
 
 /**
- * Updates the menu button visibility based on scene transition state.
- * Button is hidden during scene transitions (title to level, level to level).
+ * Shows or hides the menu button based on the current state. The button is visible
+ * only when we're actively playing a level (title screen hidden, not transitioning).
+ * It stays hidden when: the title/mode screen is visible, or during liquid drain
+ * transitions (mode screen→level or level→level). This avoids the button popping
+ * in during the drain animation.
  */
 function updateMenuButtonVisibility() {
     if (!menuButton) return;
@@ -376,17 +385,24 @@ function updateMenuButtonVisibility() {
     }
 }
 
-// Start the game (liquid drain + level). Used when a mode button is clicked.
+/**
+ * Starts the game when the player clicks a mode button. Hides the title/mode screen,
+ * plays the liquid drain transition, and schedules startLevel after the transition
+ * delay. This is the only way to begin gameplay — we never go directly from title
+ * to level; the flow is always title → mode screen → level.
+ */
 function startGameFromMode() {
     titleScreen.classList.add('hidden');
     showLiquidDrain();
-    setTimeout(() => {
-        startLevel();
-    }, FADE_MS + 100);
+    setTimeout(startLevel, LEVEL_TRANSITION_DELAY);
 }
 
-// Click on title screen: if we're showing the title, fade it out and show the mode screen.
-// If we're already on the mode screen, this handler does nothing (mode buttons have their own handlers).
+/**
+ * Handles clicks on the title screen. When the title is visible (mode screen is
+ * hidden), a click fades out the "Juice Box" title and reveals the mode screen
+ * with its two mode buttons. If the mode screen is already visible, this handler
+ * does nothing — clicks on the mode buttons are handled by setupModeScreenHandlers.
+ */
 function setupTitleScreenClickHandler() {
     titleScreen.addEventListener('click', (e) => {
         if (!modeScreen.classList.contains('hidden')) return;
@@ -396,7 +412,13 @@ function setupTitleScreenClickHandler() {
     });
 }
 
-// Mode button click: start the game (same level type for both modes for now).
+/**
+ * Handles clicks on the mode screen buttons. Uses event delegation: we listen on
+ * the mode screen container and check if the click target is a .mode-btn. If so,
+ * we prevent the event from bubbling (so the title screen handler doesn't run)
+ * and call startGameFromMode to begin the level. Both mode buttons currently
+ * start the same level type; a second mode can be added later.
+ */
 function setupModeScreenHandlers() {
     modeScreen.addEventListener('click', (e) => {
         const btn = e.target.closest('.mode-btn');
@@ -407,10 +429,10 @@ function setupModeScreenHandlers() {
     });
 }
 
-// Wait for the title font to load before revealing the title screen.
-// This prevents FOUT (Flash of Unstyled Text) — the user never sees
-// the fallback system font. Once ready, first click goes to mode screen;
-// choosing a mode starts the level.
+// Wait for the title font (Cherry Bomb One) to load before revealing the title screen.
+// This prevents FOUT — the user never sees a brief flash of the fallback font.
+// Once ready, we show the title; first click reveals the mode screen; choosing
+// a mode starts the level (never directly from title to level).
 document.fonts.ready.then(() => {
     // Use double-rAF to guarantee the browser has painted the opacity: 0
     // state before we transition to opacity: 1 — ensures a visible fade-in.
@@ -421,18 +443,26 @@ document.fonts.ready.then(() => {
     });
 });
 
-// ESC key handler: return to menu from any level
+/**
+ * Returns true when the player is actively in a level (playing), and it's safe to
+ * show the menu button or handle ESC/menu clicks. We're "in level" when the title
+ * screen is hidden (so we're past the title/mode screens) and we're not in the
+ * middle of a fade-out transition (which would make double-triggers possible).
+ *
+ * @returns {boolean}  True if we're playing a level and can return to menu
+ */
+function isInLevel() {
+    return titleScreen.classList.contains('hidden') && !isTransitioning;
+}
+
+// ESC key handler: return to menu when playing a level
 document.addEventListener('keydown', (e) => {
-    // Only handle ESC if we're in a level (title screen is hidden)
-    if (e.key === 'Escape' && titleScreen.classList.contains('hidden') && !isTransitioning) {
-        returnToMenu();
-    }
+    if (e.key === 'Escape' && isInLevel()) returnToMenu();
 });
 
-// Menu button click handler: same functionality as ESC
+// Menu button click handler: same as ESC — return to title/mode screen from a level
 menuButton.addEventListener('click', () => {
-    // Only work if we're in a level (title screen is hidden)
-    if (titleScreen.classList.contains('hidden') && !isTransitioning) {
+    if (isInLevel()) {
         // Fade out the button immediately
         menuButton.classList.add('hidden-during-drain');
         

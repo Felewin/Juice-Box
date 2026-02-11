@@ -3,13 +3,14 @@
  *  JUICE BOX — Liquid Drain Animation
  * ============================================================
  *  Styles and keyframes for the liquid overlay that drains
- *  downward when transitioning from the title screen to gameplay.
+ *  downward. Used when going from mode screen→level or level→level.
+ *  (We never transition directly from the title screen to a level.)
  * ============================================================
  */
 
 /* ---- Liquid overlay ----
    Fills the screen with a random color, then drains downward to reveal the game.
-   Only shown when transitioning from the title screen. */
+   Shown when transitioning from mode screen to a level, or between levels. */
 #liquid-overlay {
     position: fixed;
     inset: 0;
