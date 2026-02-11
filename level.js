@@ -12,9 +12,9 @@
  */
 
 // Every filename in the sprites/ folder (without the .png extension).
-// There are 24 total.
+// There are 25 total.
 const ALL_SPRITES = [
-    'apple-green', 'apple-red', 'avocado', 'banana', 'beet', 'blueberries',
+    'apple-gold', 'apple-green', 'apple-red', 'avocado', 'banana', 'beet', 'blueberries',
     'carrot', 'cherries', 'coconut', 'cucumber', 'ginger', 'grapes', 'greens',
     'kiwi', 'lemon', 'lime', 'mango', 'melon', 'peach',
     'pear', 'pineapple', 'strawberry', 'tangerine', 'watermelon'

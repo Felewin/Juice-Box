@@ -2,8 +2,8 @@
  * ============================================================
  *  JUICE BOX — Apple Of My Eye
  * ============================================================
- *  Mode: Find the single apple (red or green) in the grid.
- *  Each level, one apple type is chosen at random (apple-red or apple-green);
+ *  Mode: Find the single apple (red, green, or gold) in the grid.
+ *  Each level, one apple type is chosen at random (apple-red, apple-green, or apple-gold);
  *  exactly one instance of that apple appears. The rest of the cells are
  *  filled with random sprites (duplicates allowed).
  *
@@ -14,14 +14,14 @@
 (function () {
     const MAX_CELLS = GRID_COLUMNS * GRID_ROWS;
 
-    const APPLE_SPRITES = ['apple-red', 'apple-green'];
+    const APPLE_SPRITES = ['apple-red', 'apple-green', 'apple-gold'];
     const NON_APPLE_SPRITES = ALL_SPRITES.filter(
-        (s) => s !== 'apple-red' && s !== 'apple-green'
+        (s) => s !== 'apple-red' && s !== 'apple-green' && s !== 'apple-gold'
     );
 
 /**
  * Builds a random set of sprite names for one level.
- * Exactly one apple (red or green, chosen randomly) in a random position;
+ * Exactly one apple (red, green, or gold, chosen randomly) in a random position;
  * all other cells get random non-apple sprites (duplicates allowed).
  *
  * @returns {{ items: string[], apple: string }}
