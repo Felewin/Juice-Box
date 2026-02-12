@@ -249,15 +249,6 @@ function startLevel() {
     });
 }
 
-// Accent color from each mode's icon (used for background during button linger).
-const MODE_ACCENT_COLORS = {
-    'go-bananas': '#FF9900',      // banana (amber/orange)
-    'apple-of-my-eye': '#C0392B', // apple red (darker)
-    'perfect-pearody': '#7DCE82', // pear green
-    'peach-party': '#E8A87C',     // peach (darker)
-    'pairy-picking': '#C0392B'    // cherry red
-};
-
 /**
  * Called when the player clicks a mode button. Sets currentMode. Fades juicebox
  * and other mode buttons immediately; delays the clicked button's fade by MODE_BUTTON_FADE_DELAY_MS,
@@ -347,18 +338,6 @@ function isInLevel() {
  */
 function isOnModeSelect() {
     return !modeScreen.classList.contains('hidden');
-}
-
-/**
- * Sets mode button height via --mode-btn-height. Each button gets 1/(n+2) of
- * viewport height (n = number of buttons); the +2 reserves space above and below.
- * Called on init and resize.
- */
-function updateModeButtonHeight() {
-    const btns = modeScreen.querySelectorAll('.mode-btn');
-    const n = btns.length;
-    const height = n > 0 ? `calc(100vh / ${n + 2})` : 'auto';
-    document.documentElement.style.setProperty('--mode-btn-height', height);
 }
 
 // Startup: init grid dimensions, set cell size, preload sprites. After fonts load, add .ready

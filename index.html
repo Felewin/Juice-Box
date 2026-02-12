@@ -78,13 +78,14 @@
     <!--
         Script order matters.
         Head order: timing.js (must run before level.js), level.js (must be here to set --grid-columns/--grid-rows in time).
-        Body order: audio, utils, transitions, grid, modes/*.js, app.js.
+        Body order: audio, utils, transitions, grid, modes.js, modes/*.js, app.js.
         New modes: add <script> before app.js. See HOW TO ADD A NEW MODE in app.js.
     -->
     <script src="audio.js"></script>
     <script src="utils.js"></script>
     <script src="transitions.js"></script>
     <script src="grid.js"></script>
+    <script src="modes.js"></script>
     <script src="modes/go-bananas.js"></script>
     <script src="modes/apple-of-my-eye.js"></script>
     <script src="modes/perfect-pearody.js"></script>
