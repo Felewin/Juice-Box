@@ -399,8 +399,8 @@ body {
    Uses favicon.png and animates on mouse hover (same as sprites). */
 #juicebox-button {
     position: fixed;
-    top: calc(var(--cell-size) / 2);
-    left: calc(var(--cell-size) / 2);
+    top: calc(var(--cell-size) / 4);
+    left: calc(var(--cell-size) / 4);
     width: calc(var(--cell-size) / 2);
     height: calc(var(--cell-size) / 2);
     aspect-ratio: 1;
