@@ -27,15 +27,7 @@
  */
 function generateLevelForTheModeCalledPerfectPearody() {
     const totalCells = ACTUAL_GRID_COLUMNS * ACTUAL_GRID_ROWS;
-    const items = [];
-
-    for (let i = 0; i < totalCells; i++) {
-        items.push(
-            FILLER_SPRITES[
-                Math.floor(Math.random() * FILLER_SPRITES.length)
-            ]
-        );
-    }
+    const items = fillWithRandom(totalCells, FILLER_SPRITES);
 
     // Place exactly two pears in random positions; each is randomly green or gold
     const idx1 = Math.floor(Math.random() * items.length);

@@ -27,6 +27,22 @@ const spriteSrc = (name) => `sprites/${name}.png`;
 // ---- Level generation helpers ----
 
 /**
+ * Returns an array of `count` sprite names, each chosen at random from `sourceSprites`.
+ * Duplicates are allowed.
+ *
+ * @param {number} count Number of cells to fill.
+ * @param {string[]} sourceSprites Sprite names to choose from (e.g. FILLER_SPRITES or ALL_SPRITES).
+ * @returns {string[]}
+ */
+function fillWithRandom(count, sourceSprites) {
+    const items = [];
+    for (let i = 0; i < count; i++) {
+        items.push(sourceSprites[Math.floor(Math.random() * sourceSprites.length)]);
+    }
+    return items;
+}
+
+/**
  * Ensures at least one instance of the target sprite in the items array.
  * If none exist, replaces a random cell with the target. Mutates items in place.
  * Use before addExtraTargetsByChance so the mode has the required minimum.

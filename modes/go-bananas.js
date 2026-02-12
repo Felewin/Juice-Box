@@ -22,11 +22,7 @@
  */
 function generateLevelForTheModeCalledGoBananas() {
     const totalCells = ACTUAL_GRID_COLUMNS * ACTUAL_GRID_ROWS;
-    const items = [];
-
-    for (let i = 0; i < totalCells; i++) {
-        items.push(ALL_SPRITES[Math.floor(Math.random() * ALL_SPRITES.length)]);
-    }
+    const items = fillWithRandom(totalCells, ALL_SPRITES);
 
     ensureTargetPresent(items, TARGET);
     addExtraTargetsByChance(items, TARGET);

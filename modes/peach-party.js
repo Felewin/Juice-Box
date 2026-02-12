@@ -27,15 +27,7 @@
  */
 function generateLevelForTheModeCalledPeachParty() {
     const totalCells = ACTUAL_GRID_COLUMNS * ACTUAL_GRID_ROWS;
-    const items = [];
-
-    for (let i = 0; i < totalCells; i++) {
-        items.push(
-            FILLER_SPRITES[
-                Math.floor(Math.random() * FILLER_SPRITES.length)
-            ]
-        );
-    }
+    const items = fillWithRandom(totalCells, FILLER_SPRITES);
 
     ensureTargetPresent(items, TARGET);
     addExtraTargetsByChance(items, TARGET);
