@@ -59,15 +59,10 @@ MODES['peach-party'] = {
 
         const checkWin = (cell) => checkWinClickToRemove(gridEl, cell, TARGET);
 
-        // Wraps opts.onWin (app.js winLevel) so we play the success jingle and wait for the last
-        // peach to finish fading before starting the drain/next level. The real onWin runs after
-        // FADE_MS + POST_CLICKEDSPRITE_FADING_PRETRANSITIONING_FADE_MS.
-        const wrappedOnWin = (result) => {
-            playOneshot('audio/Success Jingle Plucking.mp3');
-            setTimeout(() => opts.onWin(result), FADE_MS + POST_CLICKEDSPRITE_FADING_PRETRANSITIONING_FADE_MS);
-        };
-
-        startModeLevel(gridEl, { ...opts, onWin: wrappedOnWin }, MAX_CELLS, { items }, checkWin);
+        startModeLevel(gridEl, {
+            ...opts,
+            onWin: wrapOnWinWithJingleAndDelay(opts, POST_CLICKEDSPRITE_FADING_PRETRANSITIONING_FADE_MS)
+        }, MAX_CELLS, { items }, checkWin);
     }
 };
     window.MODES = MODES;

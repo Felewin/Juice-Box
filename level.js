@@ -117,6 +117,22 @@ function checkWinClickToRemove(gridEl, cell, target) {
 }
 
 /**
+ * Wraps opts.onWin for click-to-remove modes. Plays the success jingle immediately,
+ * then calls the real onWin after FADE_MS + postFadeMs so the last target has time
+ * to finish fading before the drain/next-level transition.
+ *
+ * @param {Object} opts From app.js: { onWin, shouldIgnoreInput }
+ * @param {number} postFadeMs Extra ms after the last target fades, before starting drain.
+ * @returns {function} Wrapped onWin callback.
+ */
+function wrapOnWinWithJingleAndDelay(opts, postFadeMs) {
+    return (result) => {
+        playOneshot('audio/Success Jingle Plucking.mp3');
+        setTimeout(() => opts.onWin(result), FADE_MS + postFadeMs);
+    };
+}
+
+/**
  * Runs the common mode setup: dimensions, cell size, audio, grid build.
  * Each mode calls this with its MAX_CELLS, level data (with .items), and checkWin.
  *
