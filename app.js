@@ -387,6 +387,7 @@ function setupTitleScreenClickHandler() {
         titleHeading.classList.add('faded');
         modeScreen.classList.remove('hidden');
         modeScreen.setAttribute('aria-hidden', 'false');
+        playOneshot('audio/Mouth Pop.mp3');
         playOneshot('audio/Windchimes Jingling.mp3');
         juiceboxButton?.classList.add('visible', 'hidden-during-transition');
         doubleRAF(() => juiceboxButton?.classList.remove('hidden-during-transition'));
@@ -448,23 +449,27 @@ document.fonts.ready.then(() => {
     });
 });
 
-// ESC: abort transition → return from level → return to title screen (priority order)
-document.addEventListener('keydown', (e) => {
-    if (e.key !== 'Escape') return;
-    if (isTransitioningToLevel) abortTransitionToLevel();
-    else if (isInLevel()) returnToModeSelect();
-    else if (isOnModeSelect()) returnToTitle();
-});
-
-// Juice Box button: same priority as ESC
-juiceboxButton.addEventListener('click', () => {
+/**
+ * Handles back navigation: ESC or Juice Box button. Plays the Juicebox Empty
+ * sound and dispatches to abort, return-to-mode-select, or return-to-title.
+ */
+function handleBackAction() {
     playOneshot('audio/Juicebox Empty.mp3');
     if (isTransitioningToLevel) {
         abortTransitionToLevel();
     } else if (isInLevel()) {
-        juiceboxButton.classList.add('hidden-during-transition');
+        juiceboxButton?.classList.add('hidden-during-transition');
         returnToModeSelect();
     } else if (isOnModeSelect()) {
         returnToTitle();
     }
+}
+
+// ESC: same behavior as Juice Box button
+document.addEventListener('keydown', (e) => {
+    if (e.key !== 'Escape') return;
+    handleBackAction();
 });
+
+// Juice Box button: same priority as ESC
+juiceboxButton.addEventListener('click', handleBackAction);
