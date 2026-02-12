@@ -241,7 +241,7 @@ body {
         right: 7.5vw;
     }
     .mode-btn {
-        font-size: calc(var(--mode-btn-height) * 0.45);  /* ~45% vs ~65% default */
+        font-size: calc(var(--mode-btn-height) * 0.30);  /* ~30% vs ~65% default (reduced for portrait) */
     }
 }
 
