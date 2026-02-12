@@ -18,8 +18,8 @@ const MODE_ACCENT_COLORS = {
 };
 
 /**
- * Sets mode button height via --mode-btn-height. Each button gets 1/(n+2) of
- * viewport height (n = number of buttons); the +2 reserves space above and below.
+ * Sets mode button height via --mode-btn-height. Each button gets 1/(n+4) of
+ * viewport height (n = number of buttons); the +4 reserves space above and below.
  * Called on init and resize.
  */
 function updateModeButtonHeight() {
@@ -27,6 +27,6 @@ function updateModeButtonHeight() {
     if (!modeScreen) return;
     const btns = modeScreen.querySelectorAll('.mode-btn');
     const n = btns.length;
-    const height = n > 0 ? `calc(100vh / ${n + 2})` : 'auto';
+    const height = n > 0 ? `calc(100vh / ${n + 4})` : 'auto';
     document.documentElement.style.setProperty('--mode-btn-height', height);
 }

@@ -201,7 +201,7 @@ body {
     gap: clamp(0.4em, 2vw, 1em);
     width: 100%;
     min-height: var(--mode-btn-height);
-    padding: clamp(0.5rem, 2vw, 1.25rem) clamp(1rem, 3vw, 1.5rem);
+    padding: calc(clamp(0.5rem, 2vw, 1.25rem) / 8) clamp(1rem, 3vw, 1.5rem);
     border: 1px solid rgba(255, 255, 255, 0.45);
     border-radius: 9999px;
     background: linear-gradient(
@@ -255,10 +255,11 @@ body {
     background-image: linear-gradient(to right, var(--gradient-text-core), #E0FF9E);
 }
 
-/* Bigger sprites; hover: gentle bounce */
+/* Icon: square, max 75% of button height; scales down as button gets slimmer. Hover: gentle bounce */
 .mode-btn-icon {
-    width: 2.2em;
-    height: 2.2em;
+    height: 75%;
+    aspect-ratio: 1;
+    width: auto;
     object-fit: contain;
     flex-shrink: 0;
     pointer-events: none;
