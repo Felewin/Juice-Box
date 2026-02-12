@@ -350,17 +350,6 @@ function isOnModeSelect() {
 }
 
 /**
- * Recalculates sprite cell size from viewport. Called on load and resize.
- * Uses ACTUAL_GRID_COLUMNS/ROWS. Each mode sets these when it loads or when it starts.
- */
-function updateCellSize() {
-    const widthBasedSize = window.innerWidth / (ACTUAL_GRID_COLUMNS + 2);
-    const heightBasedSize = window.innerHeight / (ACTUAL_GRID_ROWS + 2);
-    const cellSize = Math.min(widthBasedSize, heightBasedSize);
-    document.documentElement.style.setProperty('--cell-size', `${cellSize}px`);
-}
-
-/**
  * Sets mode button height via --mode-btn-height. Each button gets 1/(n+2) of
  * viewport height (n = number of buttons); the +2 reserves space above and below.
  * Called on init and resize.

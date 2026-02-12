@@ -152,6 +152,17 @@ function computeGridDimensions(maxCells) {
 }
 
 /**
+ * Recalculates sprite cell size from viewport. Called on load and resize.
+ * Uses ACTUAL_GRID_COLUMNS/ROWS. Each mode sets these when it loads or when it starts.
+ */
+function updateCellSize() {
+    const widthBasedSize = window.innerWidth / (ACTUAL_GRID_COLUMNS + 2);
+    const heightBasedSize = window.innerHeight / (ACTUAL_GRID_ROWS + 2);
+    const cellSize = Math.min(widthBasedSize, heightBasedSize);
+    document.documentElement.style.setProperty('--cell-size', `${cellSize}px`);
+}
+
+/**
  * Shared checkWin logic for "click-to-remove" modes (Go Bananas, Peach Party, Perfect Pearody).
  * Returns false if wrong sprite, undefined if correct but more targets remain, true if last target.
  *
