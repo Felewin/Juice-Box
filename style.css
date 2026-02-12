@@ -30,7 +30,7 @@
        Matches Juice Box button and mode screen (300ms). */
     --fade-duration: 300ms;
 
-    /* Mode button min-height: 1/(n+2) of viewport (n = button count). Set by updateModeButtonHeight(). */
+    /* Mode button height: 1/(n+2) of viewport (n = button count). Set by updateModeButtonHeight(). */
     --mode-btn-height: auto;
 }
 
@@ -176,11 +176,13 @@ body {
 }
 
 /* Juicy pill-shaped card; frosted glass effect; hover: lift + icon bounce.
-   min-height comes from --mode-btn-height (set by updateModeButtonHeight). */
+   height comes from --mode-btn-height (set by updateModeButtonHeight).
+   flex: 0 0 prevents growth; content must fit within the allotted slot. */
 .mode-btn {
     transition: opacity 0.3s ease, transform 0.3s var(--bounce-ease), box-shadow 0.3s ease;
     display: flex;
     align-items: center;
+    flex: 0 0 var(--mode-btn-height);
     gap: clamp(0.4em, 2vw, 1em);
     width: 100%;
     min-height: var(--mode-btn-height);
