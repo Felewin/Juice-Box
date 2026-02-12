@@ -19,13 +19,13 @@ const MODE_ACCENT_COLORS = {
 
 /**
  * Sets mode button height via --mode-btn-height. Each button gets 1/(n+4) of
- * viewport height (n = number of buttons in the list); the +4 reserves space above and below.
- * Counts only the list of mode buttons (not settings). Called on init and resize.
+ * viewport height (n = number of buttons); the +4 reserves space above and below.
+ * Called on init and resize.
  */
 function updateModeButtonHeight() {
-    const listContainer = document.getElementById('mode-buttons-container');
-    if (!listContainer) return;
-    const btns = listContainer.querySelectorAll('.mode-btn');
+    const modeScreen = document.getElementById('mode-screen');
+    if (!modeScreen) return;
+    const btns = modeScreen.querySelectorAll('.mode-btn');
     const n = btns.length;
     const height = n > 0 ? `calc(100vh / ${n + 4})` : 'auto';
     document.documentElement.style.setProperty('--mode-btn-height', height);

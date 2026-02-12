@@ -90,31 +90,13 @@ function ensureTargetPresent(items, target) {
 // maintain a more square-like aspect ratio), then reduce further if needed.
 
 // Desired grid dimensions. reduceDimensions() may shrink them when a mode's maxCells
-// is lower (called via computeGridDimensions). Updated by settings sliders.
-let GRID_COLUMNS = 4;
-let GRID_ROWS = 6;
+// is lower (called via computeGridDimensions). SINGLE SOURCE: change these two; all
+// grid layout, comments, and mode logic follow.
+const GRID_COLUMNS = 4;
+const GRID_ROWS = 6;
 
 document.documentElement.style.setProperty('--grid-columns', GRID_COLUMNS);
 document.documentElement.style.setProperty('--grid-rows', GRID_ROWS);
-
-/** Minimum rows/columns for all modes to stay functional (e.g. Peach Party needs 7+ cells). */
-const MIN_GRID_DIMENSION = 2;
-const MAX_GRID_DIMENSION = 8;
-
-/**
- * Sets desired grid dimensions from settings. Call when sliders change.
- */
-function setDesiredGridDimensions(cols, rows) {
-    GRID_COLUMNS = Math.max(MIN_GRID_DIMENSION, Math.min(MAX_GRID_DIMENSION, cols));
-    GRID_ROWS = Math.max(MIN_GRID_DIMENSION, Math.min(MAX_GRID_DIMENSION, rows));
-    document.documentElement.style.setProperty('--grid-columns', GRID_COLUMNS);
-    document.documentElement.style.setProperty('--grid-rows', GRID_ROWS);
-}
-
-/** Returns current desired grid dimensions for settings UI sync. */
-function getDesiredGridDimensions() {
-    return { cols: GRID_COLUMNS, rows: GRID_ROWS };
-}
 
 /**
  * Reduces desired dimensions to fit within maxCells. Generic logic used by any
