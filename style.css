@@ -234,7 +234,7 @@ body {
         inset 0 1px 0 rgba(255, 255, 255, 0.5);
 }
 
-/* When height > width (portrait), use smaller text and halve side margins */
+/* When height > width (portrait), use smaller text, halve side margins, 2× icon spacing */
 @media (max-aspect-ratio: 1) {
     #mode-screen {
         left: 7.5vw;
@@ -242,6 +242,8 @@ body {
     }
     .mode-btn {
         font-size: calc(var(--mode-btn-height) * 0.30);  /* ~30% vs ~65% default (reduced for portrait) */
+        gap: clamp(0.8em, 4vw, 2em);  /* 2× default: more space left/right of sprite icon */
+        padding: calc(clamp(0.5rem, 2vw, 1.25rem) / 8) clamp(2rem, 6vw, 3rem);  /* 2× horizontal padding */
     }
 }
 
