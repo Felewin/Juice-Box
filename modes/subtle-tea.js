@@ -112,7 +112,7 @@
 
             const checkWin = (cell) => {
                 if (cell.dataset.sprite !== macguffin) return false;
-                if (submode === 'leaves') playSplitSound();
+                if (submode === 'leaves') playRustlingLeavesSound();
                 else playOneshot(submode === 'teapot' ? 'audio/Tea Liquid Fillup.mp3' : 'audio/Teacup Slurping Sip.mp3');
                 playOneshot('audio/Success Jingle Plucking.mp3');
                 return { macguffin, postClickedSpriteFadingPreTransitioningFadeMs: POST_CLICKEDSPRITE_FADING_PRETRANSITIONING_FADE_MS };

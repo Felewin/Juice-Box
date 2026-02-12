@@ -146,7 +146,7 @@ MODES['pairy-picking'] = {
         // Clicking either macguffin wins; macguffins fade later than the rest.
         const checkWin = (cell) => {
             if (cell.dataset.sprite !== macguffin) return false;
-            playSplitSound();
+            (macguffin === 'leaves-falling' ? playRustlingLeavesSound : playSplitSound)();
             playOneshot('audio/Success Jingle Plucking.mp3');
             return { macguffin, postClickedSpriteFadingPreTransitioningFadeMs: POST_CLICKEDSPRITE_FADING_PRETRANSITIONING_FADE_MS };
         };

@@ -13,11 +13,18 @@
  */
 
 window.LAST_SPLIT_SOUND_REF = window.LAST_SPLIT_SOUND_REF || { last: null };
+window.LAST_RUSTLING_LEAVES_REF = window.LAST_RUSTLING_LEAVES_REF || { last: null };
 
 const SPLIT_SOUNDS = [
     'audio/Banana Split (1).mp3',
     'audio/Banana Split (2).mp3',
     'audio/Banana Split (3).mp3'
+];
+
+const RUSTLING_LEAVES_SOUNDS = [
+    'audio/Rustling Leaves (1).mp3',
+    'audio/Rustling Leaves (2).mp3',
+    'audio/Rustling Leaves (3).mp3'
 ];
 
 /**
@@ -26,6 +33,15 @@ const SPLIT_SOUNDS = [
  */
 function playSplitSound() {
     playRandomExcludingLast(SPLIT_SOUNDS, LAST_SPLIT_SOUND_REF);
+}
+
+/**
+ * Play a random rustling leaves sound. Uses LAST_RUSTLING_LEAVES_REF so we never
+ * repeat the same sound twice in a row (same antirepetition logic as Banana Split).
+ * Used when clicking a successful leaves-falling macguffin in Pairy Picking or Subtle Tea.
+ */
+function playRustlingLeavesSound() {
+    playRandomExcludingLast(RUSTLING_LEAVES_SOUNDS, LAST_RUSTLING_LEAVES_REF);
 }
 
 /**
