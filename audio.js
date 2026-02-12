@@ -2,9 +2,11 @@
  * ============================================================
  *  JUICE BOX — Audio Functions
  * ============================================================
- *  Handles all audio playback: one-shots, loops, and overlapping
- *  effects. All functions create fresh Audio objects to allow
- *  simultaneous playback without cutting each other off.
+ *  Handles all audio playback: one-shots, loops, overlapping
+ *  effects, and mode background music.
+ *
+ *  Mode background music: stopAllModeBackgroundMusic(), startModeBackgroundMusic().
+ *  Config (which mode uses which file) lives in modes.js as MODE_BACKGROUND_MUSIC.
  *
  *  playSplitSound(): Plays a random "split" sound; used by Go Bananas, Peach Party,
  *  Pairy Picking, and Apple Of My Eye. Uses LAST_SPLIT_SOUND_REF internally
@@ -69,14 +71,52 @@ function fadeOutAudio(audio, durationMs) {
     if (!audio) return;
     const startVolume = audio.volume;
     const startTime = performance.now();
+    const stop = () => { audio.pause(); audio.currentTime = 0; audio.volume = 1; };
     function tick(now) {
         const elapsed = now - startTime;
         const pct = Math.min(1, elapsed / durationMs);
         audio.volume = startVolume * (1 - pct);
         if (pct < 1) requestAnimationFrame(tick);
-        else { audio.pause(); audio.currentTime = 0; audio.volume = 1; }
+        else stop();
     }
     requestAnimationFrame(tick);
+    setTimeout(stop, durationMs + 100);  // Backup: ensure pause even if rAF throttled (e.g. tab in background)
+}
+
+/**
+ * Registry of playing mode background music. Key = modeId, value = Audio element.
+ * Cleared when stopping (no fade) or when fade completes and next mode starts.
+ */
+const modeBgAudio = {};
+
+/**
+ * Stops all mode background music. Call when entering mode select or before starting a new mode.
+ *
+ * @param {number} [fadeMs] If provided, fade out over this many ms; otherwise stop immediately.
+ * Refs stay in modeBgAudio when fading so re-entering can stop them; cleanup on next stop.
+ */
+function stopAllModeBackgroundMusic(fadeMs) {
+    for (const modeId of Object.keys(modeBgAudio)) {
+        const audio = modeBgAudio[modeId];
+        if (audio) {
+            if (fadeMs) fadeOutAudio(audio, fadeMs);
+            else { audio.pause(); audio.currentTime = 0; delete modeBgAudio[modeId]; }
+        }
+    }
+}
+
+/**
+ * Starts this mode's background music. Stops all other modes' music first.
+ * Call from app when entering first level of a mode that has background music.
+ *
+ * @param {string} modeId  Mode identifier (for registry; used when stopping)
+ * @param {string} src     Path to the audio file (from MODE_BACKGROUND_MUSIC in modes.js)
+ */
+function startModeBackgroundMusic(modeId, src) {
+    if (!src) return;
+    stopAllModeBackgroundMusic();  // Stop any other mode's music (or prior instance)
+    const audio = playLoopInfinite(src);
+    modeBgAudio[modeId] = audio;
 }
 
 /**

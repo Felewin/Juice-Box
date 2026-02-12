@@ -76,8 +76,6 @@ let isTransitioningToLevel = false;     // True from mode-button click until sta
 let currentMode = null;  // Set when a mode button is clicked; used by startLevel to dispatch.
 let startLevelTimeoutId = null;  // Scheduled by scheduleDrainAndLevel; cleared on abort or return.
 let timeoutIDsWeMayUseToCancelPendingTimeoutsForTransitioningFromModeSelectToLevel = [];   // Outer+inner timeouts (button fade, drain schedule); cleared on abort or return to mode select.
-let goBananasBgAudio = null;  // Looping Monkeys Spinning Monkeys; stopped when leaving Go Bananas.
-
 /** Restores body background (used when returning from level or aborting transition). */
 function resetBodyBackground() {
     document.body.style.background = '';
@@ -186,7 +184,7 @@ function returnToModeSelect() {
 
     juiceboxButton?.classList.add('hidden-during-transition');
 
-    if (goBananasBgAudio) { fadeOutAudio(goBananasBgAudio, 3000); goBananasBgAudio = null; }
+    stopAllModeBackgroundMusic(3000);  // Fade out all mode background music over 3s
 
     cancelLiquidDrain(liquidOverlay, {
         fadeOut: true,
@@ -308,9 +306,8 @@ function startLevel() {
     isTransitioning = false;
     isTransitioningToLevel = false;
     startLevelTimeoutId = null;
-    if (currentMode === 'go-bananas' && isFirstLevelOfSession) {
-        if (goBananasBgAudio) { goBananasBgAudio.pause(); goBananasBgAudio.currentTime = 0; }
-        goBananasBgAudio = playLoopInfinite('audio/Monkeys Spinning Monkeys.mp3');
+    if (isFirstLevelOfSession && MODE_BACKGROUND_MUSIC?.[currentMode]) {
+        startModeBackgroundMusic(currentMode, MODE_BACKGROUND_MUSIC[currentMode]);
     }
     const mode = MODES[currentMode];
     if (!mode || !mode.start) return;

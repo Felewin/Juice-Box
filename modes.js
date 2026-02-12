@@ -17,6 +17,11 @@ const MODE_ACCENT_COLORS = {
     'subtle-tea': '#D94B2E'       // reddish-orange
 };
 
+// Background music for modes that have it. Key = modeId, value = audio file path. Loops while in that mode.
+const MODE_BACKGROUND_MUSIC = {
+    'go-bananas': 'audio/Monkeys Spinning Monkeys.mp3'
+};
+
 /**
  * Sets mode button height via --mode-btn-height. Each button gets 1/(n+4) of
  * viewport height (n = number of buttons); the +4 reserves space above and below.
