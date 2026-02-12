@@ -95,6 +95,7 @@ body {
     justify-content: center;
     align-items: center;
     cursor: default;                /* Pointer only on #title and .mode-btn */
+    -webkit-tap-highlight-color: transparent;  /* Prevent blue flash on mobile tap */
     z-index: 10;                    /* Sit above the grid */
     transition: opacity 0.5s ease;
     overflow: hidden;               /* Prevent any content overflow */
@@ -132,6 +133,7 @@ body {
 
 #title {
     cursor: pointer;                 /* Click anywhere on title screen to advance to mode select screen */
+    -webkit-tap-highlight-color: transparent;  /* Prevent blue flash on mobile tap */
     font-family: var(--font-title);
     font-weight: 400;
     font-style: normal;
