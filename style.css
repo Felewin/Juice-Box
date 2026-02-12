@@ -231,6 +231,13 @@ body {
         inset 0 1px 0 rgba(255, 255, 255, 0.5);
 }
 
+/* When height > 2× width (tall/portrait), use 10% smaller text to fit better */
+@media (max-aspect-ratio: 1/2) {
+    .mode-btn {
+        font-size: calc(var(--mode-btn-height) * 0.39);  /* ~55% vs ~65% default */
+    }
+}
+
 .mode-btn.fade-out {
     opacity: 0;
     pointer-events: none;
