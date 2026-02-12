@@ -32,6 +32,10 @@
 
     /* Mode button height: 1/(n+2) of viewport (n = button count). Set by updateModeButtonHeight(). */
     --mode-btn-height: auto;
+
+    /* Green–yellow gradient for text (title and mode buttons). Mode buttons omit mint. */
+    --gradient-text-mint: #BAFFC9;
+    --gradient-text-core: #E0FF9E, #FFFFBA, #FFFFE0, #E8FFBA;
 }
 
 /* ---- Reset & global defaults ---- */
@@ -65,6 +69,7 @@ body {
     background-size: 200% auto;
     background-attachment: fixed;
     animation: pastelGradient 10s linear infinite;
+    transition: background 0.3s ease;  /* Used when mode button is clicked */
 
     /* Center the grid dead-center in the viewport */
     display: flex;
@@ -224,18 +229,20 @@ body {
         inset 0 1px 0 rgba(255, 255, 255, 0.6);
 }
 
-/* Shared: moving green–yellow gradient clipped to text. Use on title and mode button labels
-   so they stay legible against the pink/blue/lavender background. */
+/* ---- Text gradients (title and mode buttons) ----
+   Green–yellow gradient clipped to text for legibility on pink/blue/lavender background. */
 .moving-gradient-text {
-    background: linear-gradient(
-        to right,
-        #BAFFC9, #E0FF9E, #FFFFBA, #FFFFE0, #E8FFBA, #BAFFC9
-    );
+    background: linear-gradient(to right, var(--gradient-text-mint), var(--gradient-text-core), var(--gradient-text-mint));
     background-size: 200% auto;
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
     animation: pastelGradient 10s linear infinite;
+}
+
+/* Mode buttons: same gradient without mint (so core loops back) */
+.mode-btn .moving-gradient-text {
+    background-image: linear-gradient(to right, var(--gradient-text-core), #E0FF9E);
 }
 
 /* Bigger sprites; hover: gentle bounce */

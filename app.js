@@ -181,6 +181,11 @@ function returnToModeSelect() {
 
     fadeOutCells(grid);
 
+    // Reset body background to gradient (clears mode accent from prior mode selection)
+    document.body.style.background = '';
+    document.body.style.backgroundSize = '';
+    document.body.style.animation = '';
+
     // Wait for fade-out (overlay + cells) to complete, then linger before revealing mode screen.
     setTimeout(() => {
         setTimeout(() => {
@@ -204,6 +209,9 @@ function returnToModeSelect() {
 function returnToTitle() {
     if (isReturningToTitle) return;
     isReturningToTitle = true;
+    document.body.style.background = '';
+    document.body.style.backgroundSize = '';
+    document.body.style.animation = '';
     juiceboxButton?.classList.add('hidden-during-transition');
     modeScreen.classList.add('fade-out');
     setTimeout(() => {
@@ -232,15 +240,24 @@ function startLevel() {
     });
 }
 
-const MODE_BUTTON_FADE_DELAY_MS = 850;
+const MODE_BUTTON_FADE_DELAY_MS = 900;
+
+// Accent color from each mode's icon (used for background during button linger).
+const MODE_ACCENT_COLORS = {
+    'go-bananas': '#FF9900',      // banana (amber/orange)
+    'apple-of-my-eye': '#C0392B', // apple red (darker)
+    'perfect-pearody': '#7DCE82', // pear green
+    'peach-party': '#E8A87C',     // peach (darker)
+    'pairy-picking': '#C0392B'    // cherry red
+};
 
 /**
  * Called when the player clicks a mode button. Sets currentMode. Fades juicebox
- * and other mode buttons immediately; delays the clicked button's fade by 850ms,
+ * and other mode buttons immediately; delays the clicked button's fade by 900ms,
  * then hides the title screen, plays the liquid drain, and schedules startLevel.
  *
  * @param {string} modeId The data-mode value from the clicked button (e.g. 'pairy-picking').
- * @param {HTMLElement} [clickedBtn] The mode button that was clicked; if provided, it fades 850ms later.
+ * @param {HTMLElement} [clickedBtn] The mode button that was clicked; if provided, it fades 900ms later.
  */
 function startGameFromMode(modeId, clickedBtn) {
     currentMode = modeId;
@@ -252,12 +269,23 @@ function startGameFromMode(modeId, clickedBtn) {
             if (btn !== clickedBtn) btn.classList.add('fade-out');
         });
 
-        // After 850ms, fade the clicked button and start the drain/level
+        // Transition background to mode accent color over 300ms
+        const accentColor = MODE_ACCENT_COLORS[modeId];
+        if (accentColor) {
+            document.body.style.background = accentColor;
+            document.body.style.backgroundSize = 'auto';
+            document.body.style.animation = 'none';
+        }
+
+        // After 900ms, fade the clicked button and start the drain/level
         setTimeout(() => {
             clickedBtn.classList.add('fade-out');
             titleScreen.classList.add('hidden');
             showLiquidDrain(liquidOverlay, {
                 onTransitionStart: () => {
+                    document.body.style.background = '';
+                    document.body.style.backgroundSize = '';
+                    document.body.style.animation = '';
                     isSceneTransitioning = true;
                     updateJuiceboxButtonVisibility();
                 },
