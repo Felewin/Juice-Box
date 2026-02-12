@@ -14,7 +14,7 @@ const FADE_MS = parseInt(getComputedStyle(document.documentElement)
 // Delay before starting a level when showLiquidDrain runs. Used for mode→level and level→level.
 const LEVEL_TRANSITION_DELAY = FADE_MS + 100;
 
-// Ms to wait after fade-out completes before revealing the mode screen (return-to-mode-select).
+// Ms to wait after fade-out completes before revealing the mode select screen (return-to-mode-select).
 const LEVEL_POST_FADE_OUT_LINGER_BEFORE_RETURNING_TO_MODE_SELECT = 100;
 
 // Ms the clicked mode button lingers before starting its fade-out (mode select → level).
@@ -26,7 +26,7 @@ const MACGUFFIN_FADE_DELAY_MS = 600;
 // Ms for mode button + background fade-out before drain/level (mode select → level). 4× FADE_MS.
 const MODE_SELECT_TO_LEVEL_FADE_MS = FADE_MS * 4;
 
-// Ms for Juice Box + mode buttons fade when returning to title screen.
+// Ms for Juice Box + mode buttons fade when returning from mode select screen to title screen.
 const RETURN_TO_TITLE_FADE_MS = 300;
 
 // Grid cell bounce-in: random stagger range (min + random up to max).

@@ -4,7 +4,7 @@
  * ============================================================
  *  Styles and keyframes for the liquid overlay that drains
  *  downward. Used when going from mode screen→level or level→level.
- *  (We never transition directly from the title screen to a level.)
+ *  (We never transition directly from the title screen to a level; mode select screen comes first.)
  * ============================================================
  */
 
@@ -14,7 +14,7 @@
 #liquid-overlay {
     position: fixed;
     inset: 0;
-    z-index: 5;                     /* Between title screen (10) and grid (default) */
+    z-index: 5;                     /* Between menu container (10) and grid (default) */
     pointer-events: none;           /* Don't block clicks during drain */
     overflow: hidden;               /* Prevent any content overflow */
     max-width: 100vw;

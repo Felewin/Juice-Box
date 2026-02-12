@@ -1,16 +1,19 @@
 /*
  * ============================================================
- *  JUICE BOX — Flying Sprites on Title Screen
+ *  JUICE BOX — Flying Sprites (Title Screen)
  * ============================================================
  *  Sprites from the sprites folder (root only, no subfolders) randomly
  *  appear off-screen and fly across the title screen in random directions,
- *  rotating at random speeds. Makes the title screen feel alive and fun.
+ *  rotating at random speeds. Visible only on the title screen; when the user
+ *  advances to mode select, CSS fades the container so sprites continue to
+ *  animate but are invisible on the mode select screen. Makes the title screen
+ *  feel alive and fun.
  * ============================================================
  */
 
 (function () {
-    const titleScreen = document.getElementById('title-screen');
-    if (!titleScreen) return;
+    const menuContainer = document.getElementById('menu-container');
+    if (!menuContainer) return;
 
     const NUM_FLYING = 20;
     const SPEED_MIN = 60;
@@ -29,7 +32,7 @@
         z-index: 0;
         overflow: hidden;
     `;
-    titleScreen.insertBefore(container, titleScreen.firstChild);
+    menuContainer.insertBefore(container, menuContainer.firstChild);
 
     const flying = [];
     let lastSpawnTime = 0;

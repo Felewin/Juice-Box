@@ -12,7 +12,7 @@
     
     <title>Juice Box</title>
     <link rel="icon" href="favicon.png" type="image/png">
-    <!-- Google Fonts: Cherry Bomb One for the title screen -->
+    <!-- Google Fonts: Cherry Bomb One (used throughout the app) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cherry+Bomb+One&display=swap" rel="stylesheet">
@@ -24,10 +24,12 @@
 </head>
 <body>
     <!--
-        Title screen: shown on load. First click fades out the title and shows the
-        mode screen. Choosing a mode starts the game. Hidden once gameplay begins.
+        Menu container: holds both menu screens (title screen and mode select screen).
+        Title screen (Juice Box text) is shown on load. First click fades it and
+        reveals the mode select screen (mode buttons). Choosing a mode starts the game.
+        Hidden once gameplay begins.
     -->
-    <div id="title-screen">
+    <div id="menu-container">
         <h1 id="title">
             <span class="moving-gradient-text">Juice</span>
             <span class="moving-gradient-text">Box</span>
@@ -72,7 +74,7 @@
     <div id="grid"></div>
 
     <!--
-        Juice Box button: returns one screen when clicked/tapped (level→mode select→title).
+        Juice Box button: returns one screen when clicked/tapped (level→mode select screen→title screen).
         Positioned in top-left corner, half the size of sprites.
     -->
     <button id="juicebox-button" aria-label="Juice Box">

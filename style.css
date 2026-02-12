@@ -84,10 +84,11 @@ body {
     -webkit-user-select: none;  /* Safari fallback */
 }
 
-/* ---- Title screen ----
-   Covers the full viewport. First shows the title; a click fades it out
-   and shows the mode screen. Clicking a mode starts the game. */
-#title-screen {
+/* ---- Menu container ----
+   Covers the full viewport. Holds both menu screens stacked: the title screen
+   (Juice Box text) and the mode select screen (mode buttons). First shows the
+   title screen; a click fades it and reveals the mode select screen. */
+#menu-container {
     position: fixed;
     inset: 0;                       /* Stretch to fill the entire viewport */
     display: flex;
@@ -106,20 +107,20 @@ body {
 }
 
 /* Fade in once the font is confirmed loaded */
-#title-screen.ready {
+#menu-container.ready {
     opacity: 1;
 }
 
-/* When JS adds .hidden, fade out and disable interaction.
+/* When JS adds .hidden (going to level), fade out and disable interaction.
    visibility: hidden ensures the full-viewport layer is fully removed from
    hit-testing so grid hover works reliably in all browsers. */
-#title-screen.hidden {
+#menu-container.hidden {
     opacity: 0;
     pointer-events: none;
     visibility: hidden;
 }
 
-/* Stack title and mode screen in the same area */
+/* Stack title screen and mode select screen in the same area */
 #title,
 #mode-screen {
     position: absolute;
@@ -130,7 +131,7 @@ body {
 }
 
 #title {
-    cursor: pointer;                 /* Click anywhere on title to advance to mode select */
+    cursor: pointer;                 /* Click anywhere on title screen to advance to mode select screen */
     font-family: var(--font-title);
     font-weight: 400;
     font-style: normal;
@@ -144,21 +145,22 @@ body {
     flex-direction: column;
 }
 
-/* When mode screen is shown, title fades out */
+/* When mode select screen is shown, title text fades out */
 #title.faded {
     opacity: 0;
     pointer-events: none;
 }
 
-/* Flying sprites (title screen) fade out with the title when mode select is shown */
+/* Flying sprites: visible on title screen only. Fade out when mode select is shown;
+   sprites continue animating but are invisible on the mode select screen. */
 #flying-sprites-container {
     transition: opacity 0.5s ease;
 }
-#title-screen:has(#title.faded) #flying-sprites-container {
+#menu-container:has(#title.faded) #flying-sprites-container {
     opacity: 0;
 }
 
-/* ---- Mode screen ----
+/* ---- Mode select screen ----
    Juicy card–style buttons: pill shape, frosted glass, larger icons.
    Hover: card lifts with subtle scale, shadow deepens, icon bounces. */
 #mode-screen {
@@ -386,18 +388,18 @@ body {
     border: none;
     background: transparent;
     cursor: pointer;
-    z-index: 20; /* Above grid but below title screen (z-index 10) */
+    z-index: 20; /* Above grid but below menu container (z-index 10) */
     overflow: visible;
     
     /* Remove tap highlight on mobile */
     -webkit-tap-highlight-color: transparent;
     outline: none;
     
-    /* Hidden by default. JS adds .visible when on mode select or in level. */
+    /* Hidden by default. JS adds .visible when on mode select screen or in level. */
     display: none;
 }
 
-/* Show Juice Box button when on mode select or in level (class added by app.js) */
+/* Show Juice Box button when on mode select screen or in level (class added by app.js) */
 #juicebox-button.visible {
     display: block;
 }
@@ -415,7 +417,7 @@ body {
     opacity: 1;
 }
 
-/* Fade out the Juice Box button during any transition (drain, return, mode-select→title) */
+/* Fade out the Juice Box button during any transition (drain, return, mode select screen→title screen) */
 #juicebox-button.hidden-during-transition {
     opacity: 0;
     pointer-events: none;
