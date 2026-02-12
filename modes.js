@@ -11,7 +11,7 @@
 const MODE_ACCENT_COLORS = {
     'go-bananas': '#FF9900',      // banana (amber/orange)
     'apple-of-my-eye': '#C0392B', // apple red (darker)
-    'perfect-pearody': '#7DCE82', // pear green
+    'perfect-pearing': '#7DCE82', // pear green
     'peach-party': '#E8A87C',     // peach (darker)
     'pairy-picking': '#C0392B',   // cherry red
     'subtle-tea': '#D94B2E'       // reddish-orange

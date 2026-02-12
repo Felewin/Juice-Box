@@ -171,7 +171,7 @@ function getCellSize() {
 }
 
 /**
- * Shared checkWin logic for "click-to-remove" modes (Go Bananas, Peach Party, Perfect Pearody).
+ * Shared checkWin logic for "click-to-remove" modes (Go Bananas, Peach Party, Perfect Pearing).
  * Returns false if wrong sprite, undefined if correct but more targets remain, true if last target.
  *
  * @param {HTMLElement} gridEl The grid container.

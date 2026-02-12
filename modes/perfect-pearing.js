@@ -1,6 +1,6 @@
 /*
  * ============================================================
- *  JUICE BOX — Perfect Pearody
+ *  JUICE BOX — Perfect Pearing
  * ============================================================
  *  Mode: All sprites are apple-green, apple-gold, lime, lemon, or melon
  *  (random, duplicates allowed). Exactly two pears appear. Click/tap each
@@ -25,7 +25,7 @@
  *
  * @returns {{ items: string[] }}
  */
-function generateLevelForTheModeCalledPerfectPearody() {
+function generateLevelForTheModeCalledPerfectPearing() {
     const totalCells = ACTUAL_GRID_COLUMNS * ACTUAL_GRID_ROWS;
     const items = fillWithRandom(totalCells, FILLER_SPRITES);
 
@@ -45,13 +45,13 @@ function generateLevelForTheModeCalledPerfectPearody() {
 const POST_CLICKEDSPRITE_FADING_PRETRANSITIONING_FADE_MS = 200;
 
 const MODES = window.MODES || {};
-MODES['perfect-pearody'] = {
+MODES['perfect-pearing'] = {
     /**
      * @param {HTMLElement} gridEl The #grid element.
      * @param {Object} opts From app.js: { onWin, shouldIgnoreInput }. Spread into buildGrid.
      */
     start(gridEl, opts) {
-        const { items } = generateLevelForTheModeCalledPerfectPearody();
+        const { items } = generateLevelForTheModeCalledPerfectPearing();
 
         const checkWin = (cell) => checkWinClickToRemove(gridEl, cell, PEAR_SPRITES);
 
