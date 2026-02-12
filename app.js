@@ -458,6 +458,7 @@ document.addEventListener('keydown', (e) => {
 
 // Juice Box button: same priority as ESC
 juiceboxButton.addEventListener('click', () => {
+    playOneshot('audio/Juicebox Empty.mp3');
     if (isTransitioningToLevel) {
         abortTransitionToLevel();
     } else if (isInLevel()) {
