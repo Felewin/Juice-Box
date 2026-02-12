@@ -43,6 +43,29 @@ function fillWithRandom(count, sourceSprites) {
 }
 
 /**
+ * Adds extra targets to an items array via repeated 50% chances.
+ * Items must already have at least one target. Each run has 50% chance to
+ * replace one random non-target cell with the target (0–extraRuns extra).
+ *
+ * @param {string[]} items Sprite names in display order (from level generator).
+ * @param {string} target Sprite name to add.
+ * @param {number} [extraRuns=3] Number of 50% chances.
+ */
+function addExtraTargetsByChance(items, target, extraRuns = 3) {
+    for (let i = 0; i < extraRuns; i++) {
+        if (Math.random() < 0.5) {
+            const nonTargetIndices = items
+                .map((s, idx) => (s === target ? -1 : idx))
+                .filter((idx) => idx >= 0);
+            if (nonTargetIndices.length > 0) {
+                const idx = nonTargetIndices[Math.floor(Math.random() * nonTargetIndices.length)];
+                items[idx] = target;
+            }
+        }
+    }
+}
+
+/**
  * Ensures at least one instance of the target sprite in the items array.
  * If none exist, replaces a random cell with the target. Mutates items in place.
  * Use before addExtraTargetsByChance so the mode has the required minimum.
