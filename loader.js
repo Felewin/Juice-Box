@@ -5,8 +5,9 @@
  *  Loads all CSS and JS with ?v=CACHE_BUST so assets are fresh after each
  *  deploy. CACHE_BUST comes from version.js (git commit hash, set at deploy).
  *
- *  Flow: version.js defines CACHE_BUST → loader.js runs → injects <link>
- *  and <script> tags with ?v=CACHE_BUST → scripts run in order via onload
+ *  Flow: index.html loads version.js and loader.js with ?v=<hash> (injected at deploy).
+ *  version.js defines CACHE_BUST → loader.js runs → injects <link> and <script> tags
+ *  with ?v=CACHE_BUST → scripts run in order via onload
  *  chaining → when done, cache-busts static images (favicon, mode icons).
  *
  *  Add new modes: push path to SCRIPTS before app.js.

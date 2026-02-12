@@ -1,5 +1,5 @@
 # Deploy to GitHub Pages.
-# Runs on push to main. Injects git commit hash into version.js (CACHE_BUST)
+# Runs on push to main. Injects git commit hash into version.js and index.html (CACHE_BUST)
 # so all assets load with ?v=<hash> and browsers refetch after each deploy.
 name: Deploy
 
