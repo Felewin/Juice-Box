@@ -4,10 +4,16 @@
  * ============================================================
  *  Sprites from the sprites folder (root only, no subfolders) randomly
  *  appear off-screen and fly across the title screen in random directions,
- *  rotating at random speeds. Visible only on the title screen; when the user
- *  advances to mode select, CSS fades the container so sprites continue to
- *  animate but are invisible on the mode select screen. Makes the title screen
- *  feel alive and fun.
+ *  rotating at random speeds.
+ *
+ *  Sizes: Each sprite is scaled randomly between 0.5× and 2× the base cell size.
+ *
+ *  Layering: Two containers — background (z-index 0) and foreground (z-index 2).
+ *  Sprites larger than 1.75× base size go in the foreground so they fly in front
+ *  of the title text; smaller sprites stay behind.
+ *
+ *  Visible only on the title screen; when the user advances to mode select, CSS
+ *  fades both containers so sprites continue to animate but are invisible.
  * ============================================================
  */
 
@@ -23,6 +29,7 @@
     const SPAWN_INTERVAL_MIN = 600;
     const SPAWN_INTERVAL_MAX = 1200;
 
+    /* Background layer: small/medium sprites fly behind the title (z-index 0) */
     const container = document.createElement('div');
     container.id = 'flying-sprites-container';
     container.style.cssText = `
@@ -34,6 +41,20 @@
     `;
     menuContainer.insertBefore(container, menuContainer.firstChild);
 
+    /* Foreground layer: large sprites (>1.75× base) fly in front of the title (z-index 2).
+       Inserted after #title so DOM order matches visual stack; #title has z-index 1. */
+    const foregroundContainer = document.createElement('div');
+    foregroundContainer.id = 'flying-sprites-foreground';
+    foregroundContainer.style.cssText = `
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        z-index: 2;
+        overflow: hidden;
+    `;
+    const titleEl = document.getElementById('title');
+    menuContainer.insertBefore(foregroundContainer, titleEl ? titleEl.nextElementSibling : null);
+
     const flying = [];
     let lastSpawnTime = 0;
     let nextSpawnDelay = SPAWN_INTERVAL_MIN + Math.random() * (SPAWN_INTERVAL_MAX - SPAWN_INTERVAL_MIN);
@@ -42,26 +63,33 @@
         return Math.random() * Math.PI * 2;
     }
 
-    const FLYING_SPRITES = ALL_SPRITES.filter((s) => s !== 'leaves-falling');
+    /* All sprites except leaves-falling, plus juicebox (favicon.png), beachball, teapot, thong-sandal (unjuicable) */
+    const FLYING_SPRITES = [
+        ...ALL_SPRITES.filter((s) => s !== 'leaves-falling'),
+        'juicebox', 'unjuicable/beachball', 'unjuicable/teapot', 'unjuicable/thong-sandal'
+    ];
 
     function randomSprite() {
         return FLYING_SPRITES[Math.floor(Math.random() * FLYING_SPRITES.length)];
     }
 
     /**
-     * Spawn a sprite at a random edge, moving across the screen.
-     * Returns { el, x, y, vx, vy, rotation, rotationSpeed, size }
+     * Spawn a sprite at a random edge, moving across the screen. Size is random
+     * (0.5×–2× base); sprites >1.75× go to foreground layer (in front of title).
+     * Returns { el, x, y, vx, vy, rotation, rotationSpeed, scaleX, size }
      */
     function spawnSprite() {
         const el = document.createElement('img');
-        el.src = spriteSrc(randomSprite());
+        const spriteName = randomSprite();
+        el.src = spriteName === 'juicebox' ? withCacheBust('favicon.png') : spriteSrc(spriteName);
         el.alt = '';
         el.draggable = false;
         el.style.position = 'absolute';
         el.style.objectFit = 'contain';
         el.style.willChange = 'transform';
 
-        const size = getCellSize();  // from level.js
+        const baseSize = getCellSize();  /* from level.js */
+        const size = baseSize * (0.5 + Math.random() * 1.5);  /* random 0.5× to 2× */
         el.style.width = size + 'px';
         el.style.height = size + 'px';
 
@@ -97,7 +125,9 @@
         const scaleX = randomlyApplyHorizontalMirroringOrNotToSprite(el);
         el.style.transform = `translate(-50%, -50%) scaleX(${scaleX}) rotate(0deg)`;
 
-        container.appendChild(el);
+        /* Large sprites (>1.75× base size) fly in front of the title; smaller ones stay behind */
+        const targetContainer = size > baseSize * 1.75 ? foregroundContainer : container;
+        targetContainer.appendChild(el);
 
         return {
             el,

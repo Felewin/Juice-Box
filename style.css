@@ -132,6 +132,7 @@ body {
 }
 
 #title {
+    z-index: 1;                     /* Stacking: background sprites 0, title 1, large sprites 2 */
     cursor: pointer;                 /* Click anywhere on title screen to advance to mode select screen */
     -webkit-tap-highlight-color: transparent;  /* Prevent blue flash on mobile tap */
     font-family: var(--font-title);
@@ -153,12 +154,14 @@ body {
     pointer-events: none;
 }
 
-/* Flying sprites: visible on title screen only. Fade out when mode select is shown;
-   sprites continue animating but are invisible on the mode select screen. */
-#flying-sprites-container {
+/* Flying sprites: background and foreground layers. Visible on title screen only;
+   fade out when mode select is shown (sprites keep animating but are invisible). */
+#flying-sprites-container,
+#flying-sprites-foreground {
     transition: opacity 0.5s ease;
 }
-#menu-container:has(#title.faded) #flying-sprites-container {
+#menu-container:has(#title.faded) #flying-sprites-container,
+#menu-container:has(#title.faded) #flying-sprites-foreground {
     opacity: 0;
 }
 
