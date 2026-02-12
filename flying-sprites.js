@@ -63,11 +63,13 @@
         return Math.random() * Math.PI * 2;
     }
 
-    /* All sprites except leaves-falling and blueberries, plus juicebox, beachball, teapot, thong-sandal */
-    const FLYING_SPRITES = [
+    /* All sprites except leaves-falling and blueberries, plus juicebox, beachball, teapot, thong-sandal.
+       Thong-sandal appears once (others twice) so it's half as common. */
+    const baseSprites = [
         ...ALL_SPRITES.filter((s) => s !== 'leaves-falling' && s !== 'blueberries'),
-        'juicebox', 'unjuicable/beachball', 'unjuicable/teapot', 'unjuicable/thong-sandal'
+        'juicebox', 'unjuicable/beachball', 'unjuicable/teapot'
     ];
+    const FLYING_SPRITES = [...baseSprites, ...baseSprites, 'unjuicable/thong-sandal'];
 
     function randomSprite() {
         return FLYING_SPRITES[Math.floor(Math.random() * FLYING_SPRITES.length)];
