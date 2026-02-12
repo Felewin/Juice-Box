@@ -40,19 +40,7 @@ function generateLevelForTheModeCalledPeachParty() {
     if (!items.some((s) => s === TARGET)) {
         items[Math.floor(Math.random() * items.length)] = TARGET;
     }
-
-    // 50% chance for +1 peach, then another 50% for +1, then another 50% for +1 (0–3 extra)
-    for (let i = 0; i < 3; i++) {
-        if (Math.random() < 0.5) {
-            const nonPeachIndices = items
-                .map((s, idx) => (s === TARGET ? -1 : idx))
-                .filter((idx) => idx >= 0);
-            if (nonPeachIndices.length > 0) {
-                const idx = nonPeachIndices[Math.floor(Math.random() * nonPeachIndices.length)];
-                items[idx] = TARGET;
-            }
-        }
-    }
+    addExtraTargetsByChance(items, TARGET);
 
     return { items };
 }

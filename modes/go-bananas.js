@@ -30,19 +30,7 @@ function generateLevelForTheModeCalledGoBananas() {
     if (!items.some((s) => s === 'banana')) {
         items[Math.floor(Math.random() * items.length)] = 'banana';
     }
-
-    // 50% chance for +1 banana, then another 50% for +1, then another 50% for +1 (0–3 extra)
-    for (let i = 0; i < 3; i++) {
-        if (Math.random() < 0.5) {
-            const nonBananaIndices = items
-                .map((s, idx) => (s === 'banana' ? -1 : idx))
-                .filter((idx) => idx >= 0);
-            if (nonBananaIndices.length > 0) {
-                const idx = nonBananaIndices[Math.floor(Math.random() * nonBananaIndices.length)];
-                items[idx] = 'banana';
-            }
-        }
-    }
+    addExtraTargetsByChance(items, 'banana');
 
     return { items };
 }
