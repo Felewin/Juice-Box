@@ -141,7 +141,7 @@ function buildGrid(gridEl, items, { checkWin, onWin, shouldIgnoreInput }) {
         img.draggable = false;
         cell.appendChild(img);
 
-        const delay = Math.random() * 600 + 50;  // 50–650ms stagger for bounce-in
+        const delay = Math.random() * GRID_BOUNCE_STAGGER_MAX_MS + GRID_BOUNCE_STAGGER_MIN_MS;  // Stagger for bounce-in
         setTimeout(() => {
             cell.classList.add('appear');
         }, delay);

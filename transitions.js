@@ -53,19 +53,13 @@ function resetOverlayToHidden(liquidOverlay) {
  * @param {Object} callbacks
  * @param {Function} callbacks.onTransitionStart Called when drain begins (e.g. set isSceneTransitioning).
  * @param {Function} callbacks.onTransitionEnd   Called when overlay is hidden.
+ * @param {string} [callbacks.color] If provided, use this color instead of random (e.g. mode accent).
+ * @param {boolean} [callbacks.startVisible] If true, overlay is already visible; skip fade-in and 300ms hold.
  */
-function showLiquidDrain(liquidOverlay, { onTransitionStart, onTransitionEnd }) {
+function showLiquidDrain(liquidOverlay, { onTransitionStart, onTransitionEnd, color, startVisible }) {
     cancelLiquidDrain(liquidOverlay);
 
     onTransitionStart();
-
-    const hue = Math.floor(Math.random() * 360);
-    const saturation = 70 + Math.floor(Math.random() * 30);
-    const lightness = 40 + Math.floor(Math.random() * 20);
-    const color = `hsl(${hue}, ${saturation}%, ${lightness}%)`;
-
-    liquidOverlay.style.backgroundColor = color;
-    liquidOverlay.classList.remove('hidden', 'draining', 'visible');
 
     const timeouts = [];
     let cancelled = false;
@@ -94,37 +88,53 @@ function showLiquidDrain(liquidOverlay, { onTransitionStart, onTransitionEnd }) 
 
     liquidOverlay.__drainCancel = cancel;
 
-    doubleRAF(() => {
+    const startDrain = () => {
         if (cancelled) return;
-        liquidOverlay.classList.add('visible');
-
-        const t1 = setTimeout(() => {  // 300ms pause before drain starts (fade-in holds)
+        loadAudioMetadata(DRAIN_AUDIO_SRC).then((audio) => {
             if (cancelled) return;
-            loadAudioMetadata(DRAIN_AUDIO_SRC).then((audio) => {
+            const durationMs = audio.duration * 1000;
+            const durationSec = audio.duration;
+
+            const drainAudio = new Audio(DRAIN_AUDIO_SRC);
+            liquidOverlay.__drainAudio = drainAudio;
+            drainAudio.play();
+
+            liquidOverlay.style.animationDuration = `${durationSec}s`;
+
+            doubleRAF(() => {
                 if (cancelled) return;
-                const durationMs = audio.duration * 1000;
-                const durationSec = audio.duration;
+                liquidOverlay.classList.add('draining');
 
-                const drainAudio = new Audio(DRAIN_AUDIO_SRC);
-                liquidOverlay.__drainAudio = drainAudio;
-                drainAudio.play();
-
-                liquidOverlay.style.animationDuration = `${durationSec}s`;
-
-                doubleRAF(() => {
-                    if (cancelled) return;
-                    liquidOverlay.classList.add('draining');
-
-                    const t2 = setTimeout(() => {
-                        liquidOverlay.__drainCancel = null;
-                        liquidOverlay.__drainAudio = null;
-                        liquidOverlay.classList.add('hidden');
-                        onTransitionEnd();
-                    }, durationMs);
-                    timeouts.push(t2);
-                });
+                const t2 = setTimeout(() => {
+                    liquidOverlay.__drainCancel = null;
+                    liquidOverlay.__drainAudio = null;
+                    liquidOverlay.classList.add('hidden');
+                    onTransitionEnd();
+                }, durationMs);
+                timeouts.push(t2);
             });
-        }, 300);  // Matches liquid overlay fade-in in liquid.css
-        timeouts.push(t1);
-    });
+        });
+    };
+
+    if (startVisible) {
+        startDrain();
+    } else {
+        const hue = Math.floor(Math.random() * 360);
+        const saturation = 70 + Math.floor(Math.random() * 30);
+        const lightness = 40 + Math.floor(Math.random() * 20);
+        const resolvedColor = color || `hsl(${hue}, ${saturation}%, ${lightness}%)`;
+
+        liquidOverlay.style.backgroundColor = resolvedColor;
+        liquidOverlay.classList.remove('hidden', 'draining', 'visible');
+
+        doubleRAF(() => {
+            if (cancelled) return;
+            liquidOverlay.classList.add('visible');
+
+            const t1 = setTimeout(() => {
+                startDrain();
+            }, 300);  // Matches liquid overlay fade-in in liquid.css
+            timeouts.push(t1);
+        });
+    }
 }

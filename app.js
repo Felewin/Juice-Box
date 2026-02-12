@@ -93,22 +93,32 @@ function updateJuiceboxButtonVisibility() {
     }
 }
 
-const MACGUFFIN_FADE_DELAY_MS = 600;
-
 /**
  * Called when the player wins a level. Fades cells, plays liquid drain, then
  * starts the next level via startLevel() (which dispatches to the current mode).
  *
  * @param {Object} [winData] Optional data from the mode. If winData.macguffin is set
- *   (Pairy Picking), the two macguffin cells fade 600ms later than the rest,
+ *   (Pairy Picking), the two macguffin cells fade MACGUFFIN_FADE_DELAY_MS later than the rest,
  *   so the player can see where the duplicates were. Drain and level transition wait
- *   for macguffins to finish fading (600ms + FADE_MS) before starting.
+ *   for macguffins to finish fading (MACGUFFIN_FADE_DELAY_MS + FADE_MS) before starting.
  */
 function winLevel(winData = {}) {
     isTransitioning = true;
 
+    const drainColor = currentMode ? MODE_ACCENT_COLORS[currentMode] : null;
+    const drainCallbacks = {
+        onTransitionStart: () => {
+            isSceneTransitioning = true;
+            updateJuiceboxButtonVisibility();
+        },
+        onTransitionEnd: () => {
+            isSceneTransitioning = false;
+            updateJuiceboxButtonVisibility();
+        }
+    };
+
     if (winData.macguffin) {
-        // Fade non-macguffins first; macguffins fade 600ms later so the player
+        // Fade non-macguffins first; macguffins fade MACGUFFIN_FADE_DELAY_MS later so the player
         // can see where the duplicates were.
         grid.querySelectorAll('.cell').forEach((cell) => {
             if (cell.dataset.sprite !== winData.macguffin) {
@@ -123,32 +133,14 @@ function winLevel(winData = {}) {
             });
             // Wait for macguffins to finish fading, plus the mode's buffer ms, before starting drain and next level
             setTimeout(() => {
-                showLiquidDrain(liquidOverlay, {
-                    onTransitionStart: () => {
-                        isSceneTransitioning = true;
-                        updateJuiceboxButtonVisibility();
-                    },
-                    onTransitionEnd: () => {
-                        isSceneTransitioning = false;
-                        updateJuiceboxButtonVisibility();
-                    }
-                });
+                showLiquidDrain(liquidOverlay, { ...drainCallbacks, color: drainColor });
                 if (startLevelTimeoutId) clearTimeout(startLevelTimeoutId);
                 startLevelTimeoutId = setTimeout(startLevel, LEVEL_TRANSITION_DELAY);
             }, FADE_MS + winData.postClickedSpriteFadingPreTransitioningFadeMs);
         }, MACGUFFIN_FADE_DELAY_MS);
     } else {
         fadeOutCells(grid);
-        showLiquidDrain(liquidOverlay, {
-            onTransitionStart: () => {
-                isSceneTransitioning = true;
-                updateJuiceboxButtonVisibility();
-            },
-            onTransitionEnd: () => {
-                isSceneTransitioning = false;
-                updateJuiceboxButtonVisibility();
-            }
-        });
+        showLiquidDrain(liquidOverlay, { ...drainCallbacks, color: drainColor });
         if (startLevelTimeoutId) clearTimeout(startLevelTimeoutId);
         startLevelTimeoutId = setTimeout(startLevel, LEVEL_TRANSITION_DELAY);
     }
@@ -204,7 +196,7 @@ function returnToModeSelect() {
 
 /**
  * Returns from mode select to the title screen (title only, mode buttons hidden).
- * Fades the Juice Box button and mode buttons out together (300ms), then hides.
+ * Fades the Juice Box button and mode buttons out together, then hides.
  */
 function returnToTitle() {
     if (isReturningToTitle) return;
@@ -212,6 +204,9 @@ function returnToTitle() {
     document.body.style.background = '';
     document.body.style.backgroundSize = '';
     document.body.style.animation = '';
+    cancelLiquidDrain(liquidOverlay);
+    liquidOverlay.classList.remove('visible', 'draining');
+    liquidOverlay.classList.add('hidden');
     juiceboxButton?.classList.add('hidden-during-transition');
     modeScreen.classList.add('fade-out');
     setTimeout(() => {
@@ -221,7 +216,7 @@ function returnToTitle() {
         modeScreen.setAttribute('aria-hidden', 'true');
         juiceboxButton?.classList.remove('visible');
         isReturningToTitle = false;
-    }, 300);
+    }, RETURN_TO_TITLE_FADE_MS);
 }
 
 /**
@@ -240,8 +235,6 @@ function startLevel() {
     });
 }
 
-const MODE_BUTTON_FADE_DELAY_MS = 900;
-
 // Accent color from each mode's icon (used for background during button linger).
 const MODE_ACCENT_COLORS = {
     'go-bananas': '#FF9900',      // banana (amber/orange)
@@ -253,11 +246,11 @@ const MODE_ACCENT_COLORS = {
 
 /**
  * Called when the player clicks a mode button. Sets currentMode. Fades juicebox
- * and other mode buttons immediately; delays the clicked button's fade by 900ms,
+ * and other mode buttons immediately; delays the clicked button's fade by MODE_BUTTON_FADE_DELAY_MS,
  * then hides the title screen, plays the liquid drain, and schedules startLevel.
  *
  * @param {string} modeId The data-mode value from the clicked button (e.g. 'pairy-picking').
- * @param {HTMLElement} [clickedBtn] The mode button that was clicked; if provided, it fades 900ms later.
+ * @param {HTMLElement} [clickedBtn] The mode button that was clicked; if provided, it fades after MODE_BUTTON_FADE_DELAY_MS.
  */
 function startGameFromMode(modeId, clickedBtn) {
     currentMode = modeId;
@@ -269,33 +262,37 @@ function startGameFromMode(modeId, clickedBtn) {
             if (btn !== clickedBtn) btn.classList.add('fade-out');
         });
 
-        // Transition background to mode accent color over 300ms
+        // Fade in the liquid overlay with mode accent color (behind the mode button)
         const accentColor = MODE_ACCENT_COLORS[modeId];
         if (accentColor) {
-            document.body.style.background = accentColor;
-            document.body.style.backgroundSize = 'auto';
-            document.body.style.animation = 'none';
+            liquidOverlay.style.backgroundColor = accentColor;
+            liquidOverlay.classList.remove('hidden', 'draining');
+            doubleRAF(() => liquidOverlay.classList.add('visible'));
         }
 
-        // After 900ms, fade the clicked button and start the drain/level
+        // After linger, fade the clicked button over MODE_SELECT_TO_LEVEL_FADE_MS, then start the drain/level.
         setTimeout(() => {
+            clickedBtn.style.transition = `opacity ${MODE_SELECT_TO_LEVEL_FADE_MS}ms ease`;
             clickedBtn.classList.add('fade-out');
-            titleScreen.classList.add('hidden');
-            showLiquidDrain(liquidOverlay, {
-                onTransitionStart: () => {
-                    document.body.style.background = '';
-                    document.body.style.backgroundSize = '';
-                    document.body.style.animation = '';
-                    isSceneTransitioning = true;
-                    updateJuiceboxButtonVisibility();
-                },
-                onTransitionEnd: () => {
-                    isSceneTransitioning = false;
-                    updateJuiceboxButtonVisibility();
-                }
-            });
-            if (startLevelTimeoutId) clearTimeout(startLevelTimeoutId);
-            startLevelTimeoutId = setTimeout(startLevel, LEVEL_TRANSITION_DELAY);
+
+            setTimeout(() => {
+                clickedBtn.style.transition = '';
+                titleScreen.classList.add('hidden');
+                showLiquidDrain(liquidOverlay, {
+                    onTransitionStart: () => {
+                        isSceneTransitioning = true;
+                        updateJuiceboxButtonVisibility();
+                    },
+                    onTransitionEnd: () => {
+                        isSceneTransitioning = false;
+                        updateJuiceboxButtonVisibility();
+                    },
+                    color: accentColor,
+                    startVisible: !!accentColor
+                });
+                if (startLevelTimeoutId) clearTimeout(startLevelTimeoutId);
+                startLevelTimeoutId = setTimeout(startLevel, LEVEL_TRANSITION_DELAY);
+            }, MODE_SELECT_TO_LEVEL_FADE_MS);
         }, MODE_BUTTON_FADE_DELAY_MS);
     } else {
         titleScreen.classList.add('hidden');
