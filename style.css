@@ -376,6 +376,13 @@ body {
     transform: scale(1.22);
 }
 
+/* Horizontally mirrored sprites (randomized per sprite) */
+.cell img.mirrored { transform: scaleX(-1); }
+.cell:hover img.mirrored { transform: scaleX(-1) scale(1.22); }
+.cell.fade-out:hover img.mirrored,
+.cell.removed:hover img.mirrored { transform: scaleX(-1) scale(1); }
+.cell.incorrect-tap img.mirrored { transform: scaleX(-1) scale(0.88); }
+
 /* Cancel the hover scale-up during fade-out or when removed */
 .cell.fade-out:hover img,
 .cell.removed:hover img {

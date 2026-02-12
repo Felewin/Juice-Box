@@ -8,6 +8,27 @@
  */
 
 /**
+ * Returns true or false at random (50/50). General-purpose coin toss.
+ * @returns {boolean}
+ */
+function randomCoinToss() {
+    return Math.random() < 0.5;
+}
+
+/**
+ * Randomly applies horizontal mirroring (or not) to a sprite img. Adds .mirrored class when mirrored.
+ * Returns scaleX value (1 or -1) for use in JS transforms (e.g. flying sprites).
+ *
+ * @param {HTMLImageElement} img  Sprite image element
+ * @returns {1|-1}  Value for scaleX() in transform
+ */
+function randomlyApplyHorizontalMirroringOrNotToSprite(img) {
+    const mirrored = randomCoinToss();
+    if (mirrored) img.classList.add('mirrored');
+    return mirrored ? -1 : 1;
+}
+
+/**
  * Fisher-Yates shuffle — returns a new randomly-ordered copy of `array`.
  * Does NOT mutate the original.
  *

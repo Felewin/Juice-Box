@@ -139,6 +139,7 @@ function buildGrid(gridEl, items, { checkWin, onWin, shouldIgnoreInput }) {
         img.src = spriteSrc(sprite);
         img.alt = sprite;
         img.draggable = false;
+        randomlyApplyHorizontalMirroringOrNotToSprite(img);
         cell.appendChild(img);
 
         const delay = Math.random() * GRID_BOUNCE_STAGGER_MAX_MS + GRID_BOUNCE_STAGGER_MIN_MS;  // Stagger for bounce-in

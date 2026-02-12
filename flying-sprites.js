@@ -94,7 +94,8 @@
 
         el.style.left = x + 'px';
         el.style.top = y + 'px';
-        el.style.transform = `translate(-50%, -50%) rotate(0deg)`;
+        const scaleX = randomlyApplyHorizontalMirroringOrNotToSprite(el);
+        el.style.transform = `translate(-50%, -50%) scaleX(${scaleX}) rotate(0deg)`;
 
         container.appendChild(el);
 
@@ -106,6 +107,7 @@
             vy,
             rotation: 0,
             rotationSpeed,
+            scaleX,
             size
         };
     }
@@ -141,7 +143,7 @@
 
             s.el.style.left = s.x + 'px';
             s.el.style.top = s.y + 'px';
-            s.el.style.transform = `translate(-50%, -50%) rotate(${s.rotation}deg)`;
+            s.el.style.transform = `translate(-50%, -50%) scaleX(${s.scaleX}) rotate(${s.rotation}deg)`;
 
             if (isOffScreen(s)) {
                 removeSprite(s);
