@@ -216,8 +216,8 @@ body {
     color: transparent; /* Gradient shows through via background-clip on label */
     font-family: var(--font-title);
     font-weight: 400;
-    /* Text scales with button height: ~75% of content area; line-height 1.4 accommodates descenders (y, g, p) */
-    font-size: calc(var(--mode-btn-height) * 0.54);
+    /* Text scales with button height: ~65% of content area; line-height 1.4 accommodates descenders (y, g, p) */
+    font-size: calc(var(--mode-btn-height) * 0.46);
     line-height: 1.4;
     text-align: left;
     cursor: pointer;
