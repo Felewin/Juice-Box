@@ -13,7 +13,8 @@ const MODE_ACCENT_COLORS = {
     'apple-of-my-eye': '#C0392B', // apple red (darker)
     'perfect-pearody': '#7DCE82', // pear green
     'peach-party': '#E8A87C',     // peach (darker)
-    'pairy-picking': '#C0392B'    // cherry red
+    'pairy-picking': '#C0392B',   // cherry red
+    'subtle-tea': '#D94B2E'       // reddish-orange
 };
 
 /**

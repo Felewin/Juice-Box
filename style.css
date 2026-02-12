@@ -150,6 +150,14 @@ body {
     pointer-events: none;
 }
 
+/* Flying sprites (title screen) fade out with the title when mode select is shown */
+#flying-sprites-container {
+    transition: opacity 0.5s ease;
+}
+#title-screen:has(#title.faded) #flying-sprites-container {
+    opacity: 0;
+}
+
 /* ---- Mode screen ----
    Juicy card–style buttons: pill shape, frosted glass, larger icons.
    Hover: card lifts with subtle scale, shadow deepens, icon bounces. */

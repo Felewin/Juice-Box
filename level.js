@@ -12,11 +12,10 @@
  */
 
 // Every filename in the sprites/ folder (without the .png extension).
-// There are 26 total.
 const ALL_SPRITES = [
     'apple-gold', 'apple-green', 'apple-red', 'avocado', 'banana', 'beet', 'blueberries',
     'carrot', 'cherries', 'coconut', 'cucumber', 'ginger', 'grapes', 'greens',
-    'kiwi', 'lemon', 'lime', 'mango', 'melon', 'peach',
+    'kiwi', 'leaves-falling', 'lemon', 'lime', 'mango', 'melon', 'peach',
     'pear-gold', 'pear-green', 'pineapple', 'strawberry', 'tangerine', 'watermelon'
 ];
 
@@ -160,6 +159,15 @@ function updateCellSize() {
     const heightBasedSize = window.innerHeight / (ACTUAL_GRID_ROWS + 2);
     const cellSize = Math.min(widthBasedSize, heightBasedSize);
     document.documentElement.style.setProperty('--cell-size', `${cellSize}px`);
+}
+
+/**
+ * Returns the current cell size in pixels (parsed from --cell-size).
+ * Used by flying-sprites and any other code that needs the sprite dimensions.
+ */
+function getCellSize() {
+    const val = getComputedStyle(document.documentElement).getPropertyValue('--cell-size').trim();
+    return val ? parseFloat(val) || 60 : 60;
 }
 
 /**
