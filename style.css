@@ -231,8 +231,12 @@ body {
         inset 0 1px 0 rgba(255, 255, 255, 0.5);
 }
 
-/* When height ≥ 1.5× width (tall/portrait), use 10% smaller text to fit better */
+/* When height ≥ 1.5× width (tall/portrait), use 10% smaller text and halve side margins */
 @media (max-aspect-ratio: 2/3) {
+    #mode-screen {
+        left: 7.5vw;
+        right: 7.5vw;
+    }
     .mode-btn {
         font-size: calc(var(--mode-btn-height) * 0.39);  /* ~55% vs ~65% default */
     }
