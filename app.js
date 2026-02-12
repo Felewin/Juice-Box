@@ -75,7 +75,7 @@ let isReturningToTitle = false;         // True during mode-select→title; used
 let isTransitioningToLevel = false;     // True from mode-button click until startLevel runs; ESC aborts to mode select.
 let currentMode = null;  // Set when a mode button is clicked; used by startLevel to dispatch.
 let startLevelTimeoutId = null;  // Scheduled by scheduleDrainAndLevel; cleared on abort or return.
-let timeoutIDsWeMayUseToCancelPendingTimeoutsForTransitioningFromModeSelectToLevel = [];   // Outer+inner timeouts (button fade, drain schedule); cleared on abort.
+let timeoutIDsWeMayUseToCancelPendingTimeoutsForTransitioningFromModeSelectToLevel = [];   // Outer+inner timeouts (button fade, drain schedule); cleared on abort or return to mode select.
 
 /** Restores body background (used when returning from level or aborting transition). */
 function resetBodyBackground() {
@@ -256,7 +256,7 @@ function abortTransitionToLevel() {
 
     resetBodyBackground();
 
-    // Restore title screen and mode select (title was hidden when drain started)
+    // Restore title screen and mode select (needed when drain started—case 2; harmless no-op in case 1)
     titleScreen.classList.remove('hidden');
     titleHeading.classList.add('faded');
     modeScreen.querySelectorAll('.mode-btn').forEach((btn) => {
