@@ -7,7 +7,7 @@
  *  simultaneous playback without cutting each other off.
  *
  *  playSplitSound(): Plays a random "split" sound; used by Go Bananas, Peach Party,
- *  Discover the Duplicate, and Apple Of My Eye. Uses LAST_SPLIT_SOUND_REF internally
+ *  Pairy Picking, and Apple Of My Eye. Uses LAST_SPLIT_SOUND_REF internally
  *  so we never repeat the same sound twice in a row, even when switching modes or levels.
  * ============================================================
  */

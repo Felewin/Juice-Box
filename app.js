@@ -100,7 +100,7 @@ const MACGUFFIN_FADE_DELAY_MS = 600;
  * starts the next level via startLevel() (which dispatches to the current mode).
  *
  * @param {Object} [winData] Optional data from the mode. If winData.macguffin is set
- *   (Discover the Duplicate), the two macguffin cells fade 600ms later than the rest,
+ *   (Pairy Picking), the two macguffin cells fade 600ms later than the rest,
  *   so the player can see where the duplicates were. Drain and level transition wait
  *   for macguffins to finish fading (600ms + FADE_MS) before starting.
  */
@@ -239,7 +239,7 @@ const MODE_BUTTON_FADE_DELAY_MS = 850;
  * and other mode buttons immediately; delays the clicked button's fade by 850ms,
  * then hides the title screen, plays the liquid drain, and schedules startLevel.
  *
- * @param {string} modeId The data-mode value from the clicked button (e.g. 'discover-the-duplicate').
+ * @param {string} modeId The data-mode value from the clicked button (e.g. 'pairy-picking').
  * @param {HTMLElement} [clickedBtn] The mode button that was clicked; if provided, it fades 850ms later.
  */
 function startGameFromMode(modeId, clickedBtn) {

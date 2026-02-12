@@ -1,6 +1,6 @@
 /*
  * ============================================================
- *  JUICE BOX — Discover the Duplicate
+ *  JUICE BOX — Pairy Picking
  * ============================================================
  *  Mode: one sprite appears twice in the grid; the player finds and
  *  clicks the duplicate (macguffin) to win.
@@ -11,13 +11,17 @@
  *  3. Avoid adjacent duplicates: retry shuffles or swap one macguffin with a
  *     non-adjacent cell; accept adjacent only when impossible (very small grids).
  *
- *  Grid dimensions come from level.js; maxCells = ALL_SPRITES.length + 1.
+ *  Cherries excluded so players don't assume from the mode icon that they must hunt for cherries.
+ *  maxCells = SPRITES_FOR_PAIRY.length + 1.
  * ============================================================
  */
 
 (function () {
+    // Exclude cherries so players don't assume from the mode icon that they must hunt for cherries.
+    const SPRITES_FOR_PAIRY = ALL_SPRITES.filter((s) => s !== 'cherries');
+
     // For this mode, the max cells is all unique sprites + 1 duplicate.
-    const MAX_CELLS = ALL_SPRITES.length + 1;
+    const MAX_CELLS = SPRITES_FOR_PAIRY.length + 1;
 
     /**
  * Builds a randomized set of sprite names for one level.
@@ -38,18 +42,18 @@
  *   - items:     Sprite names in display order (one sprite appears twice).
  *   - macguffin: The sprite name that appears twice.
  */
-function generateLevelForTheModeCalledDiscoverTheDuplicate() {
+function generateLevelForTheModeCalledPairyPicking() {
     const totalCells = ACTUAL_GRID_COLUMNS * ACTUAL_GRID_ROWS;
 
     // This mode needs a duplicate, so at least 2 cells are required. With 1 cell,
     // (totalCells - 1) unique sprites = 0, which would break sprite selection.
     if (totalCells < 2) {
-        throw new Error(`Discover the Duplicate requires at least 2 cells; got ${totalCells}. Check GRID_COLUMNS and GRID_ROWS in level.js.`);
+        throw new Error(`Pairy Picking requires at least 2 cells; got ${totalCells}. Check GRID_COLUMNS and GRID_ROWS in level.js.`);
     }
 
     // Sanity check: computeGridDimensions should cap the grid at MAX_CELLS.
     if (totalCells > MAX_CELLS) {
-        console.error(`generateLevelForTheModeCalledDiscoverTheDuplicate: totalCells (${totalCells}) exceeds MAX_CELLS (${MAX_CELLS}). This should never happen!`);
+        console.error(`generateLevelForTheModeCalledPairyPicking: totalCells (${totalCells}) exceeds MAX_CELLS (${MAX_CELLS}). This should never happen!`);
     }
 
     // --- Step 1: Pick which sprites fill the grid ---
@@ -59,13 +63,13 @@ function generateLevelForTheModeCalledDiscoverTheDuplicate() {
 
     if (totalCells >= MAX_CELLS) {
         // Full grid: use every sprite once, plus one duplicate of a random sprite
-        chosen = shuffle(ALL_SPRITES);
+        chosen = shuffle(SPRITES_FOR_PAIRY);
         macguffin = chosen[Math.floor(Math.random() * chosen.length)];
         chosen = [...chosen, macguffin];
     } else {
         // Smaller grid: use (totalCells - 1) unique sprites + 1 duplicate = totalCells items
         const numUniqueSpritesNeeded = totalCells - 1;
-        const shuffledAll = shuffle(ALL_SPRITES);
+        const shuffledAll = shuffle(SPRITES_FOR_PAIRY);
         chosen = shuffledAll.slice(0, numUniqueSpritesNeeded);
         macguffin = chosen[Math.floor(Math.random() * chosen.length)];
         chosen = [...chosen, macguffin];
@@ -117,11 +121,11 @@ function generateLevelForTheModeCalledDiscoverTheDuplicate() {
     // --- Final sanity checks ---
     // Verify item count matches grid size and macguffin appears exactly twice
     if (items.length !== totalCells) {
-        console.warn(`generateLevelForTheModeCalledDiscoverTheDuplicate: Expected ${totalCells} items but got ${items.length}. This may indicate a logic error.`);
+        console.warn(`generateLevelForTheModeCalledPairyPicking: Expected ${totalCells} items but got ${items.length}. This may indicate a logic error.`);
     }
     const finalMacguffinCount = items.filter(s => s === macguffin).length;
     if (finalMacguffinCount !== 2) {
-        console.warn(`generateLevelForTheModeCalledDiscoverTheDuplicate: macguffin should appear twice but appears ${finalMacguffinCount} times. This may indicate a logic error.`);
+        console.warn(`generateLevelForTheModeCalledPairyPicking: macguffin should appear twice but appears ${finalMacguffinCount} times. This may indicate a logic error.`);
     }
 
     return { items, macguffin };
@@ -131,13 +135,13 @@ function generateLevelForTheModeCalledDiscoverTheDuplicate() {
 const POST_CLICKEDSPRITE_FADING_PRETRANSITIONING_FADE_MS = 100;
 
 const MODES = window.MODES || {};
-MODES['discover-the-duplicate'] = {
+MODES['pairy-picking'] = {
     /**
      * @param {HTMLElement} gridEl The #grid element.
      * @param {Object} opts From app.js: { onWin, shouldIgnoreInput }. Spread into buildGrid.
      */
     start(gridEl, opts) {
-        const { items, macguffin } = generateLevelForTheModeCalledDiscoverTheDuplicate();
+        const { items, macguffin } = generateLevelForTheModeCalledPairyPicking();
 
         // Clicking either macguffin wins; macguffins fade later than the rest.
         const checkWin = (cell) => {

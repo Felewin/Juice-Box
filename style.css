@@ -321,7 +321,7 @@ body {
     pointer-events: none;
 }
 
-/* Applied when a cell is removed during play (Go Bananas, Discover the Duplicate).
+/* Applied when a cell is removed during play (Go Bananas, Pairy Picking).
    Fades out and stops receiving input. */
 .cell.removed {
     opacity: 0;
