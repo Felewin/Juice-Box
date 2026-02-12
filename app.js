@@ -363,24 +363,10 @@ document.fonts.ready.then(() => {
     });
 });
 
-function goBack() {
-    if (isInLevel()) returnToModeSelect();
-    else if (isOnModeSelect()) returnToTitle();
-}
-
 document.addEventListener('keydown', (e) => {
     if (e.key !== 'Escape') return;
-    goBack();
-});
-
-// Android back button: pushState on load so we can intercept popstate; on back, run goBack and pushState to stay.
-// On title screen, do nothing so back can leave the app.
-history.pushState({ juicebox: true }, '', window.location.href);
-window.addEventListener('popstate', () => {
-    if (isInLevel() || isOnModeSelect()) {
-        goBack();
-        history.pushState({ juicebox: true }, '', window.location.href);
-    }
+    if (isInLevel()) returnToModeSelect();
+    else if (isOnModeSelect()) returnToTitle();
 });
 
 juiceboxButton.addEventListener('click', () => {
