@@ -184,7 +184,7 @@ function returnToModeSelect() {
 
     juiceboxButton?.classList.add('hidden-during-transition');
 
-    stopAllModeBackgroundMusic(3000);  // Fade out all mode background music over 3s
+    stopAllModeBackgroundMusic(1500);  // Fade out all mode background music over 1.5s
 
     cancelLiquidDrain(liquidOverlay, {
         fadeOut: true,
