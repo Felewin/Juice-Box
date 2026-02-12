@@ -73,6 +73,38 @@ let isReturningToTitle = false;         // True during mode-select→title; used
 let currentMode = null;  // Set when a mode button is clicked; used by startLevel to dispatch.
 let startLevelTimeoutId = null;  // Cleared when returnToModeSelect or when starting a new drain.
 
+function resetBodyBackground() {
+    document.body.style.background = '';
+    document.body.style.backgroundSize = '';
+    document.body.style.animation = '';
+}
+
+/**
+ * Returns drain callbacks for showLiquidDrain. Pass opts to add/override (e.g. color, startVisible).
+ */
+function createDrainCallbacks(opts = {}) {
+    return {
+        onTransitionStart: () => {
+            isSceneTransitioning = true;
+            updateJuiceboxButtonVisibility();
+        },
+        onTransitionEnd: () => {
+            isSceneTransitioning = false;
+            updateJuiceboxButtonVisibility();
+        },
+        ...opts
+    };
+}
+
+/**
+ * Plays the liquid drain and schedules startLevel after LEVEL_TRANSITION_DELAY.
+ */
+function scheduleDrainAndLevel(drainOpts) {
+    showLiquidDrain(liquidOverlay, drainOpts);
+    if (startLevelTimeoutId) clearTimeout(startLevelTimeoutId);
+    startLevelTimeoutId = setTimeout(startLevel, LEVEL_TRANSITION_DELAY);
+}
+
 /**
  * Updates Juice Box button visibility: .visible when on mode select or level,
  * .hidden-during-transition (fade out) during any transition.
@@ -106,16 +138,7 @@ function winLevel(winData = {}) {
     isTransitioning = true;
 
     const drainColor = currentMode ? MODE_ACCENT_COLORS[currentMode] : null;
-    const drainCallbacks = {
-        onTransitionStart: () => {
-            isSceneTransitioning = true;
-            updateJuiceboxButtonVisibility();
-        },
-        onTransitionEnd: () => {
-            isSceneTransitioning = false;
-            updateJuiceboxButtonVisibility();
-        }
-    };
+    const drainOpts = createDrainCallbacks({ color: drainColor });
 
     if (winData.macguffin) {
         // Fade non-macguffins first; macguffins fade MACGUFFIN_FADE_DELAY_MS later so the player
@@ -133,16 +156,12 @@ function winLevel(winData = {}) {
             });
             // Wait for macguffins to finish fading, plus the mode's buffer ms, before starting drain and next level
             setTimeout(() => {
-                showLiquidDrain(liquidOverlay, { ...drainCallbacks, color: drainColor });
-                if (startLevelTimeoutId) clearTimeout(startLevelTimeoutId);
-                startLevelTimeoutId = setTimeout(startLevel, LEVEL_TRANSITION_DELAY);
+                scheduleDrainAndLevel(drainOpts);
             }, FADE_MS + winData.postClickedSpriteFadingPreTransitioningFadeMs);
         }, MACGUFFIN_FADE_DELAY_MS);
     } else {
         fadeOutCells(grid);
-        showLiquidDrain(liquidOverlay, { ...drainCallbacks, color: drainColor });
-        if (startLevelTimeoutId) clearTimeout(startLevelTimeoutId);
-        startLevelTimeoutId = setTimeout(startLevel, LEVEL_TRANSITION_DELAY);
+        scheduleDrainAndLevel(drainOpts);
     }
 }
 
@@ -173,10 +192,7 @@ function returnToModeSelect() {
 
     fadeOutCells(grid);
 
-    // Reset body background to gradient (clears mode accent from prior mode selection)
-    document.body.style.background = '';
-    document.body.style.backgroundSize = '';
-    document.body.style.animation = '';
+    resetBodyBackground();
 
     // Wait for fade-out (overlay + cells) to complete, then linger before revealing mode screen.
     setTimeout(() => {
@@ -201,9 +217,7 @@ function returnToModeSelect() {
 function returnToTitle() {
     if (isReturningToTitle) return;
     isReturningToTitle = true;
-    document.body.style.background = '';
-    document.body.style.backgroundSize = '';
-    document.body.style.animation = '';
+    resetBodyBackground();
     cancelLiquidDrain(liquidOverlay);
     liquidOverlay.classList.remove('visible', 'draining');
     liquidOverlay.classList.add('hidden');
@@ -278,36 +292,15 @@ function startGameFromMode(modeId, clickedBtn) {
             setTimeout(() => {
                 clickedBtn.style.transition = '';
                 titleScreen.classList.add('hidden');
-                showLiquidDrain(liquidOverlay, {
-                    onTransitionStart: () => {
-                        isSceneTransitioning = true;
-                        updateJuiceboxButtonVisibility();
-                    },
-                    onTransitionEnd: () => {
-                        isSceneTransitioning = false;
-                        updateJuiceboxButtonVisibility();
-                    },
+                scheduleDrainAndLevel(createDrainCallbacks({
                     color: accentColor,
                     startVisible: !!accentColor
-                });
-                if (startLevelTimeoutId) clearTimeout(startLevelTimeoutId);
-                startLevelTimeoutId = setTimeout(startLevel, LEVEL_TRANSITION_DELAY);
+                }));
             }, MODE_SELECT_TO_LEVEL_FADE_MS);
         }, MODE_BUTTON_FADE_DELAY_MS);
     } else {
         titleScreen.classList.add('hidden');
-        showLiquidDrain(liquidOverlay, {
-            onTransitionStart: () => {
-                isSceneTransitioning = true;
-                updateJuiceboxButtonVisibility();
-            },
-            onTransitionEnd: () => {
-                isSceneTransitioning = false;
-                updateJuiceboxButtonVisibility();
-            }
-        });
-        if (startLevelTimeoutId) clearTimeout(startLevelTimeoutId);
-        startLevelTimeoutId = setTimeout(startLevel, LEVEL_TRANSITION_DELAY);
+        scheduleDrainAndLevel(createDrainCallbacks());
     }
 }
 
