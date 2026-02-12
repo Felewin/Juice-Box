@@ -68,6 +68,7 @@ const juiceboxButton = document.getElementById('juicebox-button');
 
 let isTransitioning = false;      // True during win→level or level→mode-select; blocks cell input.
 let isSceneTransitioning = false; // True while drain overlay is visible; fades out Juice Box button.
+let isFirstLevelOfSession = false; // True when entering a mode from mode select; false when continuing from a win.
 let isReturningToModeSelect = false;    // True only during level→mode-select; blocks returnToModeSelect re-entry.
 let isReturningToTitle = false;         // True during mode-select→title; used for Juice Box button fade.
 let currentMode = null;  // Set when a mode button is clicked; used by startLevel to dispatch.
@@ -243,10 +244,13 @@ function startLevel() {
     startLevelTimeoutId = null;
     const mode = MODES[currentMode];
     if (!mode || !mode.start) return;
-    mode.start(grid, {
+    const opts = {
         onWin: winLevel,
-        shouldIgnoreInput: () => isTransitioning
-    });
+        shouldIgnoreInput: () => isTransitioning,
+        isFirstLevelOfSession: isFirstLevelOfSession
+    };
+    isFirstLevelOfSession = false;
+    mode.start(grid, opts);
 }
 
 /**
@@ -259,6 +263,7 @@ function startLevel() {
  */
 function startGameFromMode(modeId, clickedBtn) {
     currentMode = modeId;
+    isFirstLevelOfSession = true;
 
     if (clickedBtn) {
         // Fade juicebox and non-clicked mode buttons immediately
