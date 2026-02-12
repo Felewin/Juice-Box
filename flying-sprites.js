@@ -63,9 +63,9 @@
         return Math.random() * Math.PI * 2;
     }
 
-    /* All sprites except leaves-falling, plus juicebox (favicon.png), beachball, teapot, thong-sandal (unjuicable) */
+    /* All sprites except leaves-falling and blueberries, plus juicebox, beachball, teapot, thong-sandal */
     const FLYING_SPRITES = [
-        ...ALL_SPRITES.filter((s) => s !== 'leaves-falling'),
+        ...ALL_SPRITES.filter((s) => s !== 'leaves-falling' && s !== 'blueberries'),
         'juicebox', 'unjuicable/beachball', 'unjuicable/teapot', 'unjuicable/thong-sandal'
     ];
 
