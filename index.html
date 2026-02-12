@@ -35,6 +35,8 @@
             <span class="moving-gradient-text">Box</span>
         </h1>
         <div id="mode-screen" class="hidden" aria-hidden="true">
+            <!-- List of mode buttons (left half) -->
+            <div id="mode-buttons-container">
             <button type="button" class="mode-btn" data-mode="go-bananas">
                 <img src="sprites/banana.png" alt="" class="mode-btn-icon">
                 <span class="moving-gradient-text">Go Bananas</span>
@@ -59,6 +61,20 @@
                 <img src="sprites/cherries.png" alt="" class="mode-btn-icon">
                 <span class="moving-gradient-text">Pairy Picking</span>
             </button>
+            </div>
+            <!-- Settings (right half): row/column count sliders -->
+            <div id="settings-container">
+                <div class="setting-row">
+                    <label for="grid-rows-slider">Rows</label>
+                    <input type="range" id="grid-rows-slider" min="2" max="8" value="6" aria-label="Grid rows">
+                    <span id="grid-rows-value">6</span>
+                </div>
+                <div class="setting-row">
+                    <label for="grid-columns-slider">Columns</label>
+                    <input type="range" id="grid-columns-slider" min="2" max="8" value="4" aria-label="Grid columns">
+                    <span id="grid-columns-value">4</span>
+                </div>
+            </div>
         </div>
     </div>
 

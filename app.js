@@ -435,8 +435,40 @@ document.fonts.ready.then(() => {
         menuContainer.classList.add('ready');
         setupTitleScreenClickHandler();
         setupModeScreenHandlers();
+        setupSettingsSliders();
     });
 });
+
+/**
+ * Wires row/column sliders in settings to setDesiredGridDimensions.
+ */
+function setupSettingsSliders() {
+    const rowsSlider = document.getElementById('grid-rows-slider');
+    const colsSlider = document.getElementById('grid-columns-slider');
+    const rowsValue = document.getElementById('grid-rows-value');
+    const colsValue = document.getElementById('grid-columns-value');
+    if (!rowsSlider || !colsSlider || !rowsValue || !colsValue) return;
+
+    const syncFromSliders = () => {
+        const rows = parseInt(rowsSlider.value, 10);
+        const cols = parseInt(colsSlider.value, 10);
+        setDesiredGridDimensions(cols, rows);
+        rowsValue.textContent = rows;
+        colsValue.textContent = cols;
+    };
+
+    const syncToSliders = () => {
+        const { cols, rows } = getDesiredGridDimensions();
+        rowsSlider.value = rows;
+        colsSlider.value = cols;
+        rowsValue.textContent = rows;
+        colsValue.textContent = cols;
+    };
+
+    syncToSliders();
+    rowsSlider.addEventListener('input', syncFromSliders);
+    colsSlider.addEventListener('input', syncFromSliders);
+}
 
 // ESC: abort transition → return from level → return to title screen (priority order)
 document.addEventListener('keydown', (e) => {

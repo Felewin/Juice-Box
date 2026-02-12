@@ -161,19 +161,64 @@ body {
 }
 
 /* ---- Mode select screen ----
-   Juicy card–style buttons: pill shape, frosted glass, larger icons.
-   Hover: card lifts with subtle scale, shadow deepens, icon bounces. */
+   Same total space as before (left/right margins from viewport). Split into left half
+   (list of mode buttons) and right half (settings). Two identical halves for now. */
 #mode-screen {
-    flex-direction: column;
-    align-items: center;
+    display: grid;
+    grid-template-columns: 1fr 1fr;  /* List of mode buttons | Settings */
+    align-items: stretch;            /* Override shared center; fill column height */
     left: 15vw;
     right: 15vw;
     width: auto;
-    gap: clamp(1.5vw, 4vmin, 4vw);
     padding: 0;
     pointer-events: none;
     opacity: 0;
     transition: opacity 0.5s ease;
+}
+
+/* List of mode buttons (left half): 70% width, aligned to right edge */
+#mode-buttons-container {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;           /* Align to right edge */
+    justify-content: center;
+    width: 70%;
+    margin-left: auto;              /* Push to right when parent has extra space */
+    gap: clamp(1.5vw, 4vmin, 4vw);
+}
+
+/* Settings (right half): row/column sliders; 70% width like list, aligned left */
+#settings-container {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+    width: 70%;
+    gap: clamp(1.5vw, 4vmin, 4vw);
+    padding: clamp(0.5rem, 2vw, 1rem);
+}
+
+.setting-row {
+    display: flex;
+    align-items: center;
+    gap: 0.75em;
+    width: 100%;
+    max-width: 20em;
+}
+
+.setting-row label {
+    font-family: var(--font-title);
+    min-width: 4em;
+}
+
+.setting-row input[type="range"] {
+    flex: 1;
+    accent-color: var(--gradient-text-core);
+}
+
+.setting-row span {
+    font-family: var(--font-title);
+    min-width: 1.5em;
 }
 
 #mode-screen:not(.hidden) {
