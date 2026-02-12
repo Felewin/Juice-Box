@@ -7,7 +7,7 @@
  *
  *  Design tokens (shared values) are stored as CSS custom
  *  properties on :root so they can be reused across rules —
- *  and even read from JavaScript (see utils.js → FADE_MS).
+ *  and even read from JavaScript (see timing.js → FADE_MS).
  * ============================================================
  */
 
@@ -26,7 +26,7 @@
     --cell-size: 60px;
 
     /* How long the fade-out lasts when transitioning between levels.
-       utils.js reads this as FADE_MS so LEVEL_TRANSITION_DELAY stays in sync.
+       timing.js reads this as FADE_MS so LEVEL_TRANSITION_DELAY stays in sync.
        Matches Juice Box button and mode screen (300ms). */
     --fade-duration: 300ms;
 

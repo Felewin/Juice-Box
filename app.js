@@ -181,17 +181,20 @@ function returnToModeSelect() {
 
     fadeOutCells(grid);
 
+    // Wait for fade-out (overlay + cells) to complete, then linger before revealing mode screen.
     setTimeout(() => {
-        grid.innerHTML = '';
-        titleScreen.classList.remove('hidden');
-        titleHeading.classList.add('faded');
-        modeScreen.classList.remove('hidden');
-        modeScreen.setAttribute('aria-hidden', 'false');
-        modeScreen.querySelectorAll('.mode-btn').forEach((btn) => btn.classList.remove('fade-out'));
-        isTransitioning = false;
-        isReturningToModeSelect = false;
-        updateJuiceboxButtonVisibility();
-    }, LEVEL_TRANSITION_DELAY);
+        setTimeout(() => {
+            grid.innerHTML = '';
+            titleScreen.classList.remove('hidden');
+            titleHeading.classList.add('faded');
+            modeScreen.classList.remove('hidden');
+            modeScreen.setAttribute('aria-hidden', 'false');
+            modeScreen.querySelectorAll('.mode-btn').forEach((btn) => btn.classList.remove('fade-out'));
+            isTransitioning = false;
+            isReturningToModeSelect = false;
+            updateJuiceboxButtonVisibility();
+        }, LEVEL_POST_FADE_OUT_LINGER_BEFORE_RETURNING_TO_MODE_SELECT);
+    }, FADE_MS);
 }
 
 /**

@@ -2,17 +2,10 @@
  * ============================================================
  *  JUICE BOX — Shared Utilities
  * ============================================================
- *  Constants and helpers used across multiple modules.
- *  Loaded early; no dependencies on grid, modes, or app.
+ *  Helpers used across multiple modules (shuffle, doubleRAF).
+ *  Timing constants live in timing.js. Loaded early; no dependencies.
  * ============================================================
  */
-
-// Fade duration in ms, read from CSS --fade-duration (keeps JS in sync with stylesheet).
-const FADE_MS = parseInt(getComputedStyle(document.documentElement)
-    .getPropertyValue('--fade-duration'));
-
-// Delay before starting a level after fade-out begins. Used for mode→level and level→level.
-const LEVEL_TRANSITION_DELAY = FADE_MS + 100;
 
 /**
  * Fisher-Yates shuffle — returns a new randomly-ordered copy of `array`.

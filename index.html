@@ -19,6 +19,7 @@
     <!-- All visual styling -->
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="liquid.css">
+    <script src="timing.js"></script>
     <script src="level.js"></script>
 </head>
 <body>
@@ -75,7 +76,8 @@
     </button>
 
     <!--
-        Script order matters. level.js loads in head (sets --grid-columns/--grid-rows).
+        Script order matters.
+        Head order: timing.js (must run before level.js), level.js (must be here to set --grid-columns/--grid-rows in time).
         Body order: audio, utils, transitions, grid, modes/*.js, app.js.
         New modes: add <script> before app.js. See HOW TO ADD A NEW MODE in app.js.
     -->
