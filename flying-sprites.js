@@ -89,7 +89,8 @@
         el.style.willChange = 'transform';
 
         const baseSize = getCellSize();  /* from level.js */
-        const size = baseSize * (0.5 + Math.random() * 1.5);  /* random 0.5× to 2× */
+        let size = baseSize * (0.5 + Math.random() * 1.5);  /* random 0.5× to 2× */
+        if (spriteName === 'unjuicable/beachball') size *= 4;
         el.style.width = size + 'px';
         el.style.height = size + 'px';
 
