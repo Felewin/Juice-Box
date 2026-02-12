@@ -405,6 +405,7 @@ function setupModeScreenHandlers() {
         e.preventDefault();
         e.stopPropagation();
         btn.classList.add('no-hover');  // Disable hover effects once clicked
+        playOneshot('audio/Mouth Pop.mp3');
         const modeId = btn.dataset.mode || Object.keys(MODES)[0] || 'go-bananas';  // Fallback: first registered mode
         const modeSounds = { 'subtle-tea': 'audio/Windchimes Release.mp3', 'go-bananas': 'audio/Monkey Imitation.mp3' };
         playOneshot(modeSounds[modeId] || 'audio/Success Jingle Plucking.mp3');
