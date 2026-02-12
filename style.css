@@ -134,7 +134,7 @@ body {
     font-family: var(--font-title);
     font-weight: 400;
     font-style: normal;
-    font-size: calc(50vh / 2.2);  /* Two lines; total block height = 50% of screen */
+    font-size: calc(min(50vh, 50vw) / 2.2);  /* Two lines; capped by smaller of half height or half width */
     line-height: 1.1;
     text-align: center;
     transition: opacity 0.5s ease;
