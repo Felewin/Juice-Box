@@ -19,8 +19,8 @@
     const FILLER_SPRITES = ['apple-red', 'tangerine', 'mango'];
     const TARGET = 'peach';
 
-    // Unjuicable sprites from sprites/unjuicable/ — included in every level as decoration.
-    const UNJUICABLE_SPRITES = ['unjuicable/beach-with-umbrella', 'unjuicable/bikini', 'unjuicable/thong-sandal', 'unjuicable/water-wave'];
+    // Unjuicable sprites from sprites/unjuicable/ — included in every level as decoration (exactly 1 of each).
+    const UNJUICABLE_SPRITES = ['unjuicable/beach-with-umbrella', 'unjuicable/beachball', 'unjuicable/bikini', 'unjuicable/thong-sandal', 'unjuicable/tropical-drink', 'unjuicable/water-wave'];
     window.UNJUICABLE_SPRITES = UNJUICABLE_SPRITES;
 
 /**

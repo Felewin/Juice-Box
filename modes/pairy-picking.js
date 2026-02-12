@@ -18,7 +18,8 @@
 
 (function () {
     // Exclude cherries so players don't assume from the mode icon that they must hunt for cherries.
-    const SPRITES_FOR_PAIRY = ALL_SPRITES.filter((s) => s !== 'cherries');
+    // Exclude leaves-falling (used in Subtle Tea with its own sound).
+    const SPRITES_FOR_PAIRY = ALL_SPRITES.filter((s) => s !== 'cherries' && s !== 'leaves-falling');
 
     // For this mode, the max cells is all unique sprites + 1 duplicate.
     const MAX_CELLS = SPRITES_FOR_PAIRY.length + 1;
