@@ -97,6 +97,23 @@ function computeGridDimensions(maxCells) {
 }
 
 /**
+ * Shared checkWin logic for "click-to-remove" modes (Go Bananas, Peach Party, Perfect Pearody).
+ * Returns false if wrong sprite, undefined if correct but more targets remain, true if last target.
+ *
+ * @param {HTMLElement} gridEl The grid container.
+ * @param {HTMLElement} cell The clicked cell.
+ * @param {string} target The sprite name to collect (e.g. 'banana', 'peach', 'pear').
+ * @returns {false|undefined|true}
+ */
+function checkWinClickToRemove(gridEl, cell, target) {
+    if (cell.dataset.sprite !== target) return false;
+    playSplitSound();
+    cell.classList.add('removed');
+    const remaining = gridEl.querySelectorAll('.cell[data-sprite="' + target + '"]:not(.removed)');
+    return remaining.length === 0 ? true : undefined;
+}
+
+/**
  * Runs the common mode setup: dimensions, cell size, audio, grid build.
  * Each mode calls this with its MAX_CELLS, level data (with .items), and checkWin.
  *

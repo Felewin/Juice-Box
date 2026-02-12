@@ -6,6 +6,11 @@
  *  All modes use this shared grid. Win logic is delegated to the active mode
  *  via checkWin(cell) and onWin(). Each mode implements its own win condition.
  *
+ *  CHECKWIN RETURN CONVENTION:
+ *  - false: wrong sprite → play Mouth Pop (incorrect feedback).
+ *  - undefined: correct click but not yet won (e.g. first of several targets) → no feedback, no onWin.
+ *  - true or object: level won → call onWin with the result.
+ *
  *  Dependencies: level.js (spriteSrc), audio.js (playOneshot), utils.js (none; grid is stateless).
  * ============================================================
  */
@@ -117,7 +122,7 @@ function fadeOutCells(gridEl) {
  * @param {HTMLElement} gridEl            The grid container (#grid).
  * @param {string[]} items                Sprite names in display order (from the mode's level generator).
  * @param {Object} opts
- * @param {Function} opts.checkWin        (cell) => boolean — returns true if this cell wins. Mode-specific.
+ * @param {Function} opts.checkWin        (cell) => false|undefined|true|object — see CHECKWIN RETURN CONVENTION above.
  * @param {Function} opts.onWin            () => void — called when checkWin returns true. From app.js.
  * @param {Function} opts.shouldIgnoreInput () => boolean — true during transitions. From app.js.
  */

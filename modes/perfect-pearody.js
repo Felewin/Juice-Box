@@ -60,15 +60,7 @@ MODES['perfect-pearody'] = {
     start(gridEl, opts) {
         const { items } = generateLevelForTheModeCalledPerfectPearody();
 
-        // Called when a cell is clicked. Returns true only when the last pear is picked.
-        const checkWin = (cell) => {
-            if (cell.dataset.sprite !== TARGET) return false;
-            playSplitSound();
-            cell.classList.add('removed');
-
-            const remaining = gridEl.querySelectorAll('.cell[data-sprite="' + TARGET + '"]:not(.removed)');
-            return remaining.length === 0 ? true : undefined;
-        };
+        const checkWin = (cell) => checkWinClickToRemove(gridEl, cell, TARGET);
 
         // Wraps opts.onWin (app.js winLevel) so we play the success jingle and wait for the last
         // pear to finish fading before starting the drain/next level. The real onWin runs after
