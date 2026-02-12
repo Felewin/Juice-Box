@@ -64,12 +64,12 @@
     }
 
     /* All sprites except leaves-falling and blueberries, plus juicebox, beachball, teapot, thong-sandal.
-       Thong-sandal appears once (half as common); juicebox appears 4× (twice as common). */
+       Beachball and thong-sandal appear once (half as common); juicebox appears 4× (twice as common). */
     const baseSprites = [
         ...ALL_SPRITES.filter((s) => s !== 'leaves-falling' && s !== 'blueberries'),
-        'juicebox', 'unjuicable/beachball', 'unjuicable/teapot'
+        'juicebox', 'unjuicable/teapot'
     ];
-    const FLYING_SPRITES = [...baseSprites, ...baseSprites, 'juicebox', 'juicebox', 'unjuicable/thong-sandal'];
+    const FLYING_SPRITES = [...baseSprites, ...baseSprites, 'unjuicable/beachball', 'unjuicable/thong-sandal', 'juicebox', 'juicebox'];
 
     function randomSprite() {
         return FLYING_SPRITES[Math.floor(Math.random() * FLYING_SPRITES.length)];
