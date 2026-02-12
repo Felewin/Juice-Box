@@ -212,7 +212,7 @@ function returnToModeSelect() {
             titleHeading.classList.add('faded');
             modeScreen.classList.remove('hidden');
             modeScreen.setAttribute('aria-hidden', 'false');
-            modeScreen.querySelectorAll('.mode-btn').forEach((btn) => btn.classList.remove('fade-out'));
+            modeScreen.querySelectorAll('.mode-btn').forEach((btn) => btn.classList.remove('fade-out', 'no-hover'));
             isTransitioning = false;
             isReturningToModeSelect = false;
             updateJuiceboxButtonVisibility();
@@ -260,10 +260,10 @@ function abortTransitionToLevel() {
     // Restore menu container (mode select screen) — needed when drain started (case 2); harmless no-op in case 1
     menuContainer.classList.remove('hidden');
     titleHeading.classList.add('faded');
-    modeScreen.querySelectorAll('.mode-btn').forEach((btn) => {
-        btn.style.transition = '';
-        btn.classList.remove('fade-out');
-    });
+        modeScreen.querySelectorAll('.mode-btn').forEach((btn) => {
+            btn.style.transition = '';
+            btn.classList.remove('fade-out', 'no-hover');
+        });
     juiceboxButton?.classList.remove('hidden-during-transition');
     updateJuiceboxButtonVisibility();
 }
@@ -395,6 +395,7 @@ function setupModeScreenHandlers() {
         if (!btn) return;
         e.preventDefault();
         e.stopPropagation();
+        btn.classList.add('no-hover');  // Disable hover effects once clicked
         playOneshot('audio/Success Jingle Plucking.mp3');
         const modeId = btn.dataset.mode || Object.keys(MODES)[0] || 'go-bananas';  // Fallback: first registered mode
         startGameFromMode(modeId, btn);

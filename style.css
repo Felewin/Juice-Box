@@ -232,7 +232,7 @@ body {
     pointer-events: none;
 }
 
-.mode-btn:hover {
+.mode-btn:not(.no-hover):hover {
     transform: scale(1.04);
     box-shadow:
         0 8px 24px rgba(0, 0, 0, 0.15),
@@ -266,7 +266,7 @@ body {
     transition: transform 0.35s var(--bounce-ease);
 }
 
-.mode-btn:hover .mode-btn-icon {
+.mode-btn:not(.no-hover):hover .mode-btn-icon {
     animation: modeBtnIconBounce 0.5s var(--bounce-ease) forwards;
 }
 
