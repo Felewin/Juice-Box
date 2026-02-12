@@ -64,7 +64,7 @@ MODES['go-bananas'] = {
             cell.classList.add('removed');
 
             const remaining = gridEl.querySelectorAll('.cell[data-sprite="banana"]:not(.removed)');
-            return remaining.length === 0;
+            return remaining.length === 0 ? true : undefined;
         };
 
         // Wraps opts.onWin (app.js winLevel) so we play the success jingle and wait for the last

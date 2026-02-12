@@ -66,10 +66,10 @@ function setupTouchHandlers(gridEl) {
         if (touchStartCell) touchStartCell.classList.remove('incorrect-tap');
         if (finalCell) {
             const result = h.checkWin(finalCell);
-            if (result) {
-                h.onWin(result === true ? {} : result);
-            } else {
+            if (result === false) {
                 playOneshot('audio/Mouth Pop.mp3');
+            } else if (result) {
+                h.onWin(result === true ? {} : result);
             }
         }
         touchStartCell = null;
@@ -144,10 +144,10 @@ function buildGrid(gridEl, items, { checkWin, onWin, shouldIgnoreInput }) {
         cell.addEventListener('click', () => {
             if (shouldIgnoreInput()) return;
             const result = checkWin(cell);
-            if (result) {
-                onWin(result === true ? {} : result);
-            } else {
+            if (result === false) {
                 playOneshot('audio/Mouth Pop.mp3');
+            } else if (result) {
+                onWin(result === true ? {} : result);
             }
         });
 
