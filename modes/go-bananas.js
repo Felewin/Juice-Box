@@ -31,14 +31,16 @@ function generateLevelForTheModeCalledGoBananas() {
         items[Math.floor(Math.random() * items.length)] = 'banana';
     }
 
-    // Half the time, replace one random non-banana with a banana (unless all are bananas)
-    if (Math.random() < 0.5) {
-        const nonBananaIndices = items
-            .map((s, i) => (s === 'banana' ? -1 : i))
-            .filter((i) => i >= 0);
-        if (nonBananaIndices.length > 0) {
-            const idx = nonBananaIndices[Math.floor(Math.random() * nonBananaIndices.length)];
-            items[idx] = 'banana';
+    // 50% chance for +1 banana, then another 50% for +1, then another 50% for +1 (0–3 extra)
+    for (let i = 0; i < 3; i++) {
+        if (Math.random() < 0.5) {
+            const nonBananaIndices = items
+                .map((s, idx) => (s === 'banana' ? -1 : idx))
+                .filter((idx) => idx >= 0);
+            if (nonBananaIndices.length > 0) {
+                const idx = nonBananaIndices[Math.floor(Math.random() * nonBananaIndices.length)];
+                items[idx] = 'banana';
+            }
         }
     }
 

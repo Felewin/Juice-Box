@@ -21,7 +21,7 @@
 /**
  * Builds a random set of sprite names for one level. Each cell gets a random
  * filler sprite (apple-red, tangerine, mango); duplicates are allowed.
- * Ensures at least one peach; half the time adds another.
+ * Ensures at least one peach; up to 3 extra via 50% chance each.
  *
  * @returns {{ items: string[] }}
  */
@@ -41,14 +41,16 @@ function generateLevelForTheModeCalledPeachParty() {
         items[Math.floor(Math.random() * items.length)] = TARGET;
     }
 
-    // Half the time, replace one random non-peach with a peach (unless all are peaches)
-    if (Math.random() < 0.5) {
-        const nonPeachIndices = items
-            .map((s, i) => (s === TARGET ? -1 : i))
-            .filter((i) => i >= 0);
-        if (nonPeachIndices.length > 0) {
-            const idx = nonPeachIndices[Math.floor(Math.random() * nonPeachIndices.length)];
-            items[idx] = TARGET;
+    // 50% chance for +1 peach, then another 50% for +1, then another 50% for +1 (0–3 extra)
+    for (let i = 0; i < 3; i++) {
+        if (Math.random() < 0.5) {
+            const nonPeachIndices = items
+                .map((s, idx) => (s === TARGET ? -1 : idx))
+                .filter((idx) => idx >= 0);
+            if (nonPeachIndices.length > 0) {
+                const idx = nonPeachIndices[Math.floor(Math.random() * nonPeachIndices.length)];
+                items[idx] = TARGET;
+            }
         }
     }
 
