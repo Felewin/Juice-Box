@@ -24,6 +24,22 @@ const ALL_SPRITES = [
 // Single source of truth so the path pattern isn't repeated.
 const spriteSrc = (name) => `sprites/${name}.png`;
 
+// ---- Level generation helpers ----
+
+/**
+ * Ensures at least one instance of the target sprite in the items array.
+ * If none exist, replaces a random cell with the target. Mutates items in place.
+ * Use before addExtraTargetsByChance so the mode has the required minimum.
+ *
+ * @param {string[]} items Sprite names in display order (from level generator).
+ * @param {string} target Sprite name that must appear at least once.
+ */
+function ensureTargetPresent(items, target) {
+    if (!items.some((s) => s === target)) {
+        items[Math.floor(Math.random() * items.length)] = target;
+    }
+}
+
 // ---- Grid dimensions ----
 //
 // Generic defaults for all modes. The desired grid size is the same for every

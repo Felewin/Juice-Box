@@ -12,6 +12,7 @@
 
 (function () {
     const MAX_CELLS = GRID_COLUMNS * GRID_ROWS;
+    const TARGET = 'banana';
 
     /**
  * Builds a random set of sprite names for one level. Each cell gets a random
@@ -27,10 +28,8 @@ function generateLevelForTheModeCalledGoBananas() {
         items.push(ALL_SPRITES[Math.floor(Math.random() * ALL_SPRITES.length)]);
     }
 
-    if (!items.some((s) => s === 'banana')) {
-        items[Math.floor(Math.random() * items.length)] = 'banana';
-    }
-    addExtraTargetsByChance(items, 'banana');
+    ensureTargetPresent(items, TARGET);
+    addExtraTargetsByChance(items, TARGET);
 
     return { items };
 }
@@ -47,7 +46,7 @@ MODES['go-bananas'] = {
     start(gridEl, opts) {
         const { items } = generateLevelForTheModeCalledGoBananas();
 
-        const checkWin = (cell) => checkWinClickToRemove(gridEl, cell, 'banana');
+        const checkWin = (cell) => checkWinClickToRemove(gridEl, cell, TARGET);
 
         startModeLevel(gridEl, {
             ...opts,

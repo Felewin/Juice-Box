@@ -37,9 +37,7 @@ function generateLevelForTheModeCalledPeachParty() {
         );
     }
 
-    if (!items.some((s) => s === TARGET)) {
-        items[Math.floor(Math.random() * items.length)] = TARGET;
-    }
+    ensureTargetPresent(items, TARGET);
     addExtraTargetsByChance(items, TARGET);
 
     return { items };
