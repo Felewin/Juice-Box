@@ -47,6 +47,12 @@
     animation: liquidDrain 1s linear forwards;
 }
 
+/* Freeze the drain at its current position when cancelling (e.g. ESC). Prevents
+   the overlay from snapping back to full-screen before fading out. */
+#liquid-overlay.draining.drain-pause {
+    animation-play-state: paused;
+}
+
 @keyframes liquidDrain {
     0% {
         clip-path: inset(0);  /* Full screen covered */

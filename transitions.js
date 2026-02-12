@@ -37,7 +37,7 @@ function cancelLiquidDrain(liquidOverlay, { onCancelled, fadeOut } = {}) {
 
 /** Hides overlay immediately (no fade). Used when cancelling to start a new drain. */
 function resetOverlayToHidden(liquidOverlay) {
-    liquidOverlay.classList.remove('visible', 'draining');
+    liquidOverlay.classList.remove('visible', 'draining', 'drain-pause');
     liquidOverlay.classList.add('hidden');
 }
 
@@ -74,8 +74,12 @@ function showLiquidDrain(liquidOverlay, { onTransitionStart, onTransitionEnd, co
             liquidOverlay.__drainAudio = null;
         }
         if (fadeOut && liquidOverlay.classList.contains('visible')) {
-            liquidOverlay.classList.remove('draining', 'visible');
+            /* Freeze clip-path at current drained position before fading. Removing
+               .draining alone would revert to full-screen (jarring). */
+            liquidOverlay.classList.add('drain-pause');
+            liquidOverlay.classList.remove('visible');
             const fadeTimeout = setTimeout(() => {
+                liquidOverlay.classList.remove('draining', 'drain-pause');
                 liquidOverlay.classList.add('hidden');
                 onCancelled?.();
             }, DRAIN_FADE_MS);
