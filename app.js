@@ -343,8 +343,9 @@ function updateCellSize() {
 }
 
 /**
- * Sets mode button height: each button is 1/(n+2) of viewport height, where n
- * is the number of mode buttons. Called on init and resize.
+ * Sets mode button height via --mode-btn-height. Each button gets 1/(n+2) of
+ * viewport height (n = number of buttons); the +2 reserves space above and below.
+ * Called on init and resize.
  */
 function updateModeButtonHeight() {
     const btns = modeScreen.querySelectorAll('.mode-btn');

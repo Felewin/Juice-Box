@@ -30,7 +30,7 @@
        Matches Juice Box button and mode screen (300ms). */
     --fade-duration: 300ms;
 
-    /* Mode button height: 1/(n+2) of viewport. Set by app.js updateModeButtonHeight(). */
+    /* Mode button min-height: 1/(n+2) of viewport (n = button count). Set by updateModeButtonHeight(). */
     --mode-btn-height: auto;
 }
 
@@ -176,7 +176,7 @@ body {
 }
 
 /* Juicy pill-shaped card; frosted glass effect; hover: lift + icon bounce.
-   Height is set by JS: 1/(n+2) of viewport height, where n = number of buttons. */
+   min-height comes from --mode-btn-height (set by updateModeButtonHeight). */
 .mode-btn {
     transition: opacity 0.3s ease, transform 0.3s var(--bounce-ease), box-shadow 0.3s ease;
     display: flex;
