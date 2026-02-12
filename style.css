@@ -409,13 +409,6 @@ body {
     display: block;
 }
 
-/* Temporarily hide Juice Box button on touch devices (mobile/tablet) */
-@media (hover: none) and (pointer: coarse) {
-    #juicebox-button {
-        display: none !important;
-    }
-}
-
 /* Fade transition for the Juice Box button */
 #juicebox-button {
     transition: opacity 0.3s ease;
