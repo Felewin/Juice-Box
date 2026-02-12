@@ -389,7 +389,7 @@ window.addEventListener('resize', () => {
     updateModeButtonHeight();
 });
 
-ALL_SPRITES.forEach((name) => {
+[...ALL_SPRITES, ...(window.UNJUICABLE_SPRITES || [])].forEach((name) => {
     const img = new Image();
     img.src = spriteSrc(name);
 });

@@ -9,6 +9,7 @@
  *  sound twice in a row across modes.
  *
  *  For this mode, maxCells equals the full grid (GRID_COLUMNS × GRID_ROWS).
+ *  Each level includes 1 of each unjuicable sprite as decoration.
  * ============================================================
  */
 
@@ -18,10 +19,15 @@
     const FILLER_SPRITES = ['apple-red', 'tangerine', 'mango'];
     const TARGET = 'peach';
 
+    // Unjuicable sprites from sprites/unjuicable/ — included in every level as decoration.
+    const UNJUICABLE_SPRITES = ['unjuicable/beach-with-umbrella', 'unjuicable/bikini', 'unjuicable/thong-sandal', 'unjuicable/water-wave'];
+    window.UNJUICABLE_SPRITES = UNJUICABLE_SPRITES;
+
 /**
  * Builds a random set of sprite names for one level. Each cell gets a random
  * filler sprite (apple-red, tangerine, mango); duplicates are allowed.
  * Ensures at least one peach; up to 3 extra via 50% chance each.
+ * Includes 1 of each unjuicable sprite in every level.
  *
  * @returns {{ items: string[] }}
  */
@@ -31,6 +37,17 @@ function generateLevelForTheModeCalledPeachParty() {
 
     ensureTargetPresent(items, TARGET);
     addExtraTargetsByChance(items, TARGET);
+
+    // Place 1 of each unjuicable sprite in random non-target cells.
+    const nonTargetIndices = items
+        .map((s, idx) => (s === TARGET ? -1 : idx))
+        .filter((idx) => idx >= 0);
+    const shuffled = nonTargetIndices.sort(() => Math.random() - 0.5);
+    UNJUICABLE_SPRITES.forEach((sprite, i) => {
+        if (shuffled[i] !== undefined) {
+            items[shuffled[i]] = sprite;
+        }
+    });
 
     return { items };
 }
