@@ -206,7 +206,6 @@ function returnToModeSelect() {
             isTransitioning = false;
             isReturningToModeSelect = false;
             updateJuiceboxButtonVisibility();
-            history.pushState({ juicebox: true, screen: 'mode-select' }, '', window.location.href);
         }, LEVEL_POST_FADE_OUT_LINGER_BEFORE_RETURNING_TO_MODE_SELECT);
     }, FADE_MS);
 }
@@ -308,7 +307,6 @@ function setupTitleScreenClickHandler() {
         modeScreen.setAttribute('aria-hidden', 'false');
         juiceboxButton?.classList.add('visible', 'hidden-during-transition');
         doubleRAF(() => juiceboxButton?.classList.remove('hidden-during-transition'));
-        history.pushState({ juicebox: true, screen: 'mode-select' }, '', window.location.href);
     });
 }
 
@@ -375,14 +373,13 @@ document.addEventListener('keydown', (e) => {
     goBack();
 });
 
-// Android back button: pushState on load and when entering mode select so we have an in-app history.
-// On back from mode select, popstate fires; we run goBack and pushState to stay.
+// Android back button: pushState on load so we can intercept popstate; on back, run goBack and pushState to stay.
 // On title screen, do nothing so back can leave the app.
-history.pushState({ juicebox: true, screen: 'title' }, '', window.location.href);
+history.pushState({ juicebox: true }, '', window.location.href);
 window.addEventListener('popstate', () => {
     if (isInLevel() || isOnModeSelect()) {
         goBack();
-        history.pushState({ juicebox: true, screen: isOnModeSelect() ? 'mode-select' : 'title' }, '', window.location.href);
+        history.pushState({ juicebox: true }, '', window.location.href);
     }
 });
 
