@@ -254,9 +254,10 @@ body {
     animation: pastelGradient 10s linear infinite;
 }
 
-/* Mode buttons: same gradient without mint (so core loops back) */
+/* Mode buttons: same gradient without mint (so core loops back); single line only */
 .mode-btn .moving-gradient-text {
     background-image: linear-gradient(to right, var(--gradient-text-core), #E0FF9E);
+    white-space: nowrap;
 }
 
 /* Icon: square, max 75% of button height; scales down as button gets slimmer. Hover: gentle bounce */
