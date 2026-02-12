@@ -76,6 +76,7 @@ let isTransitioningToLevel = false;     // True from mode-button click until sta
 let currentMode = null;  // Set when a mode button is clicked; used by startLevel to dispatch.
 let startLevelTimeoutId = null;  // Scheduled by scheduleDrainAndLevel; cleared on abort or return.
 let timeoutIDsWeMayUseToCancelPendingTimeoutsForTransitioningFromModeSelectToLevel = [];   // Outer+inner timeouts (button fade, drain schedule); cleared on abort or return to mode select.
+let goBananasBgAudio = null;  // Looping Monkeys Spinning Monkeys; stopped when leaving Go Bananas.
 
 /** Restores body background (used when returning from level or aborting transition). */
 function resetBodyBackground() {
@@ -185,6 +186,8 @@ function returnToModeSelect() {
 
     juiceboxButton?.classList.add('hidden-during-transition');
 
+    if (goBananasBgAudio) { fadeOutAudio(goBananasBgAudio, 3000); goBananasBgAudio = null; }
+
     cancelLiquidDrain(liquidOverlay, {
         fadeOut: true,
         onCancelled: () => {
@@ -212,6 +215,7 @@ function returnToModeSelect() {
             titleHeading.classList.add('faded');
             modeScreen.classList.remove('hidden');
             modeScreen.setAttribute('aria-hidden', 'false');
+            playOneshot('audio/Windchimes Jingling.mp3');
             modeScreen.querySelectorAll('.mode-btn').forEach((btn) => btn.classList.remove('fade-out', 'no-hover'));
             isTransitioning = false;
             isReturningToModeSelect = false;
@@ -260,7 +264,8 @@ function abortTransitionToLevel() {
     // Restore menu container (mode select screen) — needed when drain started (case 2); harmless no-op in case 1
     menuContainer.classList.remove('hidden');
     titleHeading.classList.add('faded');
-        modeScreen.querySelectorAll('.mode-btn').forEach((btn) => {
+    playOneshot('audio/Windchimes Jingling.mp3');
+    modeScreen.querySelectorAll('.mode-btn').forEach((btn) => {
             btn.style.transition = '';
             btn.classList.remove('fade-out', 'no-hover');
         });
@@ -289,6 +294,7 @@ function returnToTitle() {
         modeScreen.classList.add('hidden');
         modeScreen.setAttribute('aria-hidden', 'true');
         juiceboxButton?.classList.remove('visible');
+        playOneshot('audio/Windchimes Tinkling.mp3');
         isReturningToTitle = false;
     }, RETURN_TO_TITLE_FADE_MS);
 }
@@ -302,6 +308,10 @@ function startLevel() {
     isTransitioning = false;
     isTransitioningToLevel = false;
     startLevelTimeoutId = null;
+    if (currentMode === 'go-bananas' && isFirstLevelOfSession) {
+        if (goBananasBgAudio) { goBananasBgAudio.pause(); goBananasBgAudio.currentTime = 0; }
+        goBananasBgAudio = playLoopInfinite('audio/Monkeys Spinning Monkeys.mp3');
+    }
     const mode = MODES[currentMode];
     if (!mode || !mode.start) return;
     const opts = {
@@ -380,6 +390,7 @@ function setupTitleScreenClickHandler() {
         titleHeading.classList.add('faded');
         modeScreen.classList.remove('hidden');
         modeScreen.setAttribute('aria-hidden', 'false');
+        playOneshot('audio/Windchimes Jingling.mp3');
         juiceboxButton?.classList.add('visible', 'hidden-during-transition');
         doubleRAF(() => juiceboxButton?.classList.remove('hidden-during-transition'));
     });
@@ -396,8 +407,9 @@ function setupModeScreenHandlers() {
         e.preventDefault();
         e.stopPropagation();
         btn.classList.add('no-hover');  // Disable hover effects once clicked
-        playOneshot('audio/Success Jingle Plucking.mp3');
         const modeId = btn.dataset.mode || Object.keys(MODES)[0] || 'go-bananas';  // Fallback: first registered mode
+        const modeSounds = { 'subtle-tea': 'audio/Windchimes Release.mp3', 'go-bananas': 'audio/Monkey Imitation.mp3' };
+        playOneshot(modeSounds[modeId] || 'audio/Success Jingle Plucking.mp3');
         startGameFromMode(modeId, btn);
     });
 }

@@ -60,6 +60,40 @@ function loadAudioMetadata(src) {
 }
 
 /**
+ * Fade out an Audio element over a duration, then pause and reset.
+ *
+ * @param {HTMLAudioElement} audio       The Audio to fade
+ * @param {number} durationMs           Fade duration in milliseconds
+ */
+function fadeOutAudio(audio, durationMs) {
+    if (!audio) return;
+    const startVolume = audio.volume;
+    const startTime = performance.now();
+    function tick(now) {
+        const elapsed = now - startTime;
+        const pct = Math.min(1, elapsed / durationMs);
+        audio.volume = startVolume * (1 - pct);
+        if (pct < 1) requestAnimationFrame(tick);
+        else { audio.pause(); audio.currentTime = 0; audio.volume = 1; }
+    }
+    requestAnimationFrame(tick);
+}
+
+/**
+ * Play an audio file on infinite loop. Returns the Audio object so the caller
+ * can stop it with audio.pause() and audio.currentTime = 0.
+ *
+ * @param {string} src  Path to the audio file
+ * @returns {HTMLAudioElement}  The playing Audio object
+ */
+function playLoopInfinite(src) {
+    const audio = new Audio(src);
+    audio.loop = true;
+    audio.play();
+    return audio;
+}
+
+/**
  * Play an audio file once from start to finish ("one-shot").
  * Creates a fresh Audio object each call so overlapping plays
  * don't cut each other off. Fire-and-forget — no need to await.
