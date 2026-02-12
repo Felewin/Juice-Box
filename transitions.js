@@ -99,7 +99,7 @@ function showLiquidDrain(liquidOverlay, { onTransitionStart, onTransitionEnd, co
             const durationMs = audio.duration * 1000;
             const durationSec = audio.duration;
 
-            const drainAudio = new Audio(DRAIN_AUDIO_SRC);
+            const drainAudio = new Audio(withCacheBust(DRAIN_AUDIO_SRC));
             liquidOverlay.__drainAudio = drainAudio;
             drainAudio.play();
 

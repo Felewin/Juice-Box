@@ -21,7 +21,7 @@ const ALL_SPRITES = [
 
 // Build the full image path for a sprite name.
 // Single source of truth so the path pattern isn't repeated.
-const spriteSrc = (name) => `sprites/${name}.png`;
+const spriteSrc = (name) => withCacheBust(`sprites/${name}.png`);
 
 // ---- Level generation helpers ----
 

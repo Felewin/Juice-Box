@@ -11,16 +11,18 @@
     <meta http-equiv="Expires" content="0">
     
     <title>Juice Box</title>
+    <!-- Favicon: cache-busted by loader.js after scripts load -->
     <link rel="icon" href="favicon.png" type="image/png">
     <!-- Google Fonts: Cherry Bomb One (used throughout the app) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cherry+Bomb+One&display=swap" rel="stylesheet">
-    <!-- All visual styling -->
-    <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="liquid.css">
-    <script src="timing.js"></script>
-    <script src="level.js"></script>
+    <!--
+        CSS and scripts are loaded by loader.js with ?v=CACHE_BUST.
+        version.js (commit hash) must load first so CACHE_BUST is defined.
+    -->
+    <script src="version.js"></script>
+    <script src="loader.js"></script>
 </head>
 <body>
     <!--
@@ -82,23 +84,11 @@
     </button>
 
     <!--
-        Script order matters.
-        Head order: timing.js (must run before level.js), level.js (must be here to set --grid-columns/--grid-rows in time).
-        Body order: audio, utils, transitions, grid, modes.js, modes/*.js, app.js.
-        New modes: add <script> before app.js. See HOW TO ADD A NEW MODE in app.js.
+        Scripts load via loader.js (with cache busting). Script order matters.
+        Head order: timing.js (must run before level.js), level.js (must be here to set
+        --grid-columns/--grid-rows in time). Body order: audio, utils, transitions, grid,
+        modes.js, modes/*.js, app.js. New modes: add <script> before app.js.
+        See HOW TO ADD A NEW MODE in app.js. Implementation: add path to SCRIPTS in loader.js.
     -->
-    <script src="audio.js"></script>
-    <script src="utils.js"></script>
-    <script src="flying-sprites.js"></script>
-    <script src="transitions.js"></script>
-    <script src="grid.js"></script>
-    <script src="modes.js"></script>
-    <script src="modes/go-bananas.js"></script>
-    <script src="modes/apple-of-my-eye.js"></script>
-    <script src="modes/perfect-pearing.js"></script>
-    <script src="modes/peach-party.js"></script>
-    <script src="modes/subtle-tea.js"></script>
-    <script src="modes/pairy-picking.js"></script>
-    <script src="app.js"></script>
 </body>
 </html>

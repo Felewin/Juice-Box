@@ -55,7 +55,7 @@ function playRustlingLeavesSound() {
  */
 function loadAudioMetadata(src) {
     return new Promise((resolve) => {
-        const audio = new Audio(src);
+        const audio = new Audio(withCacheBust(src));
         audio.addEventListener('loadedmetadata', () => resolve(audio));
         audio.load();  // Trigger metadata load
     });
@@ -127,7 +127,7 @@ function startModeBackgroundMusic(modeId, src) {
  * @returns {HTMLAudioElement}  The playing Audio object
  */
 function playLoopInfinite(src) {
-    const audio = new Audio(src);
+    const audio = new Audio(withCacheBust(src));
     audio.loop = true;
     audio.play();
     return audio;
@@ -141,7 +141,7 @@ function playLoopInfinite(src) {
  * @param {string} src  Path to the audio file (e.g. "audio/my-sound.mp3")
  */
 function playOneshot(src) {
-    const audio = new Audio(src);
+    const audio = new Audio(withCacheBust(src));
     audio.play();
 }
 

@@ -8,6 +8,18 @@
  */
 
 /**
+ * Appends cache-bust query param to a URL. Uses CACHE_BUST from version.js
+ * when present (set by deploy); otherwise Date.now() for local dev.
+ *
+ * @param {string} path  Asset path (e.g. "sprites/banana.png", "audio/click.mp3")
+ * @returns {string}     Path with ?v=...
+ */
+function withCacheBust(path) {
+    const v = typeof CACHE_BUST !== 'undefined' ? CACHE_BUST : Date.now();
+    return path + (path.includes('?') ? '&' : '?') + 'v=' + v;
+}
+
+/**
  * Returns true or false at random (50/50). General-purpose coin toss.
  * @returns {boolean}
  */
