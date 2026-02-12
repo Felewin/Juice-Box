@@ -12,12 +12,12 @@
  */
 
 // Every filename in the sprites/ folder (without the .png extension).
-// There are 25 total.
+// There are 26 total.
 const ALL_SPRITES = [
     'apple-gold', 'apple-green', 'apple-red', 'avocado', 'banana', 'beet', 'blueberries',
     'carrot', 'cherries', 'coconut', 'cucumber', 'ginger', 'grapes', 'greens',
     'kiwi', 'lemon', 'lime', 'mango', 'melon', 'peach',
-    'pear', 'pineapple', 'strawberry', 'tangerine', 'watermelon'
+    'pear-gold', 'pear-green', 'pineapple', 'strawberry', 'tangerine', 'watermelon'
 ];
 
 // Build the full image path for a sprite name.
@@ -102,14 +102,17 @@ function computeGridDimensions(maxCells) {
  *
  * @param {HTMLElement} gridEl The grid container.
  * @param {HTMLElement} cell The clicked cell.
- * @param {string} target The sprite name to collect (e.g. 'banana', 'peach', 'pear').
+ * @param {string|string[]} target Sprite name(s) to collect. Use array for multiple (e.g. Pearody: ['pear-green', 'pear-gold']).
  * @returns {false|undefined|true}
  */
 function checkWinClickToRemove(gridEl, cell, target) {
-    if (cell.dataset.sprite !== target) return false;
+    const targets = Array.isArray(target) ? target : [target];
+    if (!targets.includes(cell.dataset.sprite)) return false;
     playSplitSound();
     cell.classList.add('removed');
-    const remaining = gridEl.querySelectorAll('.cell[data-sprite="' + target + '"]:not(.removed)');
+    const remaining = Array.from(gridEl.querySelectorAll('.cell:not(.removed)')).filter((c) =>
+        targets.includes(c.dataset.sprite)
+    );
     return remaining.length === 0 ? true : undefined;
 }
 

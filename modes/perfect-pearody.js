@@ -16,11 +16,12 @@
     const MAX_CELLS = GRID_COLUMNS * GRID_ROWS;
 
     const FILLER_SPRITES = ['apple-green', 'apple-gold', 'lime', 'lemon', 'melon'];
-    const TARGET = 'pear';
+    const PEAR_SPRITES = ['pear-green', 'pear-gold'];
 
 /**
  * Builds a random set of sprite names for one level. Each cell gets a random
- * filler sprite; duplicates are allowed. Exactly two pears are placed.
+ * filler sprite; duplicates are allowed. Exactly two pears are placed, each
+ * randomly pear-green or pear-gold (so we may have both green, both gold, or one of each).
  *
  * @returns {{ items: string[] }}
  */
@@ -36,14 +37,14 @@ function generateLevelForTheModeCalledPerfectPearody() {
         );
     }
 
-    // Place exactly two pears in random positions
+    // Place exactly two pears in random positions; each is randomly green or gold
     const idx1 = Math.floor(Math.random() * items.length);
-    items[idx1] = TARGET;
+    items[idx1] = PEAR_SPRITES[Math.floor(Math.random() * PEAR_SPRITES.length)];
     let idx2;
     do {
         idx2 = Math.floor(Math.random() * items.length);
     } while (idx2 === idx1);
-    items[idx2] = TARGET;
+    items[idx2] = PEAR_SPRITES[Math.floor(Math.random() * PEAR_SPRITES.length)];
 
     return { items };
 }
@@ -60,7 +61,7 @@ MODES['perfect-pearody'] = {
     start(gridEl, opts) {
         const { items } = generateLevelForTheModeCalledPerfectPearody();
 
-        const checkWin = (cell) => checkWinClickToRemove(gridEl, cell, TARGET);
+        const checkWin = (cell) => checkWinClickToRemove(gridEl, cell, PEAR_SPRITES);
 
         // Wraps opts.onWin (app.js winLevel) so we play the success jingle and wait for the last
         // pear to finish fading before starting the drain/next level. The real onWin runs after
