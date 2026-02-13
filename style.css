@@ -26,8 +26,7 @@
     --cell-size: 60px;
 
     /* How long the fade-out lasts when transitioning between levels.
-       timing.js reads this as FADE_MS so LEVEL_TRANSITION_DELAY stays in sync.
-       Matches Juice Box button and mode screen (300ms). */
+       timing.js reads this as FADE_MS. Matches Juice Box button and mode screen (300ms). */
     --fade-duration: 300ms;
 
     /* Mode button height: 1/(n+2) of viewport (n = button count). Set by updateModeButtonHeight(). */

@@ -55,8 +55,9 @@ function resetOverlayToHidden(liquidOverlay) {
  * @param {Function} callbacks.onTransitionEnd   Called when overlay is hidden.
  * @param {string} [callbacks.color] If provided, use this color instead of random (e.g. mode accent).
  * @param {boolean} [callbacks.startVisible] If true, overlay is already visible; skip fade-in and 300ms hold.
+ * @param {Function} [callbacks.onOverlayFullyOpaque] Called when overlay has reached full opacity (safe to show level sprites).
  */
-function showLiquidDrain(liquidOverlay, { onTransitionStart, onTransitionEnd, color, startVisible }) {
+function showLiquidDrain(liquidOverlay, { onTransitionStart, onTransitionEnd, onOverlayFullyOpaque, color, startVisible }) {
     cancelLiquidDrain(liquidOverlay);
 
     onTransitionStart();
@@ -120,7 +121,10 @@ function showLiquidDrain(liquidOverlay, { onTransitionStart, onTransitionEnd, co
         });
     };
 
+    const invokeFullyOpaque = () => { if (!cancelled) onOverlayFullyOpaque?.(); };
+
     if (startVisible) {
+        invokeFullyOpaque();  /* Overlay already fully opaque */
         startDrain();
     } else {
         const hue = Math.floor(Math.random() * 360);
@@ -136,6 +140,7 @@ function showLiquidDrain(liquidOverlay, { onTransitionStart, onTransitionEnd, co
             liquidOverlay.classList.add('visible');
 
             const t1 = setTimeout(() => {
+                invokeFullyOpaque();  /* Overlay now fully opaque (fade-in complete) */
                 startDrain();
             }, 300);  // Matches liquid overlay fade-in in liquid.css
             timeouts.push(t1);

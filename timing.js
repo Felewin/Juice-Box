@@ -11,9 +11,6 @@
 const FADE_MS = parseInt(getComputedStyle(document.documentElement)
     .getPropertyValue('--fade-duration'));
 
-// Delay before starting a level when showLiquidDrain runs. Used for mode→level and level→level.
-const LEVEL_TRANSITION_DELAY = FADE_MS + 100;
-
 // Ms to wait after fade-out completes before revealing the mode select screen (return-to-mode-select).
 const LEVEL_POST_FADE_OUT_LINGER_BEFORE_RETURNING_TO_MODE_SELECT = 100;
 

@@ -101,12 +101,19 @@ function createDrainCallbacks(opts = {}) {
 }
 
 /**
- * Plays the liquid drain and schedules startLevel after LEVEL_TRANSITION_DELAY.
+ * Plays the liquid drain and schedules startLevel only after the overlay is fully
+ * opaque (so level sprites never appear before the liquid has covered the screen).
  */
 function scheduleDrainAndLevel(drainOpts) {
-    showLiquidDrain(liquidOverlay, drainOpts);
     if (startLevelTimeoutId) clearTimeout(startLevelTimeoutId);
-    startLevelTimeoutId = setTimeout(startLevel, LEVEL_TRANSITION_DELAY);
+    startLevelTimeoutId = null;
+    showLiquidDrain(liquidOverlay, {
+        ...drainOpts,
+        onOverlayFullyOpaque: () => {
+            if (startLevelTimeoutId) return;  /* Aborted or already scheduled */
+            startLevelTimeoutId = setTimeout(startLevel, 0);  /* Run after overlay is opaque */
+        }
+    });
 }
 
 /**
