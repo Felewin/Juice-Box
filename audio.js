@@ -9,7 +9,7 @@
  *  Config (which mode uses which file) lives in modes.js as MODE_BACKGROUND_MUSIC.
  *
  *  playSplitSound(): Plays a random "split" sound; used by Go Bananas, Peach Party,
- *  Pairy Picking, and Apple Of My Eye. Uses LAST_SPLIT_SOUND_REF internally
+ *  Pick A Pair, and Apple Of My Eye. Uses LAST_SPLIT_SOUND_REF internally
  *  so we never repeat the same sound twice in a row, even when switching modes or levels.
  * ============================================================
  */
@@ -40,7 +40,7 @@ function playSplitSound() {
 /**
  * Play a random rustling leaves sound. Uses LAST_RUSTLING_LEAVES_REF so we never
  * repeat the same sound twice in a row (same antirepetition logic as Banana Split).
- * Used when clicking a successful leaves-falling macguffin in Pairy Picking or Subtle Tea.
+ * Used when clicking a successful leaves-falling macguffin in Pick A Pair or Subtle Tea.
  */
 function playRustlingLeavesSound() {
     playRandomExcludingLast(RUSTLING_LEAVES_SOUNDS, LAST_RUSTLING_LEAVES_REF);

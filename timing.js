@@ -17,7 +17,7 @@ const LEVEL_POST_FADE_OUT_LINGER_BEFORE_RETURNING_TO_MODE_SELECT = 100;
 // Ms the clicked mode button lingers before starting its fade-out (mode select → level).
 const MODE_BUTTON_FADE_DELAY_MS = 900;
 
-// Ms to wait before fading macguffin cells (Pairy Picking) so the player sees where duplicates were.
+// Ms to wait before fading macguffin cells (Pick A Pair) so the player sees where duplicates were.
 const MACGUFFIN_FADE_DELAY_MS = 600;
 
 // Ms for mode button + background fade-out before drain/level (mode select → level). 4× FADE_MS.

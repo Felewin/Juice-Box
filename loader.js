@@ -44,7 +44,7 @@
         'modes/perfect-pearing.js',
         'modes/peach-party.js',
         'modes/subtle-tea.js',
-        'modes/pairy-picking.js',
+        'modes/pick-a-pair.js',
         'app.js'
     ];
 

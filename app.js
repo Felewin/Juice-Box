@@ -141,7 +141,7 @@ function updateJuiceboxButtonVisibility() {
  * starts the next level via startLevel() (which dispatches to the current mode).
  *
  * @param {Object} [winData] Optional data from the mode. If winData.macguffin is set
- *   (Pairy Picking), the two macguffin cells fade MACGUFFIN_FADE_DELAY_MS later than the rest,
+ *   (Pick A Pair), the two macguffin cells fade MACGUFFIN_FADE_DELAY_MS later than the rest,
  *   so the player can see where the duplicates were. Drain and level transition wait
  *   for macguffins to finish fading (MACGUFFIN_FADE_DELAY_MS + FADE_MS) before starting.
  */
@@ -332,7 +332,7 @@ function startLevel() {
  * and other mode buttons immediately; delays the clicked button's fade by MODE_BUTTON_FADE_DELAY_MS,
  * then hides the menu container, plays the liquid drain, and schedules startLevel.
  *
- * @param {string} modeId The data-mode value from the clicked button (e.g. 'pairy-picking').
+ * @param {string} modeId The data-mode value from the clicked button (e.g. 'pick-a-pair').
  * @param {HTMLElement} [clickedBtn] The mode button that was clicked; if provided, it fades after MODE_BUTTON_FADE_DELAY_MS.
  */
 function startGameFromMode(modeId, clickedBtn) {
