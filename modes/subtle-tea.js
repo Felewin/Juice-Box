@@ -13,8 +13,7 @@
  *     Fillers: apple-red, peach, beet, mango, strawberry.
  *
  *  3. Teacup submode: find the teacup among drink/cup fillers.
- *     Fillers: coffee, cup-with-straw, glass-of-milk, leaves-falling (random).
- *     Always exactly 1 teapot as filler.
+ *     Fillers: coffee, cup-with-straw, glass-of-milk (random).
  *
  *  Always starts with leaves when entering the mode; cycles each level.
  *  Leaving and re-entering resets to leaves first.
@@ -28,7 +27,7 @@
 
     const LEAVES_FILLERS = ['greens', 'cherries', 'apple-green', 'lime', 'pineapple', 'strawberry', 'pear-green', 'watermelon', 'ginger', 'carrot', 'grapes', 'mango', 'peach', 'tangerine', 'melon', 'pear-gold', 'cucumber'];
     const TEAPOT_FILLERS = ['apple-red', 'peach', 'beet', 'mango', 'strawberry'];
-    const TEACUP_FILLERS = ['unjuicable/coffee', 'unjuicable/cup-with-straw', 'unjuicable/glass-of-milk', 'leaves-falling'];
+    const TEACUP_FILLERS = ['unjuicable/coffee', 'unjuicable/cup-with-straw', 'unjuicable/glass-of-milk'];
 
     const MAX_CELLS = GRID_COLUMNS * GRID_ROWS;
 
@@ -69,19 +68,18 @@
     }
 
     /**
-     * Teacup submode: one teacup (macguffin), always 1 teapot, rest filled with
-     * random drink/cup fillers (coffee, cup-with-straw, glass-of-milk, leaves-falling).
+     * Teacup submode: one teacup (macguffin), rest filled with random drink/cup
+     * fillers (coffee, cup-with-straw, glass-of-milk).
      *
      * @returns {{ items: string[], macguffin: string }}
      */
     function generateTeacupLevel() {
         const totalCells = ACTUAL_GRID_COLUMNS * ACTUAL_GRID_ROWS;
-        if (totalCells < 2) {
-            throw new Error(`Subtle Tea teacup submode requires at least 2 cells; got ${totalCells}.`);
+        if (totalCells < 1) {
+            throw new Error(`Subtle Tea teacup submode requires at least 1 cell; got ${totalCells}.`);
         }
-        const items = fillWithRandom(totalCells - 2, TEACUP_FILLERS);
+        const items = fillWithRandom(totalCells - 1, TEACUP_FILLERS);
         items.push(TEACUP_MACGUFFIN);
-        items.push(TEAPOT_MACGUFFIN);
         return { items: shuffle(items), macguffin: TEACUP_MACGUFFIN };
     }
 
