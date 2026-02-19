@@ -145,9 +145,13 @@ MODES['pick-a-pair'] = {
         const { items, macguffin } = generateLevelForTheModeCalledPickAPair();
 
         // Clicking either macguffin wins; macguffins fade later than the rest.
+        const APPLE_SPRITES = ['apple-red', 'apple-green', 'apple-gold'];
         const checkWin = (cell) => {
             if (cell.dataset.sprite !== macguffin) return false;
-            (macguffin === 'leaves-falling' ? playRustlingLeavesSound : playSplitSound)();
+            const playSuccessSound = macguffin === 'leaves-falling' ? playRustlingLeavesSound
+                : APPLE_SPRITES.includes(macguffin) ? playAppleBiteSound
+                : playSplitSound;
+            playSuccessSound();
             playOneshot('audio/Success Jingle Plucking.mp3');
             return { macguffin, postClickedSpriteFadingPreTransitioningFadeMs: POST_CLICKEDSPRITE_FADING_PRETRANSITIONING_FADE_MS };
         };

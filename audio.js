@@ -9,13 +9,17 @@
  *  Config (which mode uses which file) lives in modes.js as MODE_BACKGROUND_MUSIC.
  *
  *  playSplitSound(): Plays a random "split" sound; used by Go Bananas, Peach Party,
- *  Pick A Pair, and Apple Of My Eye. Uses LAST_SPLIT_SOUND_REF internally
+ *  and Pick A Pair (non-apple macguffins). Uses LAST_SPLIT_SOUND_REF internally
  *  so we never repeat the same sound twice in a row, even when switching modes or levels.
+ *
+ *  playAppleBiteSound(): Plays a random Apple Bite sound; used when clicking a
+ *  successful apple sprite (Apple of my Eye, or Pick A Pair when macguffin is apple).
  * ============================================================
  */
 
 window.LAST_SPLIT_SOUND_REF = window.LAST_SPLIT_SOUND_REF || { last: null };
 window.LAST_RUSTLING_LEAVES_REF = window.LAST_RUSTLING_LEAVES_REF || { last: null };
+window.LAST_APPLE_BITE_REF = window.LAST_APPLE_BITE_REF || { last: null };
 
 const SPLIT_SOUNDS = [
     'audio/Banana Split (1).mp3',
@@ -29,8 +33,14 @@ const RUSTLING_LEAVES_SOUNDS = [
     'audio/Rustling Leaves (3).mp3'
 ];
 
+const APPLE_BITE_SOUNDS = [
+    'audio/Apple Bite (1).mp3',
+    'audio/Apple Bite (2).mp3',
+    'audio/Apple Bite (3).mp3'
+];
+
 /**
- * Play a random "split" sound (banana/peach/apple). Uses LAST_SPLIT_SOUND_REF so
+ * Play a random "split" sound (banana/peach). Uses LAST_SPLIT_SOUND_REF so
  * we never repeat the same sound twice in a row, even when switching modes or levels.
  */
 function playSplitSound() {
@@ -44,6 +54,15 @@ function playSplitSound() {
  */
 function playRustlingLeavesSound() {
     playRandomExcludingLast(RUSTLING_LEAVES_SOUNDS, LAST_RUSTLING_LEAVES_REF);
+}
+
+/**
+ * Play a random Apple Bite sound. Uses LAST_APPLE_BITE_REF so we never repeat
+ * the same sound twice in a row. Used when clicking a successful apple sprite
+ * (e.g. Apple of my Eye, or Pick A Pair when the macguffin is an apple).
+ */
+function playAppleBiteSound() {
+    playRandomExcludingLast(APPLE_BITE_SOUNDS, LAST_APPLE_BITE_REF);
 }
 
 /**
