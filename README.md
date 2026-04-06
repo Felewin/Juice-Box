@@ -2,9 +2,16 @@
 
 A browser-based sprite-matching game.
 
+## Tech stack
+
+🌐 HTML5  
+⚡ vanilla JavaScript  
+🎨 CSS  
+🔤 Google Fonts: Cherry Bomb One  
+
 ## Deploy (GitHub Pages)
 
-The site deploys via **GitHub Actions** when you push to `main`. No local build step needed.
+The site deploys via **GitHub Actions** when pushed to `main`. No local build step needed.
 
 **Cache busting:** On each deploy, `scripts/inject-version.cjs` runs and injects the current git commit hash (short) into `version.js` and `index.html`. Bootstrap scripts (`version.js`, `loader.js`) and all other assets (CSS, JS, sprites, audio) load with `?v=<hash>`, so browsers fetch fresh files after every deploy.
 
