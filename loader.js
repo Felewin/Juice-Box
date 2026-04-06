@@ -8,7 +8,7 @@
  *  Flow: index.html loads version.js and loader.js with ?v=<hash> (injected at deploy).
  *  version.js defines CACHE_BUST → loader.js runs → injects <link> and <script> tags
  *  with ?v=CACHE_BUST → scripts run in order via onload
- *  chaining → when done, cache-busts static images (tab icon, apple-touch-icon,
+ *  chaining → when done, cache-busts static images (favicon / tab icon, apple-touch-icon,
  *  manifest, mode icons, juicebox button image).
  *
  *  Add new modes: push path to SCRIPTS before app.js.
@@ -54,7 +54,7 @@
             /* All scripts loaded. Add ?v= to static img/link in HTML (Juice Box button image, mode icons). */
             if (typeof withCacheBust === 'function') {
                 document.querySelectorAll('link[rel="icon"]').forEach(function (el) {
-                    var raw = el.getAttribute('href') || 'app-icon.png';
+                    var raw = el.getAttribute('href') || 'sprites/juice-box.png';
                     var path = raw.split('?')[0];
                     el.href = withCacheBust(path);
                 });

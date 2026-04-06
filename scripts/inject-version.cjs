@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
  * Injects the current git commit hash into version.js, index.html, and manifest.json
- * so bootstrap assets, PWA manifest (and its icons), tab/home-screen icons, and
+ * so bootstrap assets, PWA manifest (and its icons), favicon + apple-touch links, and
  * Open Graph / Twitter preview image URLs refetch after deploy.
  * Called by .github/workflows/deploy.yml during deploy.
  */
@@ -26,6 +26,7 @@ let html = readFileSync('index.html', 'utf8');
 html = html.replace(/src="(version\.js)(?:\?v=[^"]*)?"/, `src="$1?v=${hash}"`);
 html = html.replace(/src="(loader\.js)(?:\?v=[^"]*)?"/, `src="$1?v=${hash}"`);
 html = html.replace(/href="(manifest\.json)(?:\?v=[^"]*)?"/, `href="$1?v=${hash}"`);
+html = html.replace(/href="(sprites\/juice-box\.png)(?:\?v=[^"]*)?"/, `href="$1?v=${hash}"`);
 html = html.replace(/href="(app-icon\.png)(?:\?v=[^"]*)?"/g, `href="$1?v=${hash}"`);
 html = html.replace(
   /content="(https:\/\/juiceboxgame\.com\/link-preview\.png)(?:\?v=[a-f0-9A-F]+)?"/gi,
