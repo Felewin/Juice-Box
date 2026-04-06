@@ -63,13 +63,13 @@
         return Math.random() * Math.PI * 2;
     }
 
-    /* All sprites except leaves-falling and blueberries, plus juicebox, beachball, teapot, thong-sandal.
-       Beachball and thong-sandal appear once (half as common); juicebox appears 4× (twice as common). */
+    /* All sprites except leaves-falling and blueberries, plus juice-box, beachball, teapot, thong-sandal.
+       Beachball and thong-sandal appear once (half as common); juice-box appears 4× (twice as common). */
     const baseSprites = [
         ...ALL_SPRITES.filter((s) => s !== 'leaves-falling' && s !== 'blueberries'),
-        'juicebox', 'unjuicable/teapot'
+        'juice-box', 'unjuicable/teapot'
     ];
-    const FLYING_SPRITES = [...baseSprites, ...baseSprites, 'unjuicable/beachball', 'unjuicable/thong-sandal', 'juicebox', 'juicebox'];
+    const FLYING_SPRITES = [...baseSprites, ...baseSprites, 'unjuicable/beachball', 'unjuicable/thong-sandal', 'juice-box', 'juice-box'];
 
     function randomSprite() {
         return FLYING_SPRITES[Math.floor(Math.random() * FLYING_SPRITES.length)];
@@ -83,7 +83,7 @@
     function spawnSprite() {
         const el = document.createElement('img');
         const spriteName = randomSprite();
-        el.src = spriteName === 'juicebox' ? withCacheBust('favicon.png') : spriteSrc(spriteName);
+        el.src = spriteSrc(spriteName);
         el.alt = '';
         el.draggable = false;
         el.style.position = 'absolute';

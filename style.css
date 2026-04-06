@@ -404,7 +404,7 @@ body {
 
 /* ---- Juice Box button ----
    Positioned in top-left corner, half the size of sprites.
-   Uses favicon.png and animates on mouse hover (same as sprites). */
+   Uses sprites/juice-box.png and animates on mouse hover (same as sprites). */
 #juicebox-button {
     position: fixed;
     top: calc(var(--cell-size) / 4);

@@ -4,15 +4,34 @@
     <meta charset="UTF-8">
     <!-- Make the page responsive on mobile; disable pinch-to-zoom so the game feels app-like -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    
+    <meta name="description" content="Practice supersight! Discover and match sprites. A juicy, accessible experience.">
+
+    <!-- Link preview (Open Graph) — sharing https://juiceboxgame.com/ -->
+    <meta property="og:title" content="Juice Box">
+    <meta property="og:description" content="Practice supersight! Discover and match sprites. A juicy, accessible experience.">
+    <meta property="og:image" content="https://juiceboxgame.com/link-preview.png">
+    <meta property="og:url" content="https://juiceboxgame.com/">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="Juice Box">
+
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Juice Box">
+    <meta name="twitter:description" content="Practice supersight! Discover and match sprites. A juicy, accessible experience.">
+    <meta name="twitter:image" content="https://juiceboxgame.com/link-preview.png">
+
+    <meta name="theme-color" content="#FFB3BA">
+    <link rel="canonical" href="https://juiceboxgame.com/">
+
     <!-- Disable caching: ensure changes propagate immediately on GitHub Pages -->
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    
+
     <title>Juice Box</title>
-    <!-- Favicon: cache-busted by loader.js after scripts load -->
-    <link rel="icon" href="favicon.png" type="image/png">
+    <!-- Tab + home-screen icon (same asset as manifest): cache-busted by loader.js after scripts load -->
+    <link rel="icon" href="app-icon.png" type="image/png">
+    <link rel="apple-touch-icon" href="app-icon.png">
+    <link rel="manifest" href="manifest.json">
     <!-- Google Fonts: Cherry Bomb One (used throughout the app) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -81,7 +100,7 @@
         Positioned in top-left corner, half the size of sprites.
     -->
     <button id="juicebox-button" aria-label="Juice Box">
-        <img src="favicon.png" alt="Juice Box">
+        <img src="sprites/juice-box.png" alt="Juice Box">
     </button>
 
     <!--

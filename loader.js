@@ -8,7 +8,8 @@
  *  Flow: index.html loads version.js and loader.js with ?v=<hash> (injected at deploy).
  *  version.js defines CACHE_BUST → loader.js runs → injects <link> and <script> tags
  *  with ?v=CACHE_BUST → scripts run in order via onload
- *  chaining → when done, cache-busts static images (favicon, mode icons).
+ *  chaining → when done, cache-busts static images (tab icon, apple-touch-icon,
+ *  manifest, mode icons, juicebox button image).
  *
  *  Add new modes: push path to SCRIPTS before app.js.
  * ============================================================
@@ -50,10 +51,22 @@
 
     function loadScript(i) {
         if (i >= SCRIPTS.length) {
-            /* All scripts loaded. Add ?v= to static img/link in HTML (favicon, mode icons). */
+            /* All scripts loaded. Add ?v= to static img/link in HTML (Juice Box button image, mode icons). */
             if (typeof withCacheBust === 'function') {
                 document.querySelectorAll('link[rel="icon"]').forEach(function (el) {
-                    el.href = withCacheBust('favicon.png');
+                    var raw = el.getAttribute('href') || 'app-icon.png';
+                    var path = raw.split('?')[0];
+                    el.href = withCacheBust(path);
+                });
+                document.querySelectorAll('link[rel="apple-touch-icon"]').forEach(function (el) {
+                    var raw = el.getAttribute('href') || 'app-icon.png';
+                    var path = raw.split('?')[0];
+                    el.href = withCacheBust(path);
+                });
+                document.querySelectorAll('link[rel="manifest"]').forEach(function (el) {
+                    var raw = el.getAttribute('href') || 'manifest.json';
+                    var path = raw.split('?')[0];
+                    el.href = withCacheBust(path);
                 });
                 document.querySelectorAll('.mode-btn-icon, #juicebox-button img').forEach(function (img) {
                     var src = img.getAttribute('src');
